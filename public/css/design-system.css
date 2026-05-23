@@ -1,0 +1,136 @@
+:root {
+  /* Colors */
+  --surface: #f8f9fb;
+  --surface-container-low: #f3f4f6;
+  --surface-container: #edeef0;
+  --on-surface: #191c1e;
+  --primary: #2563eb; /* Accent Blue from DESIGN.md */
+  --primary-text: #ffffff;
+  --border: #e5e7eb;
+  
+  /* Status Colors */
+  --status-draft: #9ca3af;
+  --status-reserved: #f59e0b;
+  --status-paid: #10b981;
+  --status-boarded: #3b82f6;
+  --status-cancelled: #ef4444;
+
+  /* Typography */
+  --font-family: 'Inter', sans-serif;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-lg: 18px;
+  --text-xl: 24px;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+
+  /* Radii */
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem; /* 4px */
+  --radius-lg: 0.5rem; /* 8px */
+  --radius-full: 9999px;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--surface-container-low);
+  color: var(--on-surface);
+  font-size: var(--text-md);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Base styles for shell */
+.topbar {
+  height: 48px;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-md);
+}
+
+.main-content {
+  padding: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Card Trello-style */
+.card {
+  background-color: #ffffff;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: var(--spacing-md);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--primary-text);
+}
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
+.btn-secondary {
+  background-color: #ffffff;
+  border-color: var(--border);
+  color: #4b5563;
+}
+.btn-secondary:hover {
+  background-color: var(--surface-container-low);
+}
+
+/* Input Fields */
+.form-input {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.form-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+.form-label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
+  color: #374151;
+}
+
+/* Utilities */
+.mb-4 { margin-bottom: var(--spacing-md); }
+.mt-4 { margin-top: var(--spacing-md); }
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.justify-between { justify-content: space-between; }
+.items-center { align-items: center; }
+.w-full { width: 100%; }
+.text-center { text-align: center; }
+.gap-4 { gap: 16px; }

@@ -2,11 +2,12 @@
 
 namespace App\Controllers\Web;
 
+use App\Models\UserModel;
+
 class AuthController extends BaseWebController
 {
     public function index()
     {
-        // Si deja connecte, ouvrir directement les reservations.
         if (session()->get('access_token')) {
             return redirect()->to('/reservations');
         }
@@ -16,40 +17,46 @@ class AuthController extends BaseWebController
 
     public function login()
     {
-        $username = $this->request->getPost('username');
-        $password = $this->request->getPost('password');
+        $username = trim((string) $this->request->getPost('username'));
+        $password = (string) $this->request->getPost('password');
 
-        // Appel de l'API interne
-        $response = $this->api->post('auth/login', [
-            'username' => $username,
-            'password' => $password
-        ]);
-
-        if ($response && isset($response['success']) && $response['success'] === true) {
-            // Connexion réussie, stocker les infos en session
-            session()->set('access_token', $response['data']['token']['access_token']);
-            session()->set('refresh_token', $response['data']['token']['refresh_token']);
-            session()->set('user', $response['data']['user']);
-
-            return redirect()->to('/reservations');
-        } else {
-            // Echec de connexion
-            $errorMsg = (is_array($response) && isset($response['message'])) ? $response['message'] : 'Identifiants invalides ou erreur de communication avec le serveur (Timeout).';
-            return redirect()->back()->with('error', $errorMsg);
+        if ($username === '' || $password === '') {
+            return redirect()->back()->with('error', 'Identifiants requis.');
         }
+
+        $userModel = new UserModel();
+        $user = $userModel->findActiveByUsername($username);
+
+        if ($user === null || ! password_verify($password, (string) $user['mot_de_passe'])) {
+            return redirect()->back()->with('error', 'Identifiants invalides.');
+        }
+
+        $userModel->touchLastConnected((int) $user['id_utilisateur']);
+
+        $jwt = service('jwtService');
+        $token = $jwt->createTokenPair(
+            $user,
+            $this->request->getUserAgent()->getAgentString(),
+            $this->request->getIPAddress()
+        );
+
+        session()->set('access_token', $token['access_token']);
+        session()->set('refresh_token', $token['refresh_token']);
+        session()->set('user', $jwt->publicUser($user));
+
+        return redirect()->to('/reservations');
     }
 
     public function logout()
     {
         $refreshToken = session()->get('refresh_token');
+
         if ($refreshToken) {
-            // Appel de l'API interne pour révoquer le token
-            $this->api->post('auth/logout', [
-                'refresh_token' => $refreshToken
-            ]);
+            service('jwtService')->revokeRefreshToken((string) $refreshToken);
         }
 
         session()->destroy();
+
         return redirect()->to('/');
     }
 
@@ -68,11 +75,13 @@ class AuthController extends BaseWebController
                 ]);
         }
 
-        $response = $this->api->post('auth/refresh', [
-            'refresh_token' => $refreshToken,
-        ]);
+        $response = service('jwtService')->refresh(
+            (string) $refreshToken,
+            $this->request->getUserAgent()->getAgentString(),
+            $this->request->getIPAddress()
+        );
 
-        if (($response['success'] ?? false) !== true) {
+        if ($response === null) {
             session()->destroy();
 
             return $this->response
@@ -85,16 +94,16 @@ class AuthController extends BaseWebController
                 ]);
         }
 
-        session()->set('access_token', $response['data']['token']['access_token']);
-        session()->set('refresh_token', $response['data']['token']['refresh_token']);
-        session()->set('user', $response['data']['user']);
+        session()->set('access_token', $response['token']['access_token']);
+        session()->set('refresh_token', $response['token']['refresh_token']);
+        session()->set('user', $response['user']);
 
         return $this->response
             ->setJSON([
                 'success' => true,
                 'message' => 'Session renouvelee.',
                 'data' => [
-                    'access_token' => $response['data']['token']['access_token'],
+                    'access_token' => $response['token']['access_token'],
                 ],
                 'errors' => null,
             ]);

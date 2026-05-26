@@ -8,7 +8,6 @@ use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
-use App\Libraries\ApiClient;
 
 abstract class BaseWebController extends Controller
 {
@@ -28,8 +27,6 @@ abstract class BaseWebController extends Controller
      */
     protected $helpers = ['url', 'form'];
 
-    protected ApiClient $api;
-
     /**
      * Constructor.
      */
@@ -42,8 +39,15 @@ abstract class BaseWebController extends Controller
         
         // Ensure session is started
         \Config\Services::session();
-        
-        // Initialize the internal API Client
-        $this->api = new ApiClient();
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    protected function currentWebUser(): ?array
+    {
+        $user = session()->get('user');
+
+        return is_array($user) ? $user : null;
     }
 }

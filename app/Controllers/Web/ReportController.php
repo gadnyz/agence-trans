@@ -49,21 +49,21 @@ class ReportController extends BaseWebController
             return redirect()->to('/');
         }
 
-        $meResponse = $this->api->get('auth/me');
+        $user = $this->currentWebUser();
 
-        if (! $meResponse || ($meResponse['success'] ?? false) === false) {
+        if ($user === null) {
             session()->destroy();
 
             return redirect()->to('/')->with('error', 'Session expirée, veuillez vous reconnecter.');
         }
 
-        $permissions = $meResponse['data']['permissions'] ?? [];
+        $permissions = $user['permissions'] ?? [];
 
         if (! in_array('*', $permissions, true) && ! in_array('reports.read', $permissions, true)) {
             return redirect()->to('/reservations')->with('error', 'Accès aux rapports non autorisé.');
         }
 
-        return $meResponse;
+        return ['data' => $user];
     }
 
     /**

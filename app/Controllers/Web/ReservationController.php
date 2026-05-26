@@ -70,15 +70,15 @@ class ReservationController extends BaseWebController
             return redirect()->to('/');
         }
 
-        $meResponse = $this->api->get('auth/me');
+        $user = $this->currentWebUser();
 
-        if (! $meResponse || ($meResponse['success'] ?? false) === false) {
+        if ($user === null) {
             session()->destroy();
 
             return redirect()->to('/')->with('error', 'Session expiree, veuillez vous reconnecter.');
         }
 
-        return $meResponse;
+        return ['data' => $user];
     }
 
     private function printSessionGuard()

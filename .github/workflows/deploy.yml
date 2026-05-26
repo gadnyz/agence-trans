@@ -1,0 +1,92 @@
+name: Deploy Kashala Trans to LWS subdomain
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  ftp-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      REMOTE_SUBDOMAIN_DIR: ./kashala-trans.ashurahouse.com/
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: intl, mbstring, mysqli, json, curl
+          tools: composer:v2
+          coverage: none
+
+      - name: Install production dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+
+      - name: Prepare deployment package
+        run: |
+          rm -rf .deploy
+          mkdir -p .deploy/public .deploy/home
+
+          rsync -a public/ .deploy/public/
+          sed -i "s#require FCPATH . '../app/Config/Paths.php';#require FCPATH . 'home/app/Config/Paths.php';#" .deploy/public/index.php
+
+          rsync -a app/ .deploy/home/app/
+          rsync -a vendor/ .deploy/home/vendor/
+          rsync -a writable/ .deploy/home/writable/
+
+          cp composer.json composer.lock spark preload.php .deploy/home/
+
+          mkdir -p .deploy/home/writable/cache \
+            .deploy/home/writable/debugbar \
+            .deploy/home/writable/logs \
+            .deploy/home/writable/session \
+            .deploy/home/writable/uploads
+
+          find .deploy/home/writable/cache -type f ! -name index.html -delete
+          find .deploy/home/writable/debugbar -type f ! -name index.html -delete
+          find .deploy/home/writable/logs -type f ! -name index.html -delete
+          find .deploy/home/writable/session -type f ! -name index.html -delete
+          find .deploy/home/writable/uploads -type f ! -name index.html -delete
+
+      - name: Deploy subdomain web root
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          protocol: ftp
+          local-dir: ./.deploy/public/
+          server-dir: ${{ env.REMOTE_SUBDOMAIN_DIR }}
+          state-name: .ftp-deploy-sync-state-public.json
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/.env
+
+      - name: Deploy subdomain backend
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          protocol: ftp
+          local-dir: ./.deploy/home/
+          server-dir: ${{ env.REMOTE_SUBDOMAIN_DIR }}home/
+          state-name: .ftp-deploy-sync-state-home.json
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/.env
+            **/writable/cache/**
+            **/writable/debugbar/**
+            **/writable/logs/**
+            **/writable/session/**
+            **/writable/uploads/**

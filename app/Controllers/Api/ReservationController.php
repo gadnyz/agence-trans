@@ -16,9 +16,7 @@ class ReservationController extends BaseApiController
         $date = trim((string) $this->request->getGet('date'));
 
         if (! $this->isDate($date)) {
-            return $this->failure('Date invalide.', ResponseInterface::HTTP_BAD_REQUEST, [
-                'date' => 'La date doit etre au format YYYY-MM-DD.',
-            ]);
+            return $this->invalidDateResponse();
         }
 
         $rows = $this->programmeBuilder()
@@ -28,6 +26,34 @@ class ReservationController extends BaseApiController
             ->orderBy('h.heure_depart', 'asc')
             ->get()
             ->getResultArray();
+
+        return $this->success([
+            'items' => $rows,
+        ]);
+    }
+
+    public function programmesManifestes(): ResponseInterface
+    {
+        $date = trim((string) $this->request->getGet('date'));
+
+        if (! $this->isDate($date)) {
+            return $this->invalidDateResponse();
+        }
+
+        $rows = $this->programmeBuilder()
+            ->where('p.date_programme', $date)
+            ->orderBy('h.heure_depart', 'asc')
+            ->get()
+            ->getResultArray();
+
+        foreach ($rows as &$row) {
+            $row['places_disponibles'] = max(0, (int) ($row['places_disponibles'] ?? 0));
+            $row['nombre_places'] = (int) ($row['nombre_places'] ?? 0);
+            $row['places_occupees'] = max(0, $row['nombre_places'] - $row['places_disponibles']);
+            $row['is_complet'] = $row['places_disponibles'] <= 0;
+            $row['manifeste_url'] = base_url('programmes/' . (int) $row['id_programme'] . '/manifeste');
+        }
+        unset($row);
 
         return $this->success([
             'items' => $rows,
@@ -390,12 +416,12 @@ class ReservationController extends BaseApiController
         ];
     }
 
-    private function validatedLieuReservation(array $payload, array $programme): int|false
+    private function validatedLieuReservation(array $payload, array $programme): int|false|null
     {
         $idLieu = (int) ($payload['id_lieu_reservation'] ?? 0);
 
         if ($idLieu <= 0) {
-            return (int) $programme['id_lieu_arrivee'];
+            return null;
         }
 
         $exists = db_connect()
@@ -544,6 +570,13 @@ class ReservationController extends BaseApiController
         $value = DateTimeImmutable::createFromFormat('Y-m-d', $date);
 
         return $value !== false && $value->format('Y-m-d') === $date;
+    }
+
+    private function invalidDateResponse(): ResponseInterface
+    {
+        return $this->failure('Date invalide.', ResponseInterface::HTTP_BAD_REQUEST, [
+            'date' => 'La date doit etre au format YYYY-MM-DD.',
+        ]);
     }
 
     private function databaseFailure(Throwable $e): ResponseInterface

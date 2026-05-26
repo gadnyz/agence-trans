@@ -129,14 +129,12 @@
                 <th>Arrêt</th>
                 <th>Places</th>
                 <th>Référence</th>
-                <th>Statut</th>
-                <th>Agent</th>
             </tr>
         </thead>
         <tbody>
             <?php if ($reservations === []): ?>
                 <tr>
-                    <td colspan="7">Aucun passager enregistré pour ce programme.</td>
+                    <td colspan="5">Aucun passager enregistré pour ce programme.</td>
                 </tr>
             <?php endif; ?>
             <?php foreach ($reservations as $index => $reservation): ?>
@@ -146,8 +144,6 @@
                     <td><?= esc($reservation['lieu_reservation'] ?: $reservation['lieu_arrivee']) ?></td>
                     <td><?= esc($reservation['nombre_places']) ?></td>
                     <td><?= esc($reservation['reference_reservation']) ?></td>
-                    <td><?= esc($reservation['statut_reservation']) ?></td>
-                    <td><?= esc($reservation['created_by_username'] ?? '-') ?></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

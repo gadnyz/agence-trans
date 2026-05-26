@@ -156,7 +156,8 @@
             </section>
             <section class="bg-white border border-outline-variant rounded custom-shadow overflow-hidden">
                 <div class="px-md py-sm border-b border-outline-variant bg-surface-container-lowest">
-                    <h3 class="font-h2 text-h2">Programmes du jour</h3>
+                    <h3 class="font-h2 text-h2">Programmes et manifestes</h3>
+                    <p class="text-body-sm text-on-surface-variant">Inclut les programmes complets.</p>
                 </div>
                 <div id="programme-list" class="divide-y divide-outline-variant text-body-sm"></div>
             </section>
@@ -171,6 +172,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         let token = <?= json_encode((string) ($api_token ?? ''), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
         let programmes = [];
+        let programmeManifestes = [];
         let selectedProgramme = null;
 
         const form = document.getElementById('reservation-form');
@@ -304,21 +306,35 @@
             const list = document.getElementById('programme-list');
             list.innerHTML = '';
 
-            if (programmes.length === 0) {
-                list.innerHTML = '<div class="p-md text-on-surface-variant">Aucun programme disponible pour cette date.</div>';
+            if (programmeManifestes.length === 0) {
+                list.innerHTML = '<div class="p-md text-on-surface-variant">Aucun programme planifié pour cette date.</div>';
                 return;
             }
 
-            programmes.forEach((programme) => {
-                const item = document.createElement('button');
-                item.type = 'button';
-                item.className = 'w-full text-left p-md hover:bg-surface-container-low transition-colors';
+            programmeManifestes.forEach((programme) => {
+                const placesDisponibles = Number(programme.places_disponibles || 0);
+                const capacite = Number(programme.nombre_places || 0);
+                const isComplet = placesDisponibles <= 0;
+                const canReserve = !isComplet && programmes.some((item) => String(item.id_programme) === String(programme.id_programme));
+                const badgeLabel = isComplet ? 'Complet' : (canReserve ? 'Disponible' : (programme.statut || 'Indisponible'));
+                const manifestUrl = programme.manifeste_url || `<?= base_url('programmes') ?>/${programme.id_programme}/manifeste`;
+                const item = document.createElement('div');
+                item.className = `p-md ${isComplet ? 'bg-red-50' : 'hover:bg-surface-container-low'} transition-colors`;
                 item.innerHTML = `
-                    <strong class="block text-on-surface">${programme.lieu_depart} - ${programme.lieu_arrivee}</strong>
-                    <span class="block text-on-surface-variant">${String(programme.heure_depart).slice(0, 5)} | ${programme.numero_plaque}</span>
-                    <span class="block text-on-surface-variant">${programme.places_disponibles} places | ${formatMoney(programme.prix, programme)}</span>
+                    <div class="flex items-start justify-between gap-sm">
+                        <div>
+                            <strong class="block text-on-surface">${programme.lieu_depart} - ${programme.lieu_arrivee}</strong>
+                            <span class="block text-on-surface-variant">${String(programme.heure_depart).slice(0, 5)} | ${programme.numero_plaque}</span>
+                            <span class="block ${isComplet ? 'text-red-700' : 'text-on-surface-variant'}">${placesDisponibles} place(s) disponible(s)${capacite ? ' / ' + capacite : ''}</span>
+                        </div>
+                        <span class="shrink-0 text-[11px] px-xs py-[2px] rounded ${canReserve ? 'bg-emerald-50 text-emerald-700' : 'bg-red-100 text-red-800'}">${badgeLabel}</span>
+                    </div>
+                    <div class="flex gap-sm mt-sm">
+                        ${canReserve ? '<button type="button" data-action="select" class="h-8 px-sm bg-white border border-outline-variant rounded text-secondary hover:bg-surface-container-highest">Réserver</button>' : ''}
+                        <a class="h-8 px-sm bg-[#2563EB] text-white rounded flex items-center" href="${manifestUrl}" target="_blank">Manifeste</a>
+                    </div>
                 `;
-                item.addEventListener('click', () => {
+                item.querySelector('[data-action="select"]')?.addEventListener('click', () => {
                     programmeSelect.value = programme.id_programme;
                     programmeSelect.dispatchEvent(new Event('change'));
                 });
@@ -326,11 +342,28 @@
             });
         };
 
+        const loadProgrammeManifestes = async () => {
+            const url = new URL('<?= base_url('api/reservations/programmes-manifestes') ?>');
+            url.searchParams.set('date', dateInput.value);
+
+            const response = await apiFetch(url);
+            const json = await response.json();
+
+            if (!response.ok || json.success === false) {
+                throw new Error(json.message || 'Chargement des manifestes impossible.');
+            }
+
+            programmeManifestes = json.data.items || [];
+            renderProgrammeList();
+        };
+
         const loadProgrammes = async () => {
             clearFormErrors();
             selectedProgramme = null;
+            programmeManifestes = [];
             programmeSelect.innerHTML = '<option value="">Chargement...</option>';
             arretSelect.innerHTML = '<option value="">Terminus destination</option>';
+            document.getElementById('programme-list').innerHTML = '<div class="p-md text-on-surface-variant">Chargement des programmes...</div>';
             updateSummary();
 
             const url = new URL('<?= base_url('api/reservations/programmes') ?>');
@@ -353,9 +386,10 @@
                     option.textContent = `${String(programme.heure_depart).slice(0, 5)} | ${programme.lieu_depart} - ${programme.lieu_arrivee} | ${programme.numero_plaque} | ${programme.places_disponibles} places`;
                     programmeSelect.appendChild(option);
                 });
-                renderProgrammeList();
+                await loadProgrammeManifestes();
             } catch (error) {
                 programmes = [];
+                programmeManifestes = [];
                 programmeSelect.innerHTML = '<option value="">Aucun programme</option>';
                 renderProgrammeList();
                 showPageAlert(error.message, 'error');

@@ -50,6 +50,9 @@ $routes->group('api', static function (RouteCollection $routes): void {
         $routes->get('reservations/programmes', 'Api\ReservationController::programmesDisponibles', [
             'filter' => 'permission:reservations.manage',
         ]);
+        $routes->get('reservations/programmes-manifestes', 'Api\ReservationController::programmesManifestes', [
+            'filter' => 'permission:reservations.manage',
+        ]);
         $routes->get('reservations/programmes/(:num)/arrets', 'Api\ReservationController::arretsProgramme/$1', [
             'filter' => 'permission:reservations.manage',
         ]);

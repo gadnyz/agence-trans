@@ -15,6 +15,11 @@ class ReportController extends BaseWebController
         }
 
         $filters = $this->filters();
+        $perPage = $this->perPage();
+        $page = max(1, (int) ($this->request->getGet('page') ?? 1));
+        $totalReservations = $this->reservationDetailsTotal($filters);
+        $totalPages = max(1, (int) ceil($totalReservations / $perPage));
+        $page = min($page, $totalPages);
 
         return view('web/pages/rapports', [
             'title' => 'Rapports',
@@ -25,7 +30,15 @@ class ReportController extends BaseWebController
             'options' => $this->filterOptions(),
             'summary' => $this->summary($filters),
             'details' => [
-                'reservations' => $this->reservationDetails($filters),
+                'reservations' => $this->reservationDetails($filters, $page, $perPage),
+            ],
+            'pagination' => [
+                'page' => $page,
+                'per_page' => $perPage,
+                'total' => $totalReservations,
+                'total_pages' => $totalPages,
+                'from' => $totalReservations === 0 ? 0 : (($page - 1) * $perPage) + 1,
+                'to' => min($totalReservations, $page * $perPage),
             ],
         ]);
     }
@@ -74,18 +87,11 @@ class ReportController extends BaseWebController
             [$dateDebut, $dateFin] = [$dateFin, $dateDebut];
         }
 
-        $dateSource = (string) ($this->request->getGet('date_source') ?: 'reservation');
-
         return [
             'date_debut' => $dateDebut,
             'date_fin' => $dateFin,
-            'date_source' => in_array($dateSource, ['reservation', 'programme'], true) ? $dateSource : 'reservation',
-            'id_mode_paiement' => $this->positiveInt('id_mode_paiement'),
-            'id_client' => $this->positiveInt('id_client'),
-            'id_conducteur' => $this->positiveInt('id_conducteur'),
             'id_trajet' => $this->positiveInt('id_trajet'),
-            'id_programme' => $this->positiveInt('id_programme'),
-            'id_bus' => $this->positiveInt('id_bus'),
+            'id_agent' => $this->positiveInt('id_agent'),
         ];
     }
 
@@ -95,10 +101,6 @@ class ReportController extends BaseWebController
     private function filterOptions(): array
     {
         return [
-            'modesPaiement' => db_connect()->table('mode_paiement')->where('deleted_at', null)->orderBy('libelle')->get()->getResultArray(),
-            'clients' => db_connect()->table('client')->where('deleted_at', null)->orderBy('nom')->limit(300)->get()->getResultArray(),
-            'conducteurs' => db_connect()->table('conducteur')->where('deleted_at', null)->orderBy('nom')->get()->getResultArray(),
-            'bus' => db_connect()->table('bus')->where('deleted_at', null)->orderBy('numero_plaque')->get()->getResultArray(),
             'trajets' => db_connect()
                 ->table('trajet t')
                 ->select('t.id_trajet, ld.nom_lieu AS lieu_depart, la.nom_lieu AS lieu_arrivee, h.heure_depart, h.heure_arrivee')
@@ -109,17 +111,11 @@ class ReportController extends BaseWebController
                 ->orderBy('ld.nom_lieu')
                 ->get()
                 ->getResultArray(),
-            'programmes' => db_connect()
-                ->table('programme p')
-                ->select('p.id_programme, p.date_programme, ld.nom_lieu AS lieu_depart, la.nom_lieu AS lieu_arrivee, h.heure_depart, b.numero_plaque')
-                ->join('trajet t', 't.id_trajet = p.id_trajet')
-                ->join('lieu ld', 'ld.id_lieu = t.id_lieu_depart')
-                ->join('lieu la', 'la.id_lieu = t.id_lieu_arrivee')
-                ->join('horaire h', 'h.id_horaire = t.id_horaire')
-                ->join('bus b', 'b.id_bus = p.id_bus')
-                ->where('p.deleted_at', null)
-                ->orderBy('p.date_programme', 'desc')
-                ->limit(300)
+            'agents' => db_connect()
+                ->table('utilisateur')
+                ->select('id_utilisateur, username, nom, postnom, prenom')
+                ->where('deleted_at', null)
+                ->orderBy('username', 'asc')
                 ->get()
                 ->getResultArray(),
         ];
@@ -137,7 +133,6 @@ class ReportController extends BaseWebController
                 'COUNT(DISTINCT p.id_programme) AS courses',
                 'COUNT(DISTINCT p.id_bus) AS bus',
                 'COUNT(DISTINCT p.id_conducteur) AS conducteurs',
-                'COALESCE(SUM(r.montant_final), 0) AS montant_reservations',
                 'COALESCE(SUM(r.nombre_places), 0) AS sieges',
             ])
             ->get()
@@ -165,7 +160,6 @@ class ReportController extends BaseWebController
             'bus' => (int) ($reservation['bus'] ?? 0),
             'conducteurs' => (int) ($reservation['conducteurs'] ?? 0),
             'sieges' => (int) ($reservation['sieges'] ?? 0),
-            'montant_reservations' => (float) ($reservation['montant_reservations'] ?? 0),
             'encaissements' => (float) ($payments['encaissements'] ?? 0),
             'paiements' => (int) ($payments['paiements'] ?? 0),
         ];
@@ -367,7 +361,7 @@ class ReportController extends BaseWebController
     /**
      * @return list<array<string, mixed>>
      */
-    private function reservationDetails(array $filters): array
+    private function reservationDetails(array $filters, int $page, int $perPage): array
     {
         $paidExpression = 'COALESCE(SUM(CASE WHEN pa.statut_paiement = "Valide" THEN pa.montant_paye ELSE 0 END), 0)';
 
@@ -383,7 +377,6 @@ class ReportController extends BaseWebController
                 'cl.nom AS client',
                 'cl.telephone',
                 'r.nombre_places',
-                'r.montant_final',
                 $paidExpression . ' AS montant_paye',
                 'GROUP_CONCAT(DISTINCT mp.libelle ORDER BY mp.libelle SEPARATOR ", ") AS modes_paiement',
                 'sr.libelle AS statut_reservation',
@@ -393,11 +386,22 @@ class ReportController extends BaseWebController
             ], false)
             ->join('mode_paiement mp', 'mp.id_mode_paiement = pa.id_mode_paiement', 'left')
             ->join('utilisateur u', 'u.id_utilisateur = r.created_by', 'left')
-            ->groupBy('r.id_reservation, r.reference_reservation, r.date_reservation, p.id_programme, p.date_programme, ld.nom_lieu, la.nom_lieu, h.heure_depart, cl.nom, cl.telephone, r.nombre_places, r.montant_final, sr.libelle, b.numero_plaque, cond.nom, cond.postnom, cond.prenom, u.username', false)
+            ->groupBy('r.id_reservation, r.reference_reservation, r.date_reservation, p.id_programme, p.date_programme, ld.nom_lieu, la.nom_lieu, h.heure_depart, cl.nom, cl.telephone, r.nombre_places, sr.libelle, b.numero_plaque, cond.nom, cond.postnom, cond.prenom, u.username', false)
             ->orderBy('r.date_reservation', 'desc')
-            ->limit(150)
+            ->orderBy('r.id_reservation', 'desc')
+            ->limit($perPage, ($page - 1) * $perPage)
             ->get()
             ->getResultArray();
+    }
+
+    private function reservationDetailsTotal(array $filters): int
+    {
+        $row = $this->baseReservationBuilder($filters, false)
+            ->select('COUNT(DISTINCT r.id_reservation) AS total')
+            ->get()
+            ->getRowArray();
+
+        return (int) ($row['total'] ?? 0);
     }
 
     /**
@@ -527,11 +531,11 @@ class ReportController extends BaseWebController
             ->where('p.deleted_at', null)
             ->where('sr.libelle !=', 'ANNULE');
 
-        if ($joinPayments || $filters['id_mode_paiement']) {
+        if ($joinPayments) {
             $builder->join('paiement pa', 'pa.id_reservation = r.id_reservation AND pa.deleted_at IS NULL', 'left');
         }
 
-        return $this->applyFilters($builder, $filters, $joinPayments || $filters['id_mode_paiement']);
+        return $this->applyFilters($builder, $filters);
     }
 
     private function basePaymentBuilder(array $filters): BaseBuilder
@@ -551,32 +555,32 @@ class ReportController extends BaseWebController
             ->where('sr.libelle !=', 'ANNULE')
             ->where('pa.statut_paiement', 'Valide');
 
-        return $this->applyFilters($builder, $filters, true, 'pa.date_paiement');
+        return $this->applyFilters($builder, $filters);
     }
 
-    private function applyFilters(BaseBuilder $builder, array $filters, bool $hasPaymentJoin, ?string $forcedDateField = null): BaseBuilder
+    private function applyFilters(BaseBuilder $builder, array $filters): BaseBuilder
     {
-        $dateField = $forcedDateField ?? ($filters['date_source'] === 'programme' ? 'p.date_programme' : 'r.date_reservation');
+        $dateField = 'r.date_reservation';
         $builder->where('DATE(' . $dateField . ') >=', $filters['date_debut']);
         $builder->where('DATE(' . $dateField . ') <=', $filters['date_fin']);
 
         foreach ([
-            'id_client' => 'r.id_client',
-            'id_conducteur' => 'p.id_conducteur',
             'id_trajet' => 'p.id_trajet',
-            'id_programme' => 'p.id_programme',
-            'id_bus' => 'p.id_bus',
+            'id_agent' => 'r.created_by',
         ] as $filter => $column) {
             if ($filters[$filter]) {
                 $builder->where($column, $filters[$filter]);
             }
         }
 
-        if ($hasPaymentJoin && $filters['id_mode_paiement']) {
-            $builder->where('pa.id_mode_paiement', $filters['id_mode_paiement']);
-        }
-
         return $builder;
+    }
+
+    private function perPage(): int
+    {
+        $perPage = (int) ($this->request->getGet('per_page') ?? 25);
+
+        return max(10, min(100, $perPage));
     }
 
     private function positiveInt(string $key): ?int

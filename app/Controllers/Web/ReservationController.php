@@ -159,7 +159,10 @@ class ReservationController extends BaseWebController
     {
         return $this->reservationBuilder()
             ->where('r.id_programme', $idProgramme)
-            ->orderBy('cl.nom', 'asc')
+            ->orderBy('CASE WHEN ad.id_arret IS NULL THEN 1 ELSE 0 END', '', false)
+            ->orderBy('CASE WHEN ad.ordre_arret IS NULL THEN 1 ELSE 0 END', '', false)
+            ->orderBy('ad.ordre_arret', 'asc')
+            ->orderBy('r.reference_reservation', 'asc')
             ->get()
             ->getResultArray();
     }
@@ -170,7 +173,6 @@ class ReservationController extends BaseWebController
             ->table('reservation r')
             ->select([
                 'r.*',
-                'sr.libelle AS statut_reservation',
                 'cl.nom AS client_nom',
                 'cl.telephone AS client_telephone',
                 'cl.email AS client_email',
@@ -185,6 +187,8 @@ class ReservationController extends BaseWebController
                 'ld.nom_lieu AS lieu_depart',
                 'la.nom_lieu AS lieu_arrivee',
                 'lr.nom_lieu AS lieu_reservation',
+                'ad.id_arret AS id_arret_destination',
+                'ad.ordre_arret AS ordre_arret_destination',
                 'h.heure_depart',
                 'h.heure_arrivee',
                 'cur.code_currency',
@@ -193,11 +197,7 @@ class ReservationController extends BaseWebController
                 'pa.reference_paiement',
                 'pa.statut_paiement',
                 'pa.date_paiement',
-                'u.username AS created_by_username',
-                'u.nom AS created_by_nom',
-                'u.prenom AS created_by_prenom',
             ])
-            ->join('statut_reservation sr', 'sr.id_statut_reservation = r.id_statut_reservation')
             ->join('client cl', 'cl.id_client = r.id_client')
             ->join('programme p', 'p.id_programme = r.id_programme')
             ->join('bus b', 'b.id_bus = p.id_bus')
@@ -206,11 +206,11 @@ class ReservationController extends BaseWebController
             ->join('lieu ld', 'ld.id_lieu = t.id_lieu_depart')
             ->join('lieu la', 'la.id_lieu = t.id_lieu_arrivee')
             ->join('lieu lr', 'lr.id_lieu = r.id_lieu_reservation', 'left')
+            ->join('arret ad', 'ad.id_trajet = t.id_trajet AND ad.id_lieu = r.id_lieu_reservation AND ad.deleted_at IS NULL', 'left')
             ->join('horaire h', 'h.id_horaire = t.id_horaire')
             ->join('currency cur', 'cur.id_currency = r.id_currency')
             ->join('paiement pa', 'pa.id_reservation = r.id_reservation AND pa.deleted_at IS NULL', 'left')
             ->join('mode_paiement mp', 'mp.id_mode_paiement = pa.id_mode_paiement', 'left')
-            ->join('utilisateur u', 'u.id_utilisateur = r.created_by', 'left')
             ->where('r.deleted_at', null);
     }
 

@@ -1,92 +1,66 @@
 ---
 name: KASHALA Trans Management
 colors:
-  surface: '#f8f9fb'
-  surface-dim: '#d9dadc'
-  surface-bright: '#f8f9fb'
+  background: '#f6f7f9'
+  surface: '#ffffff'
   surface-container-lowest: '#ffffff'
-  surface-container-low: '#f3f4f6'
-  surface-container: '#edeef0'
-  surface-container-high: '#e7e8ea'
-  surface-container-highest: '#e1e2e4'
-  on-surface: '#191c1e'
-  on-surface-variant: '#444748'
-  inverse-surface: '#2e3132'
-  inverse-on-surface: '#f0f1f3'
-  outline: '#747878'
-  outline-variant: '#c4c7c8'
-  surface-tint: '#5d5f5f'
-  primary: '#5d5f5f'
+  surface-container-low: '#f8fafc'
+  surface-container: '#f1f5f9'
+  surface-container-high: '#e2e8f0'
+  surface-container-highest: '#cbd5e1'
+  on-surface: '#111827'
+  on-surface-variant: '#475569'
+  outline: '#64748b'
+  outline-variant: '#d0d7de'
+  primary: '#1d4ed8'
+  primary-hover: '#1e40af'
   on-primary: '#ffffff'
-  primary-container: '#ffffff'
-  on-primary-container: '#747676'
-  inverse-primary: '#c6c6c7'
-  secondary: '#5c5f60'
-  on-secondary: '#ffffff'
-  secondary-container: '#e1e3e4'
-  on-secondary-container: '#626566'
-  tertiary: '#5d5f5f'
-  on-tertiary: '#ffffff'
-  tertiary-container: '#ffffff'
-  on-tertiary-container: '#747676'
-  error: '#ba1a1a'
-  on-error: '#ffffff'
-  error-container: '#ffdad6'
-  on-error-container: '#93000a'
-  primary-fixed: '#e2e2e2'
-  primary-fixed-dim: '#c6c6c7'
-  on-primary-fixed: '#1a1c1c'
-  on-primary-fixed-variant: '#454747'
-  secondary-fixed: '#e1e3e4'
-  secondary-fixed-dim: '#c5c7c8'
-  on-secondary-fixed: '#191c1d'
-  on-secondary-fixed-variant: '#454748'
-  tertiary-fixed: '#e2e2e2'
-  tertiary-fixed-dim: '#c6c6c7'
-  on-tertiary-fixed: '#1a1c1c'
-  on-tertiary-fixed-variant: '#454747'
-  background: '#f8f9fb'
-  on-background: '#191c1e'
-  surface-variant: '#e1e2e4'
+  primary-container: '#dbeafe'
+  on-primary-container: '#1e3a8a'
+  secondary: '#334155'
+  secondary-container: '#e2e8f0'
+  error: '#b91c1c'
+  error-container: '#fee2e2'
+  success: '#047857'
+  success-container: '#d1fae5'
+  warning: '#b45309'
+  warning-container: '#fef3c7'
 typography:
   h1:
     fontFamily: Inter
     fontSize: 24px
-    fontWeight: '600'
+    fontWeight: '700'
     lineHeight: 32px
-    letterSpacing: -0.02em
+    letterSpacing: 0
   h2:
     fontFamily: Inter
     fontSize: 18px
-    fontWeight: '600'
+    fontWeight: '700'
     lineHeight: 28px
+    letterSpacing: 0
   body-md:
     fontFamily: Inter
     fontSize: 14px
     fontWeight: '400'
     lineHeight: 20px
+    letterSpacing: 0
   body-sm:
     fontFamily: Inter
     fontSize: 13px
     fontWeight: '400'
     lineHeight: 18px
+    letterSpacing: 0
   label-caps:
     fontFamily: Inter
     fontSize: 12px
-    fontWeight: '600'
+    fontWeight: '700'
     lineHeight: 16px
-    letterSpacing: 0.05em
-  status-badge:
-    fontFamily: Inter
-    fontSize: 12px
-    fontWeight: '500'
-    lineHeight: 12px
+    letterSpacing: 0
 rounded:
-  sm: 0.125rem
-  DEFAULT: 0.25rem
-  md: 0.375rem
-  lg: 0.5rem
-  xl: 0.75rem
+  sm: 4px
+  DEFAULT: 6px
+  lg: 8px
+  xl: 12px
   full: 9999px
 spacing:
   base: 4px
@@ -99,79 +73,80 @@ spacing:
   margin: 24px
 ---
 
-## Brand & Style
+## Direction
 
-The design system is rooted in the **Corporate / Modern** aesthetic, prioritizing administrative efficiency and clarity above all else. It draws inspiration from the organizational simplicity of Trello and the functional density of Odoo to create an environment where high-volume data management feels effortless.
+KASHALA Trans utilise un design de gestion métier : sobre, dense, lisible et conçu pour une utilisation prolongée au guichet ou sur desktop. L’interface doit aider l’agent à trouver rapidement l’information utile sans décor inutile.
 
-The emotional response should be one of "controlled precision." By utilizing a restricted color palette and generous whitespace, the interface recedes to the background, allowing the reservation data and workflow statuses to become the primary focus. The target audience—logistics coordinators and ticket agents—requires a tool that minimizes cognitive load during high-traffic periods. The style is strictly utilitarian, avoiding decorative elements in favor of structural integrity and logical grouping.
+Le style s’inspire davantage d’un outil d’exploitation que d’une page marketing : navigation compacte, tableaux lisibles, formulaires structurés, actions visibles et états d’erreur explicites.
 
-## Colors
+## Palette
 
-The palette for this design system is intentionally monochromatic to emphasize the "clean" aesthetic. The primary surface is **White (#FFFFFF)**, set against a **Light Gray (#F3F4F6)** application background to create a subtle layered effect reminiscent of a digital workspace.
+La palette principale est volontairement neutre :
 
-**Accent Blue (#2563EB)** is reserved exclusively for primary calls to action (e.g., "Créer une réservation") and active navigation states. This ensures that the user's eye is immediately drawn to the next logical step in the workflow. 
+- fond application : `#f6f7f9`
+- surfaces et cartes : `#ffffff`
+- bordures : `#d0d7de`
+- texte principal : `#111827`
+- texte secondaire : `#475569`
 
-Status colors follow a standard semantic convention to ensure immediate recognition:
-- **Brouillon (Draft):** Neutral gray to signify an incomplete state.
-- **Réservé (Reserved):** Warm yellow for pending confirmation.
-- **Payé (Paid):** Secure green for successful transactions.
-- **Embarqué (Boarded):** Informative blue for active logistics.
-- **Annulé (Cancelled):** High-alert red for terminal states.
+La couleur primaire `#1d4ed8` est réservée aux actions fortes, à l’état actif de navigation et aux focus. Les couleurs sémantiques sont limitées aux états métier : succès, avertissement, erreur et information.
 
-## Typography
+## Accessibilité
 
-The system utilizes **Inter** exclusively to leverage its exceptional legibility on digital screens. As a management tool, the typography is optimized for "scanning" rather than long-form reading. 
+Tous les éléments interactifs doivent avoir :
 
-Headlines use a tighter letter-spacing and heavier weights to provide clear section anchoring. The default body size is set to **14px** to allow for high information density without sacrificing readability. Given the French language requirements (which often result in longer string lengths than English), the typography scales gracefully; condensed spacing is used for labels and status badges to prevent UI overflow in narrow table columns or cards.
+- un état `focus-visible` clair ;
+- un contraste lisible ;
+- une hauteur minimale confortable ;
+- un libellé visible ou un `aria-label` pour les icônes seules.
 
-## Layout & Spacing
+Les alertes utilisent `role="alert"` ou `role="status"` selon le cas. Les contrôles du menu mobile exposent `aria-expanded`, `aria-hidden` et se ferment avec `Escape`.
 
-This design system employs a **Fluid Grid** philosophy within a structured shell. 
-- **The Shell:** A fixed-height **Topbar** (Odoo-style) houses the module switcher and breadcrumbs. 
-- **The Canvas:** Below the topbar, the main content area uses a light gray background (#F3F4F6) where cards and data tables live.
-- **Spacing Rhythm:** An 8px linear scale (with a 4px half-step for tight components) governs all padding and margins. 
+## Typographie
 
-Data tables should occupy the full width of their containers to maximize column visibility, while individual reservation "cards" should have a maximum width in Kanban views to maintain the Trello-inspired vertical stack.
+La police unique est Inter. Les tailles restent compactes pour favoriser les tableaux et formulaires métier :
 
-## Elevation & Depth
+- titre page : 24px / 32px / 700
+- titre section : 18px / 28px / 700
+- corps : 14px / 20px
+- secondaire : 13px / 18px
 
-To maintain the clean, minimalist aesthetic, this design system avoids heavy shadows or complex gradients. Instead, it uses **Low-contrast outlines** and **Tonal layers**.
+Le letter spacing reste à `0` pour éviter les problèmes de lisibilité et de débordement en français.
 
-- **Level 0 (Background):** #F3F4F6 – The foundation of the application.
-- **Level 1 (Cards/Worksheets):** #FFFFFF – These elements sit on the background with a very soft, diffused ambient shadow (`0 1px 3px rgba(0,0,0,0.05)`) and a subtle border (`1px solid #E5E7EB`).
-- **Level 2 (Dropdowns/Modals):** These use a more pronounced shadow to indicate temporal focus, but maintain the same white background and border style.
+## Layout
 
-The goal is to simulate physical paper cards sitting on a clean desk; the depth is enough to separate elements but not so much as to distract.
+La navigation principale reste fixe en haut. Les vues utilisent une largeur maximale large sur desktop afin de mieux exploiter les tableaux, calendriers, réservations et rapports.
 
-## Shapes
+Les zones de contenu doivent être composées de surfaces simples :
 
-The shape language is **Soft** and professional. A standard radius of **4px (0.25rem)** is applied to buttons, input fields, and status badges. This provides a modern touch while maintaining a serious, institutional feel.
+- cartes avec bordure 1px ;
+- ombre très légère ;
+- rayon de 8px pour les composants ;
+- sections non imbriquées inutilement.
 
-Larger containers like cards or the module switcher panel may use a **rounded-lg (8px)** corner to emphasize their role as structural anchors. Status badges are the only exception where a fully rounded (pill-shaped) geometry may be used to differentiate them from interactive buttons.
+## Composants
 
-## Components
+### Boutons
 
-### Buttons
-- **Primary:** Solid #2563EB with white text. Flat, no gradient.
-- **Secondary:** White background with #E5E7EB border and #4B5563 text.
-- **Action Icons:** Transparent background, gray icons that turn blue on hover.
+- primaire : fond bleu, texte blanc ;
+- secondaire : fond blanc, bordure neutre ;
+- destructif : rouge uniquement pour suppression ou erreur forte ;
+- icône seule : carré 36-40px, `aria-label` obligatoire.
 
-### Cards
-- Trello-inspired: White background, 4px radius, 1px #E5E7EB border. Internal padding is usually 12px or 16px.
+### Formulaires
 
-### Navigation (Odoo-inspired)
-- **Topbar:** Compact (approx 48px height), dark gray or white background. 
-- **Breadcrumbs:** Simple "Home / Reservations / Edit" string using the Accent Blue for links.
+Les champs gardent un fond blanc, une bordure neutre et un focus bleu de 3px. Les labels restent proches du champ, sans majuscules décoratives forcées.
 
-### Status Badges
-- Small, uppercase text. 
-- Style: Lightly tinted background (10% opacity of the status color) with the solid status color for the text, or a small colored dot next to gray text.
+### Tables
 
-### Data Tables
-- Clean, no vertical borders. 
-- Horizontal separators in #E5E7EB. 
-- Row hover state uses #F9FAFB to provide visual feedback without high contrast.
+Les tables privilégient :
 
-### Input Fields
-- White background, 1px #E5E7EB border.
-- On focus: Border changes to #2563EB with a 2px soft blue glow.
+- en-tête clair ;
+- lignes séparées horizontalement ;
+- hover discret ;
+- alignement numérique à droite ;
+- pagination visible quand nécessaire.
+
+### Statuts
+
+Les statuts utilisent des badges sobres avec une teinte faible et un texte fortement contrasté. Le badge ne doit pas être le seul signal si l’état est critique.

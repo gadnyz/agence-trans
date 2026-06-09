@@ -1,0 +1,7 @@
+Le Super Admin (super_admin) : C'est toi (Freddy) ou le propriétaire absolu. Il a le privilège ["*"], c'est-à-dire un accès total à l'application (suppression, configuration globale, ajout d'autres admins).
+
+L'Administrateur (admin) : Le gérant de l'agence. Il a une gestion métier complète (créer des trajets, ajouter des bus, planifier des programmes, voir les finances) mais ne peut probablement pas toucher aux configurations critiques du système.
+
+Le Réceptionniste / Guichetier (recept) : L'employé au guichet. Il a des droits limités. Il peut seulement lire les programmes/trajets et créer des réservations et des paiements.
+
+Le Chauffeur (driver) : Le document mentionne ce rôle dans le seeder. Bien qu'il y ait une table conducteur séparée pour la RH, ce rôle indique que les chauffeurs auront probablement un accès au système (peut-être plus tard sur une application mobile pour voir leur planning de la journée).

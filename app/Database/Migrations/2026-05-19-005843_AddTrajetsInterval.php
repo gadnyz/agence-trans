@@ -101,9 +101,9 @@ class AddTrajetsInterval extends Migration
             ]
         ];
 
-        foreach ($trajets as $t) {
-            $this->db->table('trajet')->insert($t);
-        }
+        // foreach ($trajets as $t) {
+        //     $this->db->table('trajet')->insert($t);
+        // }
     }
 
     public function down()

@@ -5,3 +5,85 @@ L'Administrateur (admin) : Le gérant de l'agence. Il a une gestion métier comp
 Le Réceptionniste / Guichetier (recept) : L'employé au guichet. Il a des droits limités. Il peut seulement lire les programmes/trajets et créer des réservations et des paiements.
 
 Le Chauffeur (driver) : Le document mentionne ce rôle dans le seeder. Bien qu'il y ait une table conducteur séparée pour la RH, ce rôle indique que les chauffeurs auront probablement un accès au système (peut-être plus tard sur une application mobile pour voir leur planning de la journée).
+
+
+
+app/
+├── Config/
+│   ├── Filters.php          # Déclaration de tes filtres d'accès
+│   └── Routes.php           # Groupement des routes (/admin, /api/admin, etc.)
+├── Controllers/
+│   ├── BaseController.php   # Contrôleur parent (méthodes communes)
+│   ├── AuthController.php   # Logique de login (vérification + génération JWT)
+│   │
+│   ├── Web/                 # 🌐 CONTRÔLEURS POUR L'AFFICHAGE DES VUES
+│   │   ├── SuperAdmin/      # Privilège absolu ["*"]
+│   │   │   ├── Dashboard.php
+│   │   │   └── SystemConfig.php
+│   │   ├── Admin/           # Gérant de l'agence
+│   │   │   ├── Dashboard.php
+│   │   │   ├── Bus.php      # Pages pour la flotte
+│   │   │   └── Trajet.php   # Pages pour le réseau
+│   │   ├── Recept/          # Guichetier
+│   │   │   ├── Dashboard.php
+│   │   │   └── Reservation.php # La page de ta capture d'écran
+│   │   └── Driver/          # Chauffeur
+│   │       └── Planning.php
+│   │
+│   └── Api/                 # ⚙️ CONTRÔLEURS POUR LES REQUÊTES FETCH (JSON)
+│       ├── SuperAdminApi.php
+│       ├── AdminApi.php     # Ex: POST /api/admin/bus (Création de bus)
+│       ├── ReceptApi.php    # Ex: POST /api/recept/reservations
+│       └── DriverApi.php
+│
+├── Filters/
+│   ├── JwtAuthFilter.php    # Vérifie la présence et la validité du Token JWT
+│   ├── SuperAdminFilter.php # Bloque si != 'super_admin'
+│   ├── AdminFilter.php      # Autorise 'admin' ET 'super_admin'
+│   ├── ReceptFilter.php     # Autorise 'recept', 'admin' ET 'super_admin'
+│   └── DriverFilter.php     # Autorise 'driver'
+│
+├── Models/
+│   ├── UserModel.php        # Gestion des rôles et authentification
+│   ├── BusModel.php         # Données de la flotte
+│   ├── TrajetModel.php      # Données des parcours
+│   └── ReservationModel.php # Données des réservations
+│
+└── Views/
+    ├── auth/
+    │   └── login.php
+    ├── layouts/
+    │   └── app.php          # Ton layout principal (la sidebar s'adaptera au rôle)
+    ├── super_admin/
+    ├── admin/               # Vues pour la création des référentiels
+    ├── recept/              # Vues des réservations et paiements
+    └── driver/              # Vues simplifiées (mobile-first)
+
+
+
+
+
+    app/Views/
+├── errors/                  # (Laisser tel quel, géré par CodeIgniter)
+└── web/
+    ├── layouts/
+    │   └── app.php          # Ton layout global reste ici (ne le bouge pas)
+    │
+    ├── auth/                # Pour tes pages de connexion
+    │   └── login.php
+    │
+    ├── super_admin/         # Vues exclusives au Super Admin
+    │   ├── dashboard.php
+    │   └── system_logs.php
+    │
+    ├── admin/               # Vues pour le Gérant
+    │   ├── bus/
+    │   │   └── index.php    # La future page de gestion de la flotte
+    │   └── trajets/
+    │       └── index.php
+    │
+    ├── recept/              # Vues pour le Guichetier
+    │   └── reservations.php # 👈 DÉPLACE TON FICHIER ACTUEL ICI
+    │
+    └── driver/              # Vues pour le Chauffeur
+        └── planning.php

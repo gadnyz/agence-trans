@@ -4,14 +4,40 @@ namespace App\Controllers\Web;
 
 class AuthController extends BaseWebController
 {
+    // public function index()
+    // {
+    //     // Si deja connecte, ouvrir directement les reservations.
+    //     if (session()->get('access_token')) {
+    //         return redirect()->to('/reservations');
+    //     }
+
+    //     return view('web/auth/connexion');
+    // }
+
     public function index()
     {
-        // Si deja connecte, ouvrir directement les reservations.
-        if (session()->get('access_token')) {
-            return redirect()->to('/reservations');
+        // 1. Vérifier si l'utilisateur est connecté
+        $user = session()->get('user');
+
+        if (!$user) {
+            return view('web/auth/connexion');
         }
 
-        return view('web/pages/connexion');
+        // 2. Rediriger selon le rôle (Si déjà connecté, on l'envoie sur sa page d'accueil)
+        $role = $user['role']['code'] ?? ''; // Accès au code selon ta structure JWT
+
+        switch ($role) {
+            case 'super_admin':
+                return redirect()->to('/super-admin/dashboard');
+            case 'admin':
+                return redirect()->to('/admin/dashboard');
+            case 'recept':
+                return redirect()->to('/recept/reservations');
+            case 'driver':
+                return redirect()->to('/driver/planning');
+            default:
+                return redirect()->to('/logout')->with('error', 'Rôle inconnu.');
+        }
     }
 
     public function login()
@@ -31,7 +57,7 @@ class AuthController extends BaseWebController
             session()->set('refresh_token', $response['data']['token']['refresh_token']);
             session()->set('user', $response['data']['user']);
 
-            return redirect()->to('/reservations');
+            // return redirect()->to('/reservations');
         } else {
             // Echec de connexion
             $errorMsg = (is_array($response) && isset($response['message'])) ? $response['message'] : 'Identifiants invalides ou erreur de communication avec le serveur (Timeout).';

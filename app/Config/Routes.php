@@ -1,110 +1,80 @@
 <?php
 
+namespace Config;
+
 use CodeIgniter\Router\RouteCollection;
 
 /**
  * @var RouteCollection $routes
  */
-// Routes Web (Front-end)
-$routes->get('/', 'Web\AuthController::index');
-$routes->post('/login', 'Web\AuthController::login');
-$routes->get('/logout', 'Web\AuthController::logout');
-$routes->post('/session/refresh', 'Web\AuthController::refresh');
-$routes->get('/planification', 'Web\PlanningController::index');
-$routes->get('/reservations', 'Web\ReservationController::index');
-$routes->get('/rapports', 'Web\ReportController::index');
-$routes->get('/reservations/(:num)/ticket', 'Web\ReservationController::ticket/$1');
-$routes->get('/programmes/(:num)/manifeste', 'Web\ReservationController::manifeste/$1');
+$routes = Services::routes();
 
-$routes->group('api', static function (RouteCollection $routes): void {
-    $routes->post('auth/login', 'Api\AuthController::login');
-    $routes->post('auth/refresh', 'Api\AuthController::refresh');
+// =============================================================================
+// 1. ROUTES AUTHENTIFICATION (Public)
+// =============================================================================
+$routes->group('', ['namespace' => 'App\Controllers\Web'], static function ($routes) {
+    $routes->get('/', 'AuthController::index');
+    $routes->post('login', 'AuthController::login');
+    $routes->get('logout', 'AuthController::logout');
+});
 
-    $routes->group('', ['filter' => 'jwt'], static function (RouteCollection $routes): void {
-        $routes->get('auth/me', 'Api\AuthController::me');
-        $routes->post('auth/logout', 'Api\AuthController::logout');
-        $routes->get('planifications', 'Api\PlanningController::listProgrammes', [
-            'filter' => 'permission:planning.read,planning.manage',
-        ]);
-        $routes->get('planifications/calendar', 'Api\PlanningController::calendarProgrammes', [
-            'filter' => 'permission:planning.read,planning.manage',
-        ]);
-        $routes->get('planifications/(:num)', 'Api\PlanningController::showProgramme/$1', [
-            'filter' => 'permission:planning.read,planning.manage',
-        ]);
-        $routes->post('planifications', 'Api\PlanningController::createProgrammes', [
-            'filter' => 'permission:planning.manage',
-        ]);
-        $routes->put('planifications/(:num)', 'Api\PlanningController::updateProgramme/$1', [
-            'filter' => 'permission:planning.manage',
-        ]);
-        $routes->patch('planifications/(:num)', 'Api\PlanningController::updateProgramme/$1', [
-            'filter' => 'permission:planning.manage',
-        ]);
-        $routes->delete('planifications/(:num)', 'Api\PlanningController::deleteProgramme/$1', [
-            'filter' => 'permission:planning.manage',
-        ]);
-        $routes->get('reservations', 'Api\ReservationController::list', [
-            'filter' => 'permission:reservations.manage',
-        ]);
-        $routes->get('reservations/programmes', 'Api\ReservationController::programmesDisponibles', [
-            'filter' => 'permission:reservations.manage',
-        ]);
-        $routes->get('reservations/programmes-manifestes', 'Api\ReservationController::programmesManifestes', [
-            'filter' => 'permission:reservations.manage',
-        ]);
-        $routes->get('reservations/programmes/(:num)/arrets', 'Api\ReservationController::arretsProgramme/$1', [
-            'filter' => 'permission:reservations.manage',
-        ]);
-        $routes->get('reservations/client', 'Api\ReservationController::clientByPhone', [
-            'filter' => 'permission:reservations.manage',
-        ]);
-        $routes->post('reservations', 'Api\ReservationController::create', [
-            'filter' => 'permission:reservations.manage,payments.manage',
-        ]);
-        $routes->get('reservations/(:num)', 'Api\ReservationController::show/$1', [
-            'filter' => 'permission:reservations.manage',
-        ]);
+// =============================================================================
+// 2. ROUTES WEB (Interface Utilisateur - Protégées par filtres)
+// =============================================================================
+$routes->group('', ['namespace' => 'App\Controllers\Web', 'filter' => 'auth'], static function ($routes) {
 
-        $registerCrud = static function (
-            RouteCollection $routes,
-            string $uri,
-            string $resource,
-            string $readPermission,
-            string $writePermission
-        ): void {
-            $routes->get($uri, 'Api\ReferenceDataController::list/' . $resource, [
-                'filter' => 'permission:' . $readPermission,
-            ]);
-            $routes->get($uri . '/(:num)', 'Api\ReferenceDataController::detail/' . $resource . '/$1', [
-                'filter' => 'permission:' . $readPermission,
-            ]);
-            $routes->post($uri, 'Api\ReferenceDataController::store/' . $resource, [
-                'filter' => 'permission:' . $writePermission,
-            ]);
-            $routes->put($uri . '/(:num)', 'Api\ReferenceDataController::modify/' . $resource . '/$1', [
-                'filter' => 'permission:' . $writePermission,
-            ]);
-            $routes->patch($uri . '/(:num)', 'Api\ReferenceDataController::modify/' . $resource . '/$1', [
-                'filter' => 'permission:' . $writePermission,
-            ]);
-            $routes->delete($uri . '/(:num)', 'Api\ReferenceDataController::remove/' . $resource . '/$1', [
-                'filter' => 'permission:' . $writePermission,
-            ]);
+    // --- Accès ADMIN & SUPER ADMIN ---
+    $routes->group('', ['filter' => 'role:super_admin,admin'], static function ($routes) {
+        $routes->get('super-admin/dashboard', 'DashboardController::index');
+        $routes->get('admin/dashboard', 'DashboardController::index');
+
+        $routes->get('planification', 'PlanningController::index');
+        $routes->get('rapports', 'ReportController::index');
+    });
+
+    // --- Accès RÉCEPTIONNISTE, ADMIN & SUPER ADMIN ---
+    $routes->group('recept', ['filter' => 'role:recept,admin,super_admin'], static function ($routes) {
+        $routes->get('reservations', 'ReservationController::index');
+        $routes->get('reservations/(:num)/ticket', 'ReservationController::ticket/$1');
+        $routes->get('programmes/(:num)/manifeste', 'ReservationController::manifeste/$1');
+    });
+
+    // --- Accès CHAUFFEUR ---
+    $routes->group('driver', ['filter' => 'role:driver,admin,super_admin'], static function ($routes) {
+        $routes->get('planning', 'Driver\PlanningController::index');
+    });
+});
+
+// =============================================================================
+// 3. ROUTES API (Backend JSON - Protégées par JWT et Permissions)
+// =============================================================================
+$routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($routes) {
+    
+    // Auth API
+    $routes->post('auth/login', 'AuthController::login');
+    $routes->post('auth/refresh', 'AuthController::refresh');
+
+    $routes->group('', ['filter' => 'jwt'], static function ($routes) {
+        $routes->get('auth/me', 'AuthController::me');
+        $routes->post('auth/logout', 'AuthController::logout');
+
+        // Planification
+        $routes->get('planifications', 'PlanningController::listProgrammes', ['filter' => 'permission:planning.read,planning.manage']);
+        $routes->post('planifications', 'PlanningController::createProgrammes', ['filter' => 'permission:planning.manage']);
+        
+        // Réservations
+        $routes->get('reservations', 'ReservationController::list', ['filter' => 'permission:reservations.manage']);
+        $routes->post('reservations', 'ReservationController::create', ['filter' => 'permission:reservations.manage,payments.manage']);
+
+        // CRUD Référentiel (Utilisation d'une closure pour factoriser)
+        $registerCrud = function ($routes, $uri, $resource, $readPerm, $writePerm) {
+            $routes->get($uri, "ReferenceDataController::list/$resource", ['filter' => "permission:$readPerm"]);
+            $routes->post($uri, "ReferenceDataController::store/$resource", ['filter' => "permission:$writePerm"]);
+            $routes->delete("$uri/(:num)", "ReferenceDataController::remove/$resource/$1", ['filter' => "permission:$writePerm"]);
         };
 
-        $registerCrud($routes, 'horaires', 'horaires', 'routes.read,routes.manage', 'routes.manage');
-        $registerCrud($routes, 'lieux', 'lieux', 'routes.read,routes.manage', 'routes.manage');
         $registerCrud($routes, 'bus', 'bus', 'fleet.manage', 'fleet.manage');
-        $registerCrud($routes, 'conducteurs', 'conducteurs', 'fleet.manage', 'fleet.manage');
-        $registerCrud($routes, 'chauffeurs', 'conducteurs', 'fleet.manage', 'fleet.manage');
-        $registerCrud($routes, 'clients', 'clients', 'clients.manage', 'clients.manage');
-        $registerCrud($routes, 'currencies', 'currencies', 'settings.manage', 'settings.manage');
-        $registerCrud($routes, 'modes-paiement', 'modes-paiement', 'payments.manage', 'payments.manage');
-        $registerCrud($routes, 'statuts-reservation', 'statuts-reservation', 'reservations.manage', 'reservations.manage');
-        $registerCrud($routes, 'reductions', 'reductions', 'reservations.manage', 'reservations.manage');
-        $registerCrud($routes, 'configurations', 'configurations', 'settings.manage', 'settings.manage');
-        $registerCrud($routes, 'taux-change', 'taux-change', 'settings.manage', 'settings.manage');
         $registerCrud($routes, 'trajets', 'trajets', 'routes.read,routes.manage', 'routes.manage');
+        $registerCrud($routes, 'clients', 'clients', 'clients.manage', 'clients.manage');
     });
 });

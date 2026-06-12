@@ -11,8 +11,12 @@ class AuthFilter implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         // Si l'utilisateur n'est pas connecté en session, on le renvoie au login
-        if (! session()->has('user')) {
-            return redirect()->to('/')->with('error', 'Veuillez vous connecter d\'abord.');
+        // if (! session()->has('user')) {
+        //     return redirect()->to('/')->with('error', 'Veuillez vous connecter d\'abord.');
+        // }
+
+        if (!session()->has('user')) {
+            return redirect()->to('/');
         }
     }
 

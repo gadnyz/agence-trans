@@ -14,28 +14,21 @@ class RoleFilter implements FilterInterface
      */
     public function before(RequestInterface $request, $arguments = null)
     {
-        // Récupère le rôle actuellement stocké dans la session lors de la connexion
-        $userRole = session()->get('role');
+        $user = session()->get('user');
 
-        // Si l'utilisateur n'a pas de rôle ou si aucun argument n'est passé au filtre
-        if (!$userRole) {
-            return redirect()->to('/')->with('error', 'Session expirée. Veuillez vous reconnecter.');
+        // 1. Si pas d'utilisateur, le AuthFilter s'en occupera, mais par sécurité :
+        if (!$user) {
+            return redirect()->to('/');
         }
 
-        // Si aucun rôle spécifique n'est requis dans la définition du filtre
-        if (empty($arguments)) {
-            return;
-        }
+        // 2. Récupérer le code du rôle (comme dans ton AuthController)
+        $userRole = $user['role']['code'] ?? '';
 
-        // Vérifie si le rôle de l'utilisateur fait partie des rôles autorisés ($arguments)
-        if (!in_array($userRole, $arguments, true)) {
-            // Optionnel : Gérer une redirection différente selon s'il s'agit d'une API ou d'une vue Web
-            if (strpos($request->getPath(), 'api/') === 0) {
-                return service('response')->setStatusCode(403, 'Accès refusé (Rôle insuffisant).');
-            }
-
-            // Redirection par défaut vers la page d'accueil ou tableau de bord approprié
-            return redirect()->to('/')->with('error', 'Vous n\'avez pas les privilèges requis pour accéder à cette page.');
+        // 3. Vérifier si le rôle de l'utilisateur est dans les arguments de la route
+        // Exemple : ['super_admin', 'admin']
+        if (empty($arguments) || !in_array($userRole, $arguments)) {
+            
+            return redirect()->to('/logout')->with('error', 'Accès refusé : Rôle insuffisant.');
         }
     }
 

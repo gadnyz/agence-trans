@@ -18,7 +18,7 @@ class PlanningController extends BaseWebController
         $lieux = $this->items('lieux', ['per_page' => 200]);
         $horaires = $this->items('horaires', ['per_page' => 200]);
 
-        return view('web/pages/planification', [
+        return view('web/super_admin/planification', [
             'title' => 'Planification',
             'user' => $meResponse['data'],
             'api_token' => session()->get('access_token'),

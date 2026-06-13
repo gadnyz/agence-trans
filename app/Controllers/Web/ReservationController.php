@@ -12,14 +12,26 @@ class ReservationController extends BaseWebController
             return $meResponse;
         }
 
-        return view('web/super-admin/reservation', [
-            'title' => 'Reservations',
-            'user' => $meResponse['data'],
-            'api_token' => session()->get('access_token'),
+        // Choisir la vue selon le rôle de l'utilisateur
+        $userRole = session()->get('user')['role']['code'] ?? '';
+
+        $viewMap = [
+            'super_admin' => 'web/super_admin/reservation',
+            'admin'       => 'web/super_admin/reservation', // admin utilise la même vue pour l'instant
+            'recept'      => 'web/recept/reservations',
+        ];
+
+        $viewName = $viewMap[$userRole] ?? 'web/super_admin/reservation';
+
+        return view($viewName, [
+            'title'          => 'Réservations',
+            'user'           => $meResponse['data'],
+            'api_token'      => session()->get('access_token'),
             'modes_paiement' => $this->modesPaiement(),
-            'today' => date('Y-m-d'),
+            'today'          => date('Y-m-d'),
         ]);
     }
+
 
     public function ticket(int $idReservation)
     {

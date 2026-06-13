@@ -9,6 +9,16 @@ use CodeIgniter\HTTP\ResponseInterface;
 class RoleFilter implements FilterInterface
 {
     /**
+     * Table de redirection par rôle — chaque rôle a sa page d'accueil.
+     */
+    private array $roleHome = [
+        'super_admin' => '/super-admin/dashboard',
+        'admin'       => '/admin/dashboard',
+        'recept'      => '/recept/reservations',
+        'driver'      => '/driver/planning',
+    ];
+
+    /**
      * Exécuté avant le contrôleur.
      * Vérifie si le rôle de l'utilisateur correspond aux rôles autorisés dans la route.
      */
@@ -16,20 +26,23 @@ class RoleFilter implements FilterInterface
     {
         $user = session()->get('user');
 
-        // 1. Si pas d'utilisateur, le AuthFilter s'en occupera, mais par sécurité :
+        // 1. Si pas d'utilisateur en session, rediriger vers login
         if (!$user) {
             return redirect()->to('/');
         }
 
-        // 2. Récupérer le code du rôle (comme dans ton AuthController)
+        // 2. Récupérer le code du rôle
         $userRole = $user['role']['code'] ?? '';
 
-        // 3. Vérifier si le rôle de l'utilisateur est dans les arguments de la route
-        // Exemple : ['super_admin', 'admin']
-        if (empty($arguments) || !in_array($userRole, $arguments)) {
-            
-            return redirect()->to('/logout')->with('error', 'Accès refusé : Rôle insuffisant.');
+        // 3. Si le rôle est autorisé, laisser passer
+        if (!empty($arguments) && in_array($userRole, $arguments)) {
+            return null;
         }
+
+        // 4. Rôle insuffisant : rediriger vers la page d'accueil du rôle de l'utilisateur
+        $home = $this->roleHome[$userRole] ?? '/';
+
+        return redirect()->to($home)->with('error', 'Accès refusé : vous n\'avez pas la permission d\'accéder à cette page.');
     }
 
     /**
@@ -39,4 +52,4 @@ class RoleFilter implements FilterInterface
     {
         // Rien à exécuter après la requête pour ce filtre
     }
-}
+}

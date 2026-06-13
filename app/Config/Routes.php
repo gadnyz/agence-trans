@@ -26,9 +26,10 @@ $routes->group('', ['namespace' => 'App\Controllers\Web', 'filter' => 'auth'], s
     // --- Accès ADMIN & SUPER ADMIN ---
     $routes->group('', ['filter' => 'role:super_admin,admin'], static function ($routes) {
         $routes->get('super-admin/dashboard', 'DashboardController::index');
+
         $routes->get('admin/dashboard', 'DashboardController::index');
 
-        $routes->get('planification', 'PlanningController::index');
+        $routes->get('super-admin/planification', 'PlanningController::index');
         $routes->get('rapports', 'ReportController::index');
     });
 

@@ -1,4 +1,4 @@
-<?= $this->extend('web/layouts/app') ?>
+<?= $this->extend('web/layouts/super_admin') ?>
 
 <?= $this->section('styles') ?>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>

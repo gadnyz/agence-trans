@@ -1,35 +1,64 @@
 <?php
 $currentPath = trim(uri_string(), '/');
-$isPlanning = $currentPath === 'planification' || str_starts_with($currentPath, 'planification/');
-$isReservations = $currentPath === 'reservations' || str_starts_with($currentPath, 'reservations/');
-$isReports = $currentPath === 'rapports' || str_starts_with($currentPath, 'rapports/');
+$isActive = fn($path) => ($currentPath === $path || str_starts_with($currentPath, $path)) 
+    ? 'bg-primary-container text-on-primary-container font-bold' 
+    : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface';
 ?>
 
-<aside id="main-sidebar" class="fixed inset-y-0 left-0 w-[72px] bg-secondary flex flex-col items-center py-lg z-50 transition-transform duration-300 lg:translate-x-0 -translate-x-full shadow-lg lg:shadow-none" aria-label="Menu principal">
-    
-    <a href="<?= base_url('reservations') ?>" class="w-12 h-12 bg-surface-container-lowest rounded-xl flex items-center justify-center shadow-sm mb-xl hover:scale-105 transition-transform" title="Accueil">
-        <span class="material-symbols-outlined text-primary text-[24px]">directions_bus</span>
-    </a>
+<!-- <aside id="sidebar" class="sticky top-0 hidden md:flex flex-col h-screen p-md gap-sm bg-surface-container-lowest border-r border-outline-variant shadow-sm shrink-0 transition-all duration-300 w-72 group-[.collapsed]:w-20"> -->
+    <aside id="sidebar" class="sticky top-0 hidden md:flex flex-col h-screen p-md gap-sm bg-surface-container-lowest border-r border-outline-variant shadow-sm shrink-0 transition-all duration-300 w-72 [&.collapsed]:w-20">
+    <div class="flex items-center gap-md px-sm py-md mb-md">
+        <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-on-primary text-headline-md">directions_bus</span>
+        </div>
+        <div class="group-[.collapsed]:hidden whitespace-nowrap overflow-hidden">
+            <h1 class="font-title-lg text-title-lg text-on-surface leading-tight">Kashala Trans</h1>
+        </div>
+        <button id="toggle-sidebar" class="ml-auto p-sm rounded-full hover:bg-surface-container">
+            <span class="material-symbols-outlined">menu_open</span>
+        </button>
+    </div>
 
-    <nav class="flex flex-col gap-sm w-full px-sm flex-1">
-        
-        <a href="<?= base_url('reservations') ?>" class="w-full aspect-square flex flex-col items-center justify-center rounded-lg transition-colors <?= $isReservations ? 'bg-primary text-on-primary shadow-md' : 'text-outline-variant hover:bg-tertiary-container hover:text-on-secondary' ?>" title="Réservations">
-            <span class="material-symbols-outlined text-[24px]">book_online</span>
-        </a>
-        
-        <a href="<?= base_url('planification') ?>" class="w-full aspect-square flex flex-col items-center justify-center rounded-lg transition-colors <?= $isPlanning ? 'bg-primary text-on-primary shadow-md' : 'text-outline-variant hover:bg-tertiary-container hover:text-on-secondary' ?>" title="Planification">
-            <span class="material-symbols-outlined text-[24px]">event_available</span>
-        </a>
-        
-        <a href="<?= base_url('rapports') ?>" class="w-full aspect-square flex flex-col items-center justify-center rounded-lg transition-colors <?= $isReports ? 'bg-primary text-on-primary shadow-md' : 'text-outline-variant hover:bg-tertiary-container hover:text-on-secondary' ?>" title="Tableau de bord">
-            <span class="material-symbols-outlined text-[24px]">bar_chart</span>
-        </a>
-        
+    <nav class="flex-1 space-y-1 overflow-y-auto hide-scrollbar">
+        <?php 
+        $links = [
+            ['path' => 'super-admin/dashboard', 'icon' => 'dashboard', 'label' => 'Dashboard'],
+            ['path' => 'super-admin/reservations', 'icon' => 'book_online', 'label' => 'Reservations'],
+            ['path' => 'super-admin/buses', 'icon' => 'directions_bus', 'label' => 'Buses'],
+            ['path' => 'super-admin/drivers', 'icon' => 'person', 'label' => 'Drivers'],
+            ['path' => 'super-admin/trips', 'icon' => 'route', 'label' => 'Trips'],
+            ['path' => 'super-admin/planification', 'icon' => 'calendar_today', 'label' => 'Schedules'],
+            ['path' => 'super-admin/clients', 'icon' => 'groups', 'label' => 'Clients'],
+            ['path' => 'super-admin/payments', 'icon' => 'payments', 'label' => 'Payments'],
+            ['path' => 'super-admin/rapports', 'icon' => 'analytics', 'label' => 'Financial Analysis'],
+        ];
+        foreach ($links as $link): ?>
+            <a class="flex items-center gap-md px-md py-sm rounded-lg transition-all duration-150 <?= $isActive($link['path']) ?>" href="<?= base_url($link['path']) ?>">
+                <span class="material-symbols-outlined shrink-0"><?= $link['icon'] ?></span>
+                <span class="font-label-lg text-label-lg group-[.collapsed]:hidden whitespace-nowrap"><?= $link['label'] ?></span>
+            </a>
+        <?php endforeach; ?>
     </nav>
 
-    <div class="mt-auto w-full px-sm">
-        <a href="<?= base_url('logout') ?>" class="w-full aspect-square flex flex-col items-center justify-center rounded-lg text-outline-variant hover:bg-error/20 hover:text-error transition-colors" title="Déconnexion">
-            <span class="material-symbols-outlined text-[24px]">logout</span>
-        </a>
-    </div>
+    <script>
+(function() {
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-sidebar');
+    
+    if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            
+            // Debug pour voir si la classe est bien ajoutée
+            console.log('Sidebar collapsed:', sidebar.classList.contains('collapsed'));
+        });
+    }
+})();
+</script>
 </aside>
+
+<!-- <script>
+    document.getElementById('toggle-sidebar').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.toggle('collapsed');
+    });
+</script> -->

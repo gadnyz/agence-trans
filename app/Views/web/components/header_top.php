@@ -1,36 +1,48 @@
 <?php
 $user = session()->get('user') ?? [];
 $displayName = trim((string) (($user['prenom'] ?? '') ?: ($user['username'] ?? 'Admin')));
+$roleLabel = esc($user['role']['libelle'] ?? 'Fleet Manager');
 ?>
 
-<header class="h-[72px] bg-surface-container-lowest border-b border-outline-variant flex items-center justify-between px-md lg:px-xl sticky top-0 z-30 shadow-sm">
+<header class="flex justify-end items-center h-16 px-md lg:px-margin-desktop w-full bg-surface-container-lowest border-b border-outline-variant shrink-0 z-20 sticky top-0">
     
-    <div class="flex items-center gap-md">
-        <button id="mobile-menu-btn" class="lg:hidden p-xs text-on-surface-variant hover:bg-surface-container rounded-lg transition-colors" type="button">
-            <span class="material-symbols-outlined text-[24px]">menu</span>
-        </button>
-        <h1 class="text-xl font-bold text-on-surface tracking-tight hidden sm:block"><?= esc($pageTitle ?? 'Dispatch Hub') ?></h1>
-    </div>
-    
+    <!-- <div class="flex items-center flex-1 max-w-xl">
+        <div class="relative w-full max-w-md">
+            <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline">search</span>
+            <input 
+                type="text" 
+                placeholder="Search fleet, drivers, or routes..." 
+                class="w-full pl-xl pr-md py-sm bg-surface border border-outline-variant rounded-full text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+            />
+        </div>
+    </div> -->
+
     <div class="flex items-center gap-lg">
         
-        <div class="hidden md:flex relative w-64 lg:w-80">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
-            <input type="text" placeholder="Rechercher (bus, trajet, agent)..." class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-sm focus:border-primary focus:ring-1 focus:ring-primary focus:bg-surface-container-lowest outline-none transition-all placeholder:text-on-surface-variant">
-        </div>
+        <!-- <nav class="hidden lg:flex items-center gap-md font-body-md text-body-md">
+            <a class="text-secondary hover:text-primary transition-colors" href="#">Support</a>
+            <a class="text-secondary hover:text-primary transition-colors" href="#">FAQ</a>
+            <a class="text-secondary hover:text-primary transition-colors" href="#">Feedback</a>
+        </nav> -->
 
-        <div class="flex items-center gap-sm">
-            <button class="p-2 text-on-surface-variant hover:bg-surface-container hover:text-primary rounded-full relative transition-colors">
-                <span class="material-symbols-outlined">notifications</span>
-                <span class="absolute top-1.5 right-2 w-2 h-2 bg-error border-2 border-surface-container-lowest rounded-full"></span>
+        <!-- <div class="h-6 w-px bg-outline-variant mx-sm"></div> -->
+
+        <div class="flex items-center gap-md">
+            <button class="p-xs rounded-full hover:bg-surface-container-high transition-colors relative">
+                <span class="material-symbols-outlined text-outline">notifications</span>
+                <span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full">3</span>
             </button>
             
-            <div class="flex items-center gap-sm ml-sm sm:border-l sm:border-outline-variant sm:pl-md cursor-pointer hover:opacity-80 transition-opacity">
+            <button class="p-xs rounded-full hover:bg-surface-container-high transition-colors">
+                <span class="material-symbols-outlined text-outline">settings</span>
+            </button>
+
+            <div class="flex items-center gap-sm pl-sm cursor-pointer group">
                 <div class="text-right hidden sm:block">
-                    <p class="text-sm font-semibold text-on-surface leading-tight"><?= esc($displayName) ?></p>
-                    <p class="text-xs text-on-surface-variant"><?= esc($user['role']['libelle'] ?? 'Super Admin') ?></p>
+                    <p class="font-label-lg text-label-lg text-on-surface"><?= esc($displayName) ?></p>
+                    <p class="text-label-sm text-outline"><?= $roleLabel ?></p>
                 </div>
-                <div class="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center font-bold border border-primary/10 shadow-sm">
+                <div class="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center font-bold border border-outline-variant shadow-sm overflow-hidden">
                     <?= esc(strtoupper(substr($displayName, 0, 1))) ?>
                 </div>
             </div>

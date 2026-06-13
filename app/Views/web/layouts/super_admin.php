@@ -66,19 +66,21 @@
 </head>
 <body class="bg-surface text-on-surface antialiased overflow-x-hidden">
 
-    <?= $this->include('web/components/sidebar') ?>
+    <div class="flex min-h-screen">
+    
+        <?= $this->include('web/components/sidebar') ?>
 
-    <div id="drawer-backdrop" class="fixed inset-0 z-40 hidden bg-on-surface/40 backdrop-blur-sm lg:hidden transition-opacity" aria-hidden="true"></div>
+        <div class="flex-1 flex flex-col min-w-0">
+            
+            <?= $this->include('web/components/header_top') ?>
 
-    <div class="lg:pl-[72px] flex flex-col min-h-screen">
+            <?= $this->include('web/components/flash_messages') ?>
+
+            <main class="flex-1 p-margin">
+                <?= $this->renderSection('content') ?>
+            </main>
+        </div>
         
-        <?= $this->include('web/components/header_top') ?>
-
-        <?= $this->include('web/components/flash_messages') ?>
-
-        <main class="flex-1 p-margin">
-            <?= $this->renderSection('content') ?>
-        </main>
     </div>
 
     <?= $this->renderSection('scripts') ?>

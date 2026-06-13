@@ -12,7 +12,7 @@ class ReservationController extends BaseWebController
             return $meResponse;
         }
 
-        return view('web/pages/reservation', [
+        return view('web/super-admin/reservation', [
             'title' => 'Reservations',
             'user' => $meResponse['data'],
             'api_token' => session()->get('access_token'),
@@ -32,7 +32,7 @@ class ReservationController extends BaseWebController
         $reservation = $this->reservationDetail($idReservation);
 
         if ($reservation === null) {
-            return redirect()->to('/reservations')->with('error', 'Reservation introuvable.');
+            return redirect()->to('/super-admin/reservation')->with('error', 'Reservation introuvable.');
         }
 
         return view('web/print/ticket', [

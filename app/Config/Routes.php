@@ -9,6 +9,7 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes = Services::routes();
 
+
 // =============================================================================
 // 1. ROUTES AUTHENTIFICATION (Public)
 // =============================================================================
@@ -34,11 +35,11 @@ $routes->group('', ['namespace' => 'App\Controllers\Web', 'filter' => 'auth'], s
     });
 
     // --- Accès RÉCEPTIONNISTE, ADMIN & SUPER ADMIN ---
-    $routes->group('recept', ['filter' => 'role:recept,admin,super_admin'], static function ($routes) {
-        $routes->get('reservations', 'ReservationController::index');
-        $routes->get('reservations/(:num)/ticket', 'ReservationController::ticket/$1');
-        $routes->get('programmes/(:num)/manifeste', 'ReservationController::manifeste/$1');
-    });
+    $routes->group('', ['filter' => 'role:recept,admin,super_admin'], static function ($routes) {
+    $routes->get('super-admin/reservation', 'ReservationController::index');
+    $routes->get('super-admin/reservation/(:num)/ticket', 'ReservationController::ticket/$1');
+    $routes->get('programmes/(:num)/manifeste', 'ReservationController::manifeste/$1');
+});
 
     // --- Accès CHAUFFEUR ---
     $routes->group('driver', ['filter' => 'role:driver,admin,super_admin'], static function ($routes) {
@@ -64,8 +65,8 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
         $routes->post('planifications', 'PlanningController::createProgrammes', ['filter' => 'permission:planning.manage']);
         
         // Réservations
-        $routes->get('reservations', 'ReservationController::list', ['filter' => 'permission:reservations.manage']);
-        $routes->post('reservations', 'ReservationController::create', ['filter' => 'permission:reservations.manage,payments.manage']);
+        $routes->get('super-admin/reservation', 'ReservationController::list', ['filter' => 'permission:reservations.manage']);
+        $routes->post('super-admin/reservation', 'ReservationController::create', ['filter' => 'permission:reservations.manage,payments.manage']);
 
         // CRUD Référentiel (Utilisation d'une closure pour factoriser)
         $registerCrud = function ($routes, $uri, $resource, $readPerm, $writePerm) {

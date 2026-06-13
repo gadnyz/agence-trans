@@ -12,8 +12,8 @@ $dateAujourdhui = date('F j, Y'); // Format: January 10, 2024
 <div class="space-y-lg">
     <div class="flex justify-between items-end">
         <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Operations Overview</h2>
-            <p class="text-body-lg text-outline">Real-time status of your transportation network for <?= esc($dateAujourdhui) ?></p>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface">Aperçu des opérations</h2>
+            <p class="text-body-lg text-outline">État en temps réel de votre agence au <?= esc($dateAujourdhui) ?></p>
         </div>
         <div class="flex gap-sm">
             <button class="flex items-center gap-sm px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg font-label-lg hover:bg-surface-container-high transition-all">
@@ -285,9 +285,9 @@ $dateAujourdhui = date('F j, Y'); // Format: January 10, 2024
     </div>
 </div>
 
-<button class="fixed bottom-lg right-lg w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-30 group">
+<!-- <button class="fixed bottom-lg right-lg w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-30 group">
     <span class="material-symbols-outlined text-[24px]">add</span>
     <span class="absolute right-full mr-md px-md py-sm bg-inverse-surface text-inverse-on-surface text-label-lg rounded-lg opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity pointer-events-none shadow-xl">New Reservation</span>
-</button>
+</button> -->
 
 <?= $this->endSection() ?>

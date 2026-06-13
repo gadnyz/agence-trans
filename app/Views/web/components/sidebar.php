@@ -23,7 +23,7 @@ $isActive = fn($path) => ($currentPath === $path || str_starts_with($currentPath
         <?php 
         $links = [
             ['path' => 'super-admin/dashboard', 'icon' => 'dashboard', 'label' => 'Dashboard'],
-            ['path' => 'super-admin/reservations', 'icon' => 'book_online', 'label' => 'Reservations'],
+            ['path' => 'super-admin/reservation', 'icon' => 'book_online', 'label' => 'Reservations'],
             ['path' => 'super-admin/buses', 'icon' => 'directions_bus', 'label' => 'Buses'],
             ['path' => 'super-admin/drivers', 'icon' => 'person', 'label' => 'Drivers'],
             ['path' => 'super-admin/trips', 'icon' => 'route', 'label' => 'Trips'],

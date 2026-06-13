@@ -1,6 +1,14 @@
 <?php
 $user = session()->get('user') ?? [];
-$displayName = trim((string) (($user['prenom'] ?? '') ?: ($user['username'] ?? 'Admin')));
+
+$prenom = $user['prenom'] ?? '';
+$nom = $user['nom'] ?? '';
+
+$displayName = trim($prenom . ' ' . $nom);
+if (empty($displayName)) {
+    $displayName = $user['username'] ?? 'Admin';
+}
+
 $roleLabel = esc($user['role']['libelle'] ?? 'Fleet Manager');
 ?>
 
@@ -28,18 +36,18 @@ $roleLabel = esc($user['role']['libelle'] ?? 'Fleet Manager');
         <!-- <div class="h-6 w-px bg-outline-variant mx-sm"></div> -->
 
         <div class="flex items-center gap-md">
-            <button class="p-xs rounded-full hover:bg-surface-container-high transition-colors relative">
+            <!-- <button class="p-xs rounded-full hover:bg-surface-container-high transition-colors relative">
                 <span class="material-symbols-outlined text-outline">notifications</span>
                 <span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full">3</span>
             </button>
             
             <button class="p-xs rounded-full hover:bg-surface-container-high transition-colors">
                 <span class="material-symbols-outlined text-outline">settings</span>
-            </button>
+            </button> -->
 
             <div class="flex items-center gap-sm pl-sm cursor-pointer group">
                 <div class="text-right hidden sm:block">
-                    <p class="font-label-lg text-label-lg text-on-surface"><?= esc($displayName) ?></p>
+                    <p class="font-label-lg text-label-lg text-on-surface"><?= esc($prenom . " " . $nom) ?></p>
                     <p class="text-label-sm text-outline"><?= $roleLabel ?></p>
                 </div>
                 <div class="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center font-bold border border-outline-variant shadow-sm overflow-hidden">

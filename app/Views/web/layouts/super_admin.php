@@ -3,12 +3,12 @@
 <?= $this->section('styles') ?>
 <style>
     :root {
-        --color-primary: #6366f1; /* Indigo */
-        --color-primary-container: #e0e7ff;
-        --color-on-primary-container: #312e81;
-        --color-primary-fixed: #e0e7ff;
-        --color-on-primary-fixed: #312e81;
-        --color-on-primary-fixed-variant: #4f46e5;
+        --color-primary: #2563eb; 
+        --color-primary-container: #dbeafe;
+        --color-on-primary-container: #1e3a8a;
+        --color-primary-fixed: #dbeafe;
+        --color-on-primary-fixed: #1e3a8a;
+        --color-on-primary-fixed-variant: #2563eb;
     }
 </style>
 <?= $this->renderSection('styles') ?>

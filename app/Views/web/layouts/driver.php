@@ -4,15 +4,15 @@
 <style>
     /* Masquer la sidebar pour les chauffeurs */
     #sidebar {
-        display: none !important;
+        /* display: none !important; */
     }
     :root {
-        --color-primary: #d97706; /* Amber/Orange */
-        --color-primary-container: #fef3c7;
-        --color-on-primary-container: #78350f;
-        --color-primary-fixed: #fef3c7;
-        --color-on-primary-fixed: #78350f;
-        --color-on-primary-fixed-variant: #d97706;
+        --color-primary: #2563eb; 
+        --color-primary-container: #dbeafe;
+        --color-on-primary-container: #1e3a8a;
+        --color-primary-fixed: #dbeafe;
+        --color-on-primary-fixed: #1e3a8a;
+        --color-on-primary-fixed-variant: #2563eb;
     }
 </style>
 <?= $this->renderSection('styles') ?>

@@ -13,8 +13,6 @@ $programmes  = $programmes ?? [];
 ?>
 
 <div class="space-y-lg">
-
-    {{-- ── Carte identité chauffeur ── --}}
     <div class="bg-primary text-on-primary rounded-2xl p-lg shadow-md flex items-center gap-lg">
         <div class="w-14 h-14 rounded-full bg-on-primary/20 flex items-center justify-center text-on-primary font-bold text-h1 shrink-0">
             <?= esc(strtoupper(substr($displayName, 0, 1))) ?>
@@ -32,7 +30,6 @@ $programmes  = $programmes ?? [];
         </div>
     </div>
 
-    {{-- ── Résumé du jour ── --}}
     <div class="grid grid-cols-3 gap-gutter">
         <?php
         $stats = [
@@ -49,7 +46,6 @@ $programmes  = $programmes ?? [];
         <?php endforeach; ?>
     </div>
 
-    {{-- ── Planning du jour ── --}}
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
         <div class="flex items-center gap-md p-lg border-b border-outline-variant">
             <span class="material-symbols-outlined text-primary">event_note</span>
@@ -61,7 +57,7 @@ $programmes  = $programmes ?? [];
                 <span class="material-symbols-outlined text-[56px] text-outline-variant">event_available</span>
                 <div class="text-center">
                     <p class="font-medium text-on-surface">Aucun voyage planifié aujourd'hui</p>
-                    <p class="text-body-sm text-outline mt-xs">Profitez de votre journée de repos ! 🎉</p>
+                    <p class="text-body-sm text-outline mt-xs">Profitez de votre journée de repos !</p>
                 </div>
             </div>
         <?php else: ?>
@@ -95,7 +91,6 @@ $programmes  = $programmes ?? [];
         <?php endif; ?>
     </div>
 
-    {{-- ── Note informative ── --}}
     <div class="flex items-start gap-md p-lg bg-secondary-container/40 border border-secondary/20 rounded-xl text-on-surface-variant">
         <span class="material-symbols-outlined text-secondary shrink-0">info</span>
         <p class="text-body-sm">

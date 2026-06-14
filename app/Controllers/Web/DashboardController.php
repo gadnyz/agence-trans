@@ -2,9 +2,7 @@
 
 namespace App\Controllers\Web;
 
-use App\Controllers\BaseController;
-
-class DashboardController extends BaseController
+class DashboardController extends BaseWebController
 {
     // -------------------------------------------------------------------------
     // Données communes aux dashboards
@@ -42,6 +40,12 @@ class DashboardController extends BaseController
     // -------------------------------------------------------------------------
     public function superAdminDashboard()
     {
+        $user = $this->requireAuthApi();
+
+        if ($user instanceof \CodeIgniter\HTTP\ResponseInterface) {
+            return $user;
+        }
+
         $filters = [
             'date_debut' => $this->request->getGet('date_debut') ?? date('Y-m-01'),
             'date_fin'   => $this->request->getGet('date_fin')   ?? date('Y-m-d'),
@@ -50,8 +54,10 @@ class DashboardController extends BaseController
         ];
 
         $data = [
+            'layout'     => 'web/layouts/super_admin',
             'title'      => 'Kashala Trans — Tableau de bord Super Admin',
             'pageTitle'  => 'Tableau de bord',
+            'user'       => $user,
             'filters'    => $filters,
             'summary'    => $this->buildSummary(),
             'pagination' => $this->buildPagination(),
@@ -73,6 +79,12 @@ class DashboardController extends BaseController
     // -------------------------------------------------------------------------
     public function adminDashboard()
     {
+        $user = $this->requireAuthApi();
+
+        if ($user instanceof \CodeIgniter\HTTP\ResponseInterface) {
+            return $user;
+        }
+
         $filters = [
             'date_debut' => $this->request->getGet('date_debut') ?? date('Y-m-01'),
             'date_fin'   => $this->request->getGet('date_fin')   ?? date('Y-m-d'),
@@ -80,8 +92,10 @@ class DashboardController extends BaseController
         ];
 
         $data = [
+            'layout'     => 'web/layouts/admin',
             'title'      => 'Kashala Trans — Tableau de bord Admin',
             'pageTitle'  => 'Tableau de bord',
+            'user'       => $user,
             'filters'    => $filters,
             'summary'    => $this->buildSummary(),
             'pagination' => $this->buildPagination(),

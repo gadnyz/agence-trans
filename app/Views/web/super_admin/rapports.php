@@ -1,4 +1,4 @@
-<?= $this->extend('web/layouts/app') ?>
+<?= $this->extend($layout ?? 'web/layouts/super_admin') ?>
 
 <?= $this->section('styles') ?>
 <style>
@@ -93,8 +93,8 @@ $pageStart = max(1, (int) $pagination['page'] - 2);
 $pageEnd = min((int) $pagination['total_pages'], (int) $pagination['page'] + 2);
 ?>
 
-<div class="no-print fixed top-[48px] left-0 w-full z-40 bg-surface-container-low border-b border-outline-variant">
-    <div class="px-gutter py-xs flex flex-col gap-xs lg:flex-row lg:items-center lg:justify-between">
+<div class="no-print mb-lg bg-surface-container-low border border-outline-variant rounded-xl p-md shadow-sm">
+    <div class="flex flex-col gap-xs lg:flex-row lg:items-center lg:justify-between">
         <div class="flex items-center gap-sm min-w-0">
             <h2 class="font-h2 text-h2 text-on-surface truncate"><?= esc($pageTitle) ?></h2>
             <span class="hidden sm:inline text-body-sm text-on-surface-variant"><?= esc($number($pagination['total'])) ?> ligne(s)</span>
@@ -157,7 +157,7 @@ $pageEnd = min((int) $pagination['total_pages'], (int) $pagination['page'] + 2);
     </div>
 </div>
 
-<main class="pt-[160px] lg:pt-[128px] px-gutter pb-xl max-w-[1900px] mx-auto">
+<div class="pb-xl max-w-[1900px] mx-auto">
     <section class="mb-gutter">
         <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-sm mb-md">
             <div>
@@ -309,5 +309,5 @@ $pageEnd = min((int) $pagination['total_pages'], (int) $pagination['page'] + 2);
             </div>
         </nav>
     </section>
-</main>
+</div>
 <?= $this->endSection() ?>

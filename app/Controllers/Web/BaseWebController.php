@@ -13,37 +13,85 @@ use App\Libraries\ApiClient;
 abstract class BaseWebController extends Controller
 {
     /**
-     * Instance of the main Request object.
-     *
      * @var CLIRequest|IncomingRequest
      */
     protected $request;
 
-    /**
-     * An array of helpers to be loaded automatically upon
-     * class instantiation. These helpers will be available
-     * to all other controllers that extend BaseController.
-     *
-     * @var array
-     */
     protected $helpers = ['url', 'form'];
 
     protected ApiClient $api;
 
-    /**
-     * Constructor.
-     */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        // Do Not Edit This Line
         parent::initController($request, $response, $logger);
-
-        // Preload any models, libraries, etc, here.
-        
-        // Ensure session is started
         \Config\Services::session();
-        
-        // Initialize the internal API Client
         $this->api = new ApiClient();
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers communs — disponibles dans tous les controllers Web
+    // -------------------------------------------------------------------------
+
+    /**
+     * Retourne l'utilisateur connecté depuis la session.
+     */
+    protected function sessionUser(): array
+    {
+        return session()->get('user') ?? [];
+    }
+
+    /**
+     * Retourne le code du rôle de l'utilisateur connecté.
+     */
+    protected function userRole(): string
+    {
+        return $this->sessionUser()['role']['code'] ?? '';
+    }
+
+    /**
+     * Vérifie que l'utilisateur a un token valide (API auth/me).
+     * Retourne le tableau de données utilisateur ou une Response de redirection.
+     */
+    protected function requireAuthApi(): array|ResponseInterface
+    {
+        if (! session()->get('access_token')) {
+            return redirect()->to('/');
+        }
+
+        $meResponse = $this->api->get('auth/me');
+
+        if (! $meResponse || ($meResponse['success'] ?? false) === false) {
+            session()->destroy();
+            return redirect()->to('/')->with('error', 'Session expirée, veuillez vous reconnecter.');
+        }
+
+        return $meResponse['data'];
+    }
+
+    /**
+     * Vérifie qu'il y a un token de session (sans appel API) — pour les pages print.
+     */
+    protected function requireSession(): ?ResponseInterface
+    {
+        if (! session()->get('access_token')) {
+            return redirect()->to('/');
+        }
+        return null;
+    }
+
+    /**
+     * Table de la page d'accueil par rôle.
+     */
+    protected function roleHomePath(string $role = ''): string
+    {
+        $role = $role ?: $this->userRole();
+
+        return match ($role) {
+            'super_admin' => '/super-admin/dashboard',
+            'admin'       => '/admin/dashboard',
+            'recept'      => '/recept/reservations',
+            'driver'      => '/driver/planning',
+            default       => '/',
+        };
     }
 }

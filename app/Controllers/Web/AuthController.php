@@ -57,7 +57,8 @@ class AuthController extends BaseWebController
             session()->set('refresh_token', $response['data']['token']['refresh_token']);
             session()->set('user', $response['data']['user']);
 
-            // return redirect()->to('/reservations');
+            $role = $response['data']['user']['role']['code'] ?? '';
+            return redirect()->to($this->roleHomePath($role));
         } else {
             // Echec de connexion
             $errorMsg = (is_array($response) && isset($response['message'])) ? $response['message'] : 'Identifiants invalides ou erreur de communication avec le serveur (Timeout).';

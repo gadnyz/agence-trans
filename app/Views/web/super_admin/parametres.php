@@ -1,86 +1,26 @@
-<!DOCTYPE html>
+<?= $this->extend($layout ?? 'web/layouts/super_admin') ?>
 
-<html class="light" lang="fr">
-
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
-        rel="stylesheet" />
-    <script
-        id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container-lowest": "#ffffff", secondary: "#5c5f60", "on-tertiary": "#ffffff", "tertiary-container": "#ffffff", "surface-tint": "#5d5f5f", "primary-container": "#ffffff", "surface-container-highest": "#e1e2e4", "on-primary": "#ffffff", background: "#f8f9fb", "secondary-container": "#e1e3e4", "on-tertiary-fixed-variant": "#454747", "on-secondary-fixed": "#191c1d", "on-secondary-fixed-variant": "#454748", "surface-bright": "#f8f9fb", "on-tertiary-container": "#747676", "secondary-fixed-dim": "#c5c7c8", "on-tertiary-fixed": "#1a1c1c", "on-primary-fixed": "#1a1c1c", "surface-container-low": "#f3f4f6", surface: "#f8f9fb", "on-primary-fixed-variant": "#454747", outline: "#747878", "inverse-primary": "#c6c6c7", error: "#ba1a1a", "outline-variant": "#c4c7c8", "surface-variant": "#e1e2e4", "surface-container-high": "#e7e8ea", "primary-fixed": "#e2e2e2", "secondary-fixed": "#e1e3e4", "surface-container": "#edeef0", "error-container": "#ffdad6", "on-primary-container": "#747676", "on-error": "#ffffff", tertiary: "#5d5f5f", "surface-dim": "#d9dadc", "on-secondary-container": "#626566", "tertiary-fixed-dim": "#c6c6c7", "primary-fixed-dim": "#c6c6c7", "on-background": "#191c1e", "on-surface": "#191c1e", "inverse-surface": "#2e3132", primary: "#5d5f5f", "on-surface-variant": "#444748", "on-error-container": "#93000a", "inverse-on-surface": "#f0f1f3", "tertiary-fixed": "#e2e2e2", "on-secondary": "#ffffff" }, borderRadius: { DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem" }, spacing: { base: "4px", margin: "24px", xs: "4px", gutter: "16px", sm: "8px", lg: "24px", xl: "32px", md: "16px" }, fontFamily: { "status-badge": ["Inter"], "body-sm": ["Inter"], "label-caps": ["Inter"], h1: ["Inter"], h2: ["Inter"], "body-md": ["Inter"], headline: ["Inter"], display: ["Inter"], body: ["Inter"], label: ["Inter"] }, fontSize: { "status-badge": ["12px", { lineHeight: "12px", fontWeight: "500" }], "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }], "label-caps": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }], h1: ["24px", { lineHeight: "32px", letterSpacing: "-0.02em", fontWeight: "600" }], h2: ["18px", { lineHeight: "28px", fontWeight: "600" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }] } } } };</script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-
-        body {
-            background-color: #f3f4f6;
-            /* Style Guidance L0 Background */
-        }
-    </style>
-</head>
-
-<body class="font-body-md text-on-surface">
-    <!-- TopAppBar Small (JSON derived) -->
-    <header
-        class="bg-surface border-b border-outline-variant shadow-sm fixed top-0 left-0 w-full h-[48px] z-50 flex items-center px-gutter justify-between">
-        <div class="flex items-center gap-md">
-            <span class="material-symbols-outlined text-primary cursor-pointer">apps</span>
-            <h1 class="font-h2 text-h2 font-bold text-on-surface">KASHALA Trans</h1>
+<?= $this->section('content') ?>
+<div class="space-y-lg">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-sm mb-lg">
+        <div>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface">Paramètres</h2>
+            <p class="text-body-lg text-outline">Gestion globale de l'agence de transport</p>
         </div>
-        <div class="flex items-center gap-md">
-            <span
-                class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer p-xs rounded-full">notifications</span>
-            <span
-                class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer p-xs rounded-full">settings</span>
-            <div class="flex items-center gap-sm ml-sm cursor-pointer active:opacity-80">
-                <span class="font-body-md text-body-md text-on-surface-variant">Admin</span>
-                <div
-                    class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border border-outline-variant">
-                    <img alt="Admin Avatar" class="w-full h-full object-cover"
-                        data-alt="A professional corporate headshot of a middle-aged male administrator with a confident expression, set against a soft-focus office background. The lighting is bright and even, matching a high-key light mode UI aesthetic. The overall color palette is composed of soft grays and crisp whites, reflecting a modern and clean business environment."
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCH045NtEtP6PIFo4NOMSMj0O6kHfqkqHYNqQ26VCTpw8jw3ML5nePzjXhIc5qKfWSNVjwaOshSE8dUiDn76Ur0--gjYqA0Cbc5OH-qj4f8hefX68Cv8fsjA1hhvYxDopDhjxBkqFqupG_nemu_a9pvHcPhD7DldayCBx1Z9BjrC2anRIqCPYBr6OWOiQsnylQdxlOxDjmhAd8Q-p6BCnO07xt9KsGE2soa349AH81W8MZHcN6uEEXyJjM3i7GfGB098uwsT6eGs0y2" />
-                </div>
-            </div>
-        </div>
-    </header>
-    <!-- TopAppBar Medium (Secondary Nav Area) -->
-    <nav
-        class="bg-surface-container-low border-b border-outline-variant fixed top-[48px] left-0 w-full h-[56px] z-40 flex items-center px-gutter justify-between">
-        <div class="flex items-center h-full">
-            <div class="flex items-center gap-sm mr-lg">
-                <span class="material-symbols-outlined text-primary">arrow_back</span>
-                <span class="font-h2 text-h2 text-on-surface">Paramètres</span>
-            </div>
-            <!-- Sub-navigation Tabs -->
-            <div class="flex items-center h-full gap-lg ml-md">
-                <a class="h-full flex items-center text-primary font-bold border-b-2 border-primary px-sm transition-all"
-                    href="#">Utilisateurs</a>
-                <a class="h-full flex items-center text-secondary hover:text-primary px-sm transition-all"
-                    href="#">Trajets</a>
-                <a class="h-full flex items-center text-secondary hover:text-primary px-sm transition-all"
-                    href="#">Flotte de Bus</a>
-            </div>
-        </div>
-        <div class="flex items-center gap-md">
-            <button
-                class="bg-[#2563EB] text-white px-md py-xs rounded-lg font-medium flex items-center gap-xs hover:opacity-90 active:scale-95 transition-all">
+        <div class="flex gap-sm">
+            <button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-lg hover:brightness-110 active:scale-95 transition-all flex items-center gap-sm shadow-sm">
                 <span class="material-symbols-outlined text-[20px]">add</span>
                 Ajouter un utilisateur
             </button>
-            <span
-                class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-surface-container-highest p-xs rounded-full duration-75">filter_list</span>
         </div>
-    </nav>
-    <!-- Main Canvas Area -->
-    <main class="mt-[104px] p-margin max-w-7xl mx-auto">
+    </div>
+
+    <!-- Sub-navigation Tabs -->
+    <div class="border-b border-outline-variant flex gap-md mb-lg">
+        <a class="py-md text-primary font-bold border-b-2 border-primary px-sm transition-all" href="#">Utilisateurs</a>
+        <a class="py-md text-on-surface-variant hover:text-primary px-sm transition-all" href="#">Trajets</a>
+        <a class="py-md text-on-surface-variant hover:text-primary px-sm transition-all" href="#">Flotte de Bus</a>
+    </div>
         <!-- Search & Filter Bar (Utilitarian) -->
         <div
             class="mb-lg flex justify-between items-center bg-white p-md rounded-xl border border-outline-variant shadow-sm">
@@ -288,9 +228,6 @@
                 <p class="text-body-md text-on-surface-variant">Consultez les dernières actions effectuées par chaque
                     utilisateur pour maintenir l'intégrité de vos données de transport.</p>
             </div>
-        </div>
-    </main>
-    <!-- FAB for quick action (Conditional - Hidden on settings per guidance but shown here as a demo component anchor if needed, however per prompt instruction we are following the Trello/Odoo structure which usually prefers the top buttons) -->
-</body>
-
-</html>
+    </div>
+</div>
+<?= $this->endSection() ?>

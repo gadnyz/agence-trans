@@ -1,4 +1,4 @@
-<?= $this->extend('web/layouts/super_admin') ?>
+<?= $this->extend($layout ?? 'web/layouts/recept') ?>
 
 <?= $this->section('content') ?>
 

@@ -17,6 +17,7 @@ $routes->group('', ['namespace' => 'App\Controllers\Web'], static function ($rou
     $routes->get('/', 'AuthController::index');
     $routes->post('login', 'AuthController::login');
     $routes->get('logout', 'AuthController::logout');
+    $routes->post('session/refresh', 'AuthController::refresh');
 });
 
 // =============================================================================

@@ -1,4 +1,4 @@
-<?= $this->extend('web/layouts/super_admin') ?>
+<?= $this->extend($layout ?? 'web/layouts/super_admin') ?>
 
 <?= $this->section('styles') ?>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
@@ -68,20 +68,22 @@
 
 <?= $this->section('content') ?>
 
-<div class="fixed top-[64px] sm:top-[72px] left-0 w-full h-[60px] z-40 flex items-center justify-between px-6 bg-white border-b border-gray-200 shadow-sm transition-all">
-    <div class="flex items-center gap-3 h-full">
-        <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
-            <span class="material-symbols-outlined text-[20px]">calendar_month</span>
-        </div>
-        <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Planification</h2>
-    </div>
-    <div class="hidden sm:flex items-center gap-2 text-sm text-gray-500 bg-gray-50 px-4 py-1.5 rounded-full border border-gray-200 shadow-sm">
-        <span class="material-symbols-outlined text-[16px]">touch_app</span>
-        Cliquer sur une date pour planifier
-    </div>
-</div>
 
-<main class="pt-[140px] px-4 sm:px-6 lg:px-8 pb-12 max-w-[1600px] mx-auto">
+
+<main class="px-4 pb-12 max-w-[1600px] mx-auto">
+    <div class="w-full h-[60px] rounded-2xl mb-6 flex items-center justify-between px-6 bg-white border-b border-gray-200 shadow-sm transition-all">
+        <div class="flex items-center gap-3 h-full">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
+                <span class="material-symbols-outlined text-[20px]">calendar_month</span>
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Planification</h2>
+        </div>
+        <div class="hidden sm:flex items-center gap-2 text-sm text-gray-500 bg-gray-50 px-4 py-1.5 rounded-full border border-gray-200 shadow-sm">
+            <span class="material-symbols-outlined text-[16px]">touch_app</span>
+            Cliquer sur une date pour planifier
+        </div>
+    </div>
+
     <div id="planning-alert" class="hidden mb-6 border rounded-xl p-4 text-sm font-medium transition-all"></div>
 
     <section class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">

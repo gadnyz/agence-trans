@@ -63,7 +63,6 @@ $links    = $roleMenu['links'];
 
 <aside id="sidebar" class="sticky top-0 hidden md:flex flex-col h-screen p-md gap-sm bg-surface-container-lowest border-r border-outline-variant shadow-sm shrink-0 transition-all duration-300 w-72 [&.collapsed]:w-20">
 
-    {{-- ── Logo & Toggle ── --}}
     <div class="flex items-center gap-md px-sm py-md mb-md">
         <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center shrink-0">
             <span class="material-symbols-outlined text-on-primary text-headline-md">directions_bus</span>
@@ -79,7 +78,6 @@ $links    = $roleMenu['links'];
         </button>
     </div>
 
-    {{-- ── Navigation ── --}}
     <nav class="flex-1 space-y-1 overflow-y-auto hide-scrollbar" aria-label="Navigation principale">
         <?php foreach ($links as $link): ?>
             <a
@@ -93,7 +91,6 @@ $links    = $roleMenu['links'];
         <?php endforeach; ?>
     </nav>
 
-    {{-- ── Déconnexion ── --}}
     <div class="pt-sm border-t border-outline-variant">
         <a
             href="<?= base_url('logout') ?>"

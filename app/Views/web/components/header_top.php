@@ -47,7 +47,7 @@ $roleLabel = esc($user['role']['libelle'] ?? 'Fleet Manager');
 
             <div class="flex items-center gap-sm pl-sm cursor-pointer group">
                 <div class="text-right hidden sm:block">
-                    <p class="font-label-lg text-label-lg text-on-surface"><?= esc($prenom . " " . $nom) ?></p>
+                    <p class="font-label-lg text-label-lg text-on-surface"><?= esc($displayName) ?></p>
                     <p class="text-label-sm text-outline"><?= $roleLabel ?></p>
                 </div>
                 <div class="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center font-bold border border-outline-variant shadow-sm overflow-hidden">

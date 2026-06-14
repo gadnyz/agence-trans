@@ -6,26 +6,34 @@ class ReservationController extends BaseWebController
 {
     public function index()
     {
-        $meResponse = $this->authenticatedUser();
+        $user = $this->requireAuthApi();
 
-        if (! is_array($meResponse)) {
-            return $meResponse;
+        if ($user instanceof \CodeIgniter\HTTP\ResponseInterface) {
+            return $user;
         }
 
         // Choisir la vue selon le rôle de l'utilisateur
-        $userRole = session()->get('user')['role']['code'] ?? '';
+        $userRole = $this->userRole();
 
         $viewMap = [
             'super_admin' => 'web/super_admin/reservation',
-            'admin'       => 'web/super_admin/reservation', // admin utilise la même vue pour l'instant
+            'admin'       => 'web/super_admin/reservation',
             'recept'      => 'web/recept/reservations',
         ];
 
         $viewName = $viewMap[$userRole] ?? 'web/super_admin/reservation';
 
+        $layout = match($userRole) {
+            'super_admin' => 'web/layouts/super_admin',
+            'admin'       => 'web/layouts/admin',
+            'recept'      => 'web/layouts/recept',
+            default       => 'web/layouts/super_admin',
+        };
+
         return view($viewName, [
+            'layout'         => $layout,
             'title'          => 'Réservations',
-            'user'           => $meResponse['data'],
+            'user'           => $user,
             'api_token'      => session()->get('access_token'),
             'modes_paiement' => $this->modesPaiement(),
             'today'          => date('Y-m-d'),
@@ -76,22 +84,6 @@ class ReservationController extends BaseWebController
         ]);
     }
 
-    private function authenticatedUser()
-    {
-        if (! session()->get('access_token')) {
-            return redirect()->to('/');
-        }
-
-        $meResponse = $this->api->get('auth/me');
-
-        if (! $meResponse || ($meResponse['success'] ?? false) === false) {
-            session()->destroy();
-
-            return redirect()->to('/')->with('error', 'Session expiree, veuillez vous reconnecter.');
-        }
-
-        return $meResponse;
-    }
 
     private function printSessionGuard()
     {

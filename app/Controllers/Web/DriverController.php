@@ -10,13 +10,25 @@ class DriverController extends BaseWebController
     // -------------------------------------------------------------------------
     public function planning()
     {
-        $user = session()->get('user');
+        $user = $this->requireAuthApi();
+
+        if ($user instanceof \CodeIgniter\HTTP\ResponseInterface) {
+            return $user;
+        }
+
+        $userRole = $this->userRole();
+        $layout = match($userRole) {
+            'super_admin' => 'web/layouts/super_admin',
+            'admin'       => 'web/layouts/admin',
+            'driver'      => 'web/layouts/driver',
+            default       => 'web/layouts/driver',
+        };
 
         $data = [
-            'title'     => 'Kashala Trans — Mon Planning',
-            'pageTitle' => 'Mon Planning',
-            'user'      => $user,
-            // À remplacer par une requête réelle : $programmesModel->getForDriver($user['id'])
+            'layout'     => $layout,
+            'title'      => 'Kashala Trans — Mon Planning',
+            'pageTitle'  => 'Mon Planning',
+            'user'       => $user,
             'programmes' => [],
         ];
 

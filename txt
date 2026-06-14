@@ -87,3 +87,86 @@ app/
     │
     └── driver/              # Vues pour le Chauffeur
         └── planning.php
+
+
+
+
+
+
+
+
+Sur la base de la documentation technique que vous avez extraite de votre Trello, voici la définition des rôles dans votre application **Kashala Trans**.
+
+Votre système utilise une approche de **RBAC (Role-Based Access Control)** gérée via une table de rôles (`role`) et des permissions définies côté backend.
+
+### Matrice des Rôles et Responsabilités
+
+| Rôle | Accès aux Données | Actions Opérationnelles |
+| --- | --- | --- |
+| **Super Admin** | Total (Tout le système) | Configuration globale, gestion des accès, reportings BI, suppression/audit. |
+| **Admin** | Système complet | Gestion des bus, conducteurs, trajets, programmes et finances (Paiements). |
+| **Recept** (Réceptionniste) | Limité (Front-Office) | Création de réservations, saisie des paiements, lecture des horaires/trajets. |
+| **Driver** (Conducteur) | Très limité | Consultation de ses propres programmes (trajets assignés). |
+
+---
+
+### Analyse détaillée par rôle
+
+#### 1. Super Admin (`super_admin`)
+
+C'est le rôle "propriétaire" du système.
+
+* **Rôle :** Il a un accès `["*"]` (toutes les permissions).
+* **Responsabilités :**
+* Configurer les devises, les modes de paiement et les paramètres de l'agence.
+* Créer et gérer les comptes des administrateurs et des réceptionnistes.
+* Accéder aux vues de Business Intelligence (BI) pour piloter la rentabilité de la flotte.
+* Gestion des "Soft Deletes" (audit et restauration des données supprimées).
+
+
+
+#### 2. Admin (`admin`)
+
+Le gestionnaire opérationnel quotidien.
+
+* **Rôle :** Il gère toute la logique métier sans toucher à la configuration critique du système.
+* **Responsabilités :**
+* **Flotte & RH :** Ajouter des bus, assigner des conducteurs.
+* **Planification :** Créer les programmes de voyage (assigner bus + conducteur à un trajet).
+* **Tarification :** Définir les prix des trajets (historisation automatique par trigger).
+* **Supervision :** Valider les réservations complexes ou gérer les annulations.
+
+
+
+#### 3. Réceptionniste (`recept`)
+
+C'est l'utilisateur "guichet".
+
+* **Rôle :** Opérations transactionnelles uniquement.
+* **Responsabilités :**
+* **Vente :** Créer des réservations (le système enregistre automatiquement leur identifiant dans le champ `created_by` de la table `reservation`).
+* **Paiement :** Enregistrer les encaissements, gérer le solde restant et générer les reçus.
+* **Lecture :** Accéder au calendrier pour informer les clients sur la disponibilité des places.
+* *Il n'a pas le droit de modifier la structure des bus, de changer les prix, ou de créer des nouveaux trajets.*
+
+
+
+#### 4. Conducteur (`driver`)
+
+C'est un utilisateur mobile.
+
+* **Rôle :** Consultation.
+* **Responsabilités :**
+* Le système est conçu pour que ses données soient gérées par l'Admin. Il consulte ses programmes pour savoir quel trajet il doit effectuer.
+
+
+
+---
+
+### Points clés de votre architecture métier
+
+* **Traçabilité (`created_by`) :** Grâce à l'ajout du champ `created_by` dans la table `reservation`, chaque vente est liée à un réceptionniste ou un admin spécifique. Cela permet une **auditabilité totale** : si une caisse manque d'argent, vous savez exactement quel utilisateur a généré les tickets.
+* **Sécurité API :** L'accès est contrôlé par un `PermissionMiddleware` qui vérifie le rôle encodé dans le token JWT. Si un `recept` tente d'appeler `DELETE /api/admin/bus/{id}`, le système renverra une erreur `ERR_PERMISSION_REFUSEE`.
+* **Centralisation :** La logique est dans les `Services` (ex: `ReservationService`, `PaiementService`), garantissant que peu importe qui (Admin ou Réceptionniste) utilise l'interface, les règles métier (pas de surbooking, calcul des prix, conversion des devises) restent identiques.
+
+Souhaitez-vous que nous passions à la partie **implémentation**, par exemple en créant le `PermissionService` qui gère ces accès basés sur votre fichier `permissions.json` ?

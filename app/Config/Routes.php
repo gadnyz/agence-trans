@@ -104,5 +104,8 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
         $registerCrud($routes, 'bus',     'bus',     'fleet.manage',                 'fleet.manage');
         $registerCrud($routes, 'trajets', 'trajets', 'routes.read,routes.manage',    'routes.manage');
         $registerCrud($routes, 'clients', 'clients', 'clients.manage',               'clients.manage');
+        $registerCrud($routes, 'conducteurs', 'conducteurs', 'fleet.manage',           'fleet.manage');
+        $registerCrud($routes, 'horaires', 'horaires', 'routes.read,routes.manage',    'routes.manage');
+        $registerCrud($routes, 'lieux', 'lieux', 'routes.read,routes.manage',    'routes.manage');
     });
 });

@@ -250,6 +250,19 @@
         const submitButton = document.getElementById('planning-submit');
         const deleteButton = document.getElementById('planning-delete');
         const daysFieldset = document.getElementById('planning-days-fieldset');
+
+        const busSelect = document.querySelector('select[name="id_bus"]');
+        const placesInput = document.querySelector('input[name="places_disponibles"]');
+
+        busSelect.addEventListener('change', (e) => {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const places = selectedOption.getAttribute('data-places');
+            
+            // Si on a un nombre de places et qu'on est en mode "création" (ou si le champ est vide)
+            if (places && !editingProgrammeId) {
+                placesInput.value = places;
+            }
+        });
         
         const localDateIso = (date) => {
             const year = date.getFullYear();
@@ -408,7 +421,7 @@
             },
             events: async (info, successCallback, failureCallback) => {
                 try {
-                    const url = new URL('<?= base_url('api/planifications/calendar') ?>');
+                    const url = new URL('<?= base_url('api/planification/calendar') ?>');
                     url.searchParams.set('start', info.startStr);
                     url.searchParams.set('end', info.endStr);
 
@@ -438,7 +451,7 @@
 
             deleteButton.disabled = true;
             try {
-                const response = await apiFetch(`<?= base_url('api/planifications') ?>/${editingProgrammeId}`, {
+                const response = await apiFetch(`<?= base_url('api/planification') ?>/${editingProgrammeId}`, {
                     method: 'DELETE',
                     headers: { Accept: 'application/json' }
                 });
@@ -483,7 +496,7 @@
             }
 
             try {
-                const response = await apiFetch(editingProgrammeId ? `<?= base_url('api/planifications') ?>/${editingProgrammeId}` : '<?= base_url('api/planifications') ?>', {
+                const response = await apiFetch(editingProgrammeId ? `<?= base_url('api/planification') ?>/${editingProgrammeId}` : '<?= base_url('api/planification') ?>', {
                     method: editingProgrammeId ? 'PUT' : 'POST',
                     headers: {
                         Accept: 'application/json',

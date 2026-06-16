@@ -12,7 +12,6 @@ $summary     = $summary ?? [];
 
 <div class="space-y-lg">
 
-    {{-- ── En-tête ── --}}
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-sm">
         <div>
             <h2 class="font-headline-lg text-headline-lg text-on-surface">
@@ -22,7 +21,6 @@ $summary     = $summary ?? [];
         </div>
     </div>
 
-    {{-- ── KPIs ── --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
 
         <?php
@@ -76,7 +74,6 @@ $summary     = $summary ?? [];
         <?php endforeach; ?>
     </div>
 
-    {{-- ── Réservations récentes ── --}}
     <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
         <div class="flex justify-between items-center mb-lg">
             <h3 class="font-title-md text-title-md text-on-surface">Réservations récentes</h3>

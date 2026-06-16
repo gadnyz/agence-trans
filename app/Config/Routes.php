@@ -82,9 +82,14 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
         $routes->post('auth/logout',    'AuthController::logout');
 
         // --- Planification ---
-        $routes->get('planifications',  'PlanningController::listProgrammes',   ['filter' => 'permission:planning.read,planning.manage']);
-        $routes->post('planifications', 'PlanningController::createProgrammes', ['filter' => 'permission:planning.manage']);
-
+        $routes->get('planification',  'PlanningController::listProgrammes',   ['filter' => 'permission:planning.read,planning.manage']);
+        $routes->post('planification', 'PlanningController::createProgrammes', ['filter' => 'permission:planning.manage']);
+        $routes->get('planification/calendar', 'PlanningController::calendarProgrammes', ['filter' => 'permission:planning.read,planning.manage']); // <-- Ajoute cette ligne
+        $routes->get('planification',  'PlanningController::listProgrammes',   ['filter' => 'permission:planning.read,planning.manage']);
+        $routes->post('planification', 'PlanningController::createProgrammes', ['filter' => 'permission:planning.manage']);
+        $routes->put('planification/(:num)',    'PlanningController::updateProgramme/$1', ['filter' => 'permission:planning.manage']);
+        $routes->delete('planification/(:num)', 'PlanningController::deleteProgramme/$1', ['filter' => 'permission:planning.manage']);
+        
         // --- Réservations ---
         $routes->get('reservations',    'ReservationController::list',   ['filter' => 'permission:reservations.manage']);
         $routes->post('reservations',   'ReservationController::create', ['filter' => 'permission:reservations.manage,payments.manage']);

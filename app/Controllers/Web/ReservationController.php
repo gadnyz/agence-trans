@@ -30,6 +30,12 @@ class ReservationController extends BaseWebController
             default       => 'web/layouts/super_admin',
         };
 
+        // RÉCUPÉRATION DES RÉSERVATIONS ICI (Triées par date de création descendante)
+        $reservations = $this->reservationBuilder()
+            ->orderBy('r.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
         return view($viewName, [
             'layout'         => $layout,
             'title'          => 'Réservations',
@@ -37,6 +43,7 @@ class ReservationController extends BaseWebController
             'api_token'      => session()->get('access_token'),
             'modes_paiement' => $this->modesPaiement(),
             'today'          => date('Y-m-d'),
+            'reservations'   => $reservations, // AJOUT DE LA VARIABLE POUR LA VUE
         ]);
     }
 
@@ -201,6 +208,7 @@ class ReservationController extends BaseWebController
                 'pa.reference_paiement',
                 'pa.statut_paiement',
                 'pa.date_paiement',
+                'statut_reservation.libelle AS statut_reservation',
             ])
             ->join('client cl', 'cl.id_client = r.id_client')
             ->join('programme p', 'p.id_programme = r.id_programme')
@@ -215,6 +223,7 @@ class ReservationController extends BaseWebController
             ->join('currency cur', 'cur.id_currency = r.id_currency')
             ->join('paiement pa', 'pa.id_reservation = r.id_reservation AND pa.deleted_at IS NULL', 'left')
             ->join('mode_paiement mp', 'mp.id_mode_paiement = pa.id_mode_paiement', 'left')
+            ->join('statut_reservation', 'statut_reservation.id_statut_reservation = r.id_statut_reservation', 'left')
             ->where('r.deleted_at', null);
     }
 

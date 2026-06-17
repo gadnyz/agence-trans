@@ -193,6 +193,23 @@ class ReservationController extends BaseApiController
                 'statut_paiement' => 'Valide',
             ]);
 
+            $db->table('paiement')->insert([
+                'id_reservation' => $reservationId,
+                'id_mode_paiement' => (int) $mode['id_mode_paiement'],
+                'montant_paye' => $montantFinal,
+                'id_currency' => (int) $programme['id_currency'],
+                'taux_conversion' => 1,
+                'reference_paiement' => $paymentResult->reference,
+                'date_paiement' => date('Y-m-d H:i:s'),
+                'statut_paiement' => 'Valide',
+            ]);
+
+            // NOUVEAU : Mise à jour des places disponibles
+            $db->table('programme')
+               ->where('id_programme', (int) $programme['id_programme'])
+               ->set('places_disponibles', 'places_disponibles - ' . $nombrePlaces, false) // false empêche CI d'échapper la soustraction
+               ->update();
+
             $db->transComplete();
 
             if ($db->transStatus() === false) {
@@ -302,7 +319,7 @@ class ReservationController extends BaseApiController
             ->table('reservation r')
             ->select([
                 'r.*',
-                'sr.libelle AS statut_reservation',
+                'statut_reservation.libelle AS statut_reservation',
                 'cl.nom AS client_nom',
                 'cl.telephone AS client_telephone',
                 'cl.email AS client_email',
@@ -328,7 +345,7 @@ class ReservationController extends BaseApiController
                 'u.nom AS created_by_nom',
                 'u.prenom AS created_by_prenom',
             ])
-            ->join('statut_reservation sr', 'sr.id_statut_reservation = r.id_statut_reservation')
+            ->join('statut_reservation', 'statut_reservation.id_statut_reservation = r.id_statut_reservation')
             ->join('client cl', 'cl.id_client = r.id_client')
             ->join('programme p', 'p.id_programme = r.id_programme')
             ->join('bus b', 'b.id_bus = p.id_bus')

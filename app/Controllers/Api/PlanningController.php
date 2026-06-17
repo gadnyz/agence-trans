@@ -626,4 +626,23 @@ class PlanningController extends BaseApiController
     {
         return new DateTimeImmutable(date('Y-m-d'));
     }
+
+    public function getAvailableTrips()
+    {
+        $id_trajet = $this->request->getGet('id_trajet');
+        $date = $this->request->getGet('date'); // Format Y-m-d
+
+        $programmeModel = new \App\Models\ProgrammeModel();
+
+        // On cherche les programmes pour ce trajet, cette date, actifs et avec des places
+        $trips = $programmeModel->select('programme.*, bus.numero_plaque, bus.nombre_places')
+            ->join('bus', 'bus.id_bus = programme.id_bus')
+            ->where('programme.id_trajet', $id_trajet)
+            ->like('programme.date_programme', $date, 'after') // Filtre sur le jour même
+            ->where('programme.places_disponibles >', 0)
+            ->where('programme.statut', 'planifie')
+            ->findAll();
+
+        return $this->respond($trips);
+    }
 }

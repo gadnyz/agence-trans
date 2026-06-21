@@ -645,4 +645,49 @@ class PlanningController extends BaseApiController
 
         return $this->respond($trips);
     }
+
+    // Liste les programmes de voyage pour le modal du Réceptionniste
+    public function search(): ResponseInterface
+    {
+        $dateDebut = trim((string) $this->request->getGet('date_debut'));
+        $search    = trim((string) $this->request->getGet('search'));
+
+        // On utilise ton programmeBuilder() existant qui est parfait !
+        $builder = $this->programmeBuilder()
+            ->orderBy('h.heure_depart', 'ASC');
+
+        // Filtrer par date
+        if ($dateDebut !== '') {
+            $builder->where('p.date_programme', $dateDebut);
+        }
+
+        // Filtrer par la barre de recherche (ex: taper le nom d'une ville)
+        if ($search !== '') {
+            $builder->groupStart()
+                ->like('td.nom_lieu', $search) // td est l'alias de lieu_depart dans ton builder
+                ->orLike('ta.nom_lieu', $search) // ta est l'alias de lieu_arrivee dans ton builder
+                ->groupEnd();
+        }
+
+        $items = $builder->get()->getResultArray();
+
+        // On ajoute la gestion des arrêts pour chaque programme
+        foreach ($items as &$item) {
+            $arrets = db_connect()->table('arret a')
+                ->select('a.id_lieu, l.nom_lieu')
+                ->join('lieu l', 'l.id_lieu = a.id_lieu')
+                ->where('a.id_trajet', $item['id_trajet'])
+                ->where('a.deleted_at', null)
+                ->orderBy('a.ordre_arret', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            $item['arrets'] = $arrets;
+        }
+        unset($item);
+
+        return $this->success([
+            'items' => $items,
+        ]);
+    }
 }

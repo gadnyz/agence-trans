@@ -9,6 +9,7 @@ $today       = date('d/m/Y');
 $todayIso    = date('Y-m-d');
 ?>
 
+
 <div class="space-y-lg">
 
     <!-- ── En-tête ── -->
@@ -249,9 +250,31 @@ const BASE_URL  = '<?= base_url() ?>';
 const TODAY     = '<?= $todayIso ?>';
 
 // ── Fetch helper ───────────────────────────────────────────────────────────
+// Remplace ton apiFetch actuelle par celle-ci
 async function apiFetch(url, options = {}) {
-    const headers = { Accept: 'application/json', Authorization: `Bearer ${API_TOKEN}`, ...(options.headers || {}) };
-    return fetch(url, { ...options, headers });
+    // 1. Priorité au token PHP, sinon on cherche dans le localStorage
+    let token = (typeof API_TOKEN !== 'undefined' && API_TOKEN) ? API_TOKEN : localStorage.getItem('access_token');
+
+    // 2. Si toujours pas de token, on affiche une erreur
+    if (!token) {
+        console.error("Aucun token trouvé !");
+    }
+
+    const headers = { 
+        'Accept': 'application/json', 
+        'Authorization': `Bearer ${token}`, 
+        ...(options.headers || {}) 
+    };
+
+    const response = await fetch(url, { ...options, headers });
+
+    // 3. Gestion automatique du 401
+    if (response.status === 401) {
+        console.warn("Session expirée ou invalide. Redirection...");
+        window.location.href = BASE_URL; // Redirection vers le login
+    }
+
+    return response;
 }
 
 // ── Alerte page ────────────────────────────────────────────────────────────
@@ -312,7 +335,7 @@ async function searchProgrammes() {
     try {
         const params = new URLSearchParams({ per_page: 50, date_debut: date, date_fin: date });
         if (search) params.set('search', search);
-        const response = await apiFetch(`${BASE_URL}api/planification?${params}`);
+        const response = await apiFetch(`${BASE_URL}api/planification/search?${params}`);
         const json = await response.json();
         const items = json.data?.items ?? [];
 
@@ -380,7 +403,7 @@ async function loadProgrammesModal(selectId = null) {
     const select = document.getElementById('modal-id-programme');
     const date   = document.getElementById('filter-date').value || TODAY;
     try {
-        const response = await apiFetch(`${BASE_URL}api/planification?per_page=100&date_debut=${date}&date_fin=${date}`);
+        const response = await apiFetch(`${BASE_URL}api/planification/search?per_page=100&date_debut=${date}&date_fin=${date}`);
         const json     = await response.json();
         const items    = json.data?.items ?? [];
         select.innerHTML = '<option value="">Sélectionner un programme</option>';

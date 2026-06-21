@@ -28,10 +28,9 @@ $menus = [
     'admin' => [
         'label' => 'Admin',
         'links' => [
-            ['path' => 'admin/dashboard',           'icon' => 'dashboard',      'label' => 'Dashboard'],
-            ['path' => 'admin/reservation',         'icon' => 'book_online',    'label' => 'Réservations'],
-            ['path' => 'admin/planification',       'icon' => 'calendar_today', 'label' => 'Planification'],
             ['path' => 'admin/rapports',            'icon' => 'bar_chart',      'label' => 'Rapports'],
+            ['path' => 'admin/planification',       'icon' => 'calendar_today', 'label' => 'Planification'],
+            ['path' => 'admin/reservation',         'icon' => 'book_online',    'label' => 'Réservations'],
         ],
     ],
     'recept' => [

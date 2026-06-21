@@ -11,11 +11,11 @@
             <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Réservations</h2>
         </div>
         <div class="flex items-center gap-3">
-            <a href="<?= base_url('reservations/create') ?>" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-all shadow-sm">
-                <span class="material-symbols-outlined text-[18px]">add</span>
-                <span>Nouvelle</span>
-            </a>
-        </div>
+    <button onclick="openModal()" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-all shadow-sm">
+        <span class="material-symbols-outlined text-[18px]">add</span>
+        <span>Nouvelle</span>
+    </button>
+</div>
     </div>
 
     <section class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
@@ -117,6 +117,65 @@
             </table>
         </div>
     </section>
+
+    <div id="reservationModal" class="fixed inset-0 z-50 hidden bg-gray-900/50 backdrop-blur-sm overflow-y-auto transition-opacity" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+        
+        <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-2xl w-full">
+            
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 class="text-lg font-semibold text-gray-900" id="modal-title">Nouvelle Réservation</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-500 hover:bg-gray-100 p-1.5 rounded-full transition-colors outline-none">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+
+            <form action="<?= base_url('reservations/store') ?>" method="POST">
+                <div class="px-6 py-6 space-y-5">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Client</label>
+                            <select name="id_client" class="w-full rounded-xl border-gray-300 border px-4 py-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none bg-white transition-all" required>
+                                <option value="">Sélectionner un client</option>
+                                </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">Programme de voyage</label>
+                            <select name="id_programme" class="w-full rounded-xl border-gray-300 border px-4 py-2.5 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none bg-white transition-all" required>
+                                <option value="">Sélectionner un programme</option>
+                                </select>
+                        </div>
+                    </div>
+
+                    </div>
+
+                <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-50 transition-all focus:outline-none">
+                        Annuler
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 shadow-sm transition-all focus:outline-none">
+                        Enregistrer
+                    </button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        document.getElementById('reservationModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        document.getElementById('reservationModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+</script>
 </main>
 
 <?= $this->endSection() ?>

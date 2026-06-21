@@ -25,7 +25,7 @@ class PlanningController extends BaseWebController
         $lieux = $this->items('lieux', ['per_page' => 200]);
         $horaires = $this->items('horaires', ['per_page' => 200]);
 
-        return view('web/super_admin/planification', [
+        return view($userRole === 'admin' ? 'web/admin/planification' : 'web/super_admin/planification', [
             'layout' => $layout,
             'title' => 'Planification',
             'user' => $user,

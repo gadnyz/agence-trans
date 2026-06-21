@@ -17,7 +17,7 @@ class ReservationController extends BaseWebController
 
         $viewMap = [
             'super_admin' => 'web/super_admin/reservation',
-            'admin'       => 'web/super_admin/reservation',
+            'admin'       => 'web/admin/reservation',
             'recept'      => 'web/recept/reservations',
         ];
 

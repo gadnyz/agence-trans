@@ -33,7 +33,9 @@ class ReportController extends BaseWebController
             default       => 'web/layouts/super_admin',
         };
 
-        return view('web/super_admin/rapports', [
+        $viewName = $userRole === 'admin' ? 'web/admin/rapports' : 'web/super_admin/rapports';
+
+        return view($viewName, [
             'layout' => $layout,
             'title' => 'Rapports',
             'pageTitle' => 'Rapports',

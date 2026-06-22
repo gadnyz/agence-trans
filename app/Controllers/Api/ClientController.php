@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Api;
 
+use App\Api\BaseApiController;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class ClientController extends BaseApiController

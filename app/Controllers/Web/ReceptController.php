@@ -29,8 +29,8 @@ class ReceptController extends BaseWebController
         'title'     => 'Kashala Trans — Guichet',
         'pageTitle' => 'Réservations',
         'user'      => $user,
-        // AJOUTE CETTE LIGNE :
         'api_token' => session()->get('access_token'), 
+        'modes_paiement' => db_connect()->table('mode_paiement')->where('deleted_at', null)->get()->getResultArray(),
     ];
 
     return view('web/recept/reservations', $data);

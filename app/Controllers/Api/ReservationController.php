@@ -193,17 +193,6 @@ class ReservationController extends BaseApiController
                 'statut_paiement' => 'Valide',
             ]);
 
-            $db->table('paiement')->insert([
-                'id_reservation' => $reservationId,
-                'id_mode_paiement' => (int) $mode['id_mode_paiement'],
-                'montant_paye' => $montantFinal,
-                'id_currency' => (int) $programme['id_currency'],
-                'taux_conversion' => 1,
-                'reference_paiement' => $paymentResult->reference,
-                'date_paiement' => date('Y-m-d H:i:s'),
-                'statut_paiement' => 'Valide',
-            ]);
-
             // NOUVEAU : Mise à jour des places disponibles
             $db->table('programme')
                ->where('id_programme', (int) $programme['id_programme'])
@@ -529,6 +518,10 @@ class ReservationController extends BaseApiController
 
         $errors = $validation->run($payload) ? [] : $validation->getErrors();
         $client = $this->clientPayload($payload);
+
+        if (!empty($payload['id_client'])) {
+            return $errors;
+        }
 
         if ($client['telephone'] === '') {
             $errors['telephone'] = 'Le telephone du client est obligatoire.';

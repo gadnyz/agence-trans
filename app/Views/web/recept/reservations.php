@@ -526,6 +526,9 @@ document.getElementById('btn-enregistrer-reservation').addEventListener('click',
         id_lieu_reservation: parseInt(document.getElementById('modal-id-lieu').value) || null,
         id_mode_paiement:    parseInt(document.getElementById('modal-id-mode-paiement').value) || null,
         montant_paye:        parseFloat(document.getElementById('modal-montant').value) || null,
+
+        nom: "",       
+        telephone: ""
     };
 
     const errors = [];

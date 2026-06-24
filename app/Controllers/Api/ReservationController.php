@@ -167,12 +167,22 @@ class ReservationController extends BaseApiController
         try {
             $db->transStart();
 
-            $client = $this->ensureClient($clientPayload);
+            // $client = $this->ensureClient($clientPayload);
+            if (!empty($payload['id_client'])) {
+    // Si JavaScript a envoyé un ID, on l'utilise directement
+    $idClientToUse = (int) $payload['id_client'];
+} else {
+    // Sinon (ex: API appelée par un autre système), on cherche/crée avec le téléphone
+    $client = $this->ensureClient($clientPayload);
+    $idClientToUse = (int) $client['id_client'];
+}
+
             $waitingStatusId = $this->statusId('EN_ATTENTE') ?? $this->firstStatusId();
 
             $db->table('reservation')->insert([
                 'id_programme' => (int) $programme['id_programme'],
-                'id_client' => (int) $client['id_client'],
+                // 'id_client' => (int) $client['id_client'],
+                'id_client' => $idClientToUse,
                 'created_by' => $this->currentUserId(),
                 'id_statut_reservation' => $waitingStatusId,
                 'date_reservation' => date('Y-m-d H:i:s'),

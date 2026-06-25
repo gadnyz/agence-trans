@@ -145,25 +145,24 @@ $programmes  = $programmes ?? [];
         </div>
 
         <!-- ── Recent History Card ── -->
-        <div class="bg-surface-container-lowest border border-gray-100 rounded-2xl shadow-sm overflow-hidden" id="historique-section">
+        <div class="bg-surface-container-lowest border border-gray-100 rounded-2xl shadow-sm overflow-hidden" id="upcoming-section">
             <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant/60 bg-surface-container-low/30">
                 <div class="flex items-center gap-md">
-                    <span class="material-symbols-outlined text-secondary">history</span>
-                    <h3 class="font-title-md text-title-md text-on-surface font-bold">Historique récent (7 derniers jours)</h3>
+                    <span class="material-symbols-outlined text-secondary">schedule</span>
+                    <h3 class="font-title-md text-title-md text-on-surface font-bold">Programmes à venir</h3>
                 </div>
                 <button
-                    id="btn-load-history"
+                    id="btn-refresh-upcoming"
                     class="inline-flex items-center gap-xs px-md py-1.5 bg-surface-container border border-outline-variant rounded-xl text-label-sm font-semibold hover:bg-surface-container-high transition-all shadow-soft"
                 >
-                    <span class="material-symbols-outlined text-[16px]">expand_more</span>
-                    Charger l'historique
+                    <span class="material-symbols-outlined text-[16px]">refresh</span>
+                    Actualiser
                 </button>
             </div>
 
-            <div id="historique-list">
-                <div class="flex flex-col items-center justify-center py-12 text-outline gap-sm">
-                    <span class="material-symbols-outlined text-[48px] text-outline-variant">history</span>
-                    <p class="text-body-md text-on-surface font-medium">Cliquez sur "Charger l'historique" pour voir vos courses précédentes.</p>
+            <div id="upcoming-list">
+                <div class="flex justify-center items-center py-12">
+                    <div class="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full"></div>
                 </div>
             </div>
         </div>
@@ -250,17 +249,22 @@ function esc(str) {
     return d.innerHTML;
 }
 
-document.getElementById('btn-load-history').addEventListener('click', async () => {
-    const container = document.getElementById('historique-list');
+async function loadUpcomingProgrammes() {
+    const container = document.getElementById('upcoming-list');
     container.innerHTML = '<div class="flex justify-center items-center py-xl"><div class="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full"></div></div>';
 
     try {
-        // 7 derniers jours
-        const dateDebut = new Date();
-        dateDebut.setDate(dateDebut.getDate() - 7);
-        const dateDebutStr = dateDebut.toISOString().slice(0, 10);
+        // On calcule la date de demain et celle dans 30 jours
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const dateDebutStr = tomorrow.toISOString().slice(0, 10);
         
-        let url = `${BASE_URL}api/planification?per_page=30&date_debut=${dateDebutStr}&date_fin=${TODAY}&sort=date_programme`;
+        const nextMonth = new Date();
+        nextMonth.setDate(nextMonth.getDate() + 30);
+        const dateFinStr = nextMonth.toISOString().slice(0, 10);
+        
+        // Appel API pour les voyages futurs
+        let url = `${BASE_URL}api/planification?per_page=30&date_debut=${dateDebutStr}&date_fin=${dateFinStr}&sort=date_programme`;
         if (ID_CONDUCTEUR) {
             url += `&id_conducteur=${ID_CONDUCTEUR}`;
         }
@@ -269,26 +273,27 @@ document.getElementById('btn-load-history').addEventListener('click', async () =
         const json     = await response.json();
         const items    = json.data?.items ?? [];
 
-        const past = items.filter(p => p.date_programme < TODAY);
+        // Sécurité supplémentaire : s'assurer que c'est strictement après aujourd'hui
+        const upcoming = items.filter(p => p.date_programme > TODAY);
 
-        if (!past.length) {
+        if (!upcoming.length) {
             container.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-12 text-outline gap-sm">
-                    <span class="material-symbols-outlined text-[48px] text-outline-variant">history</span>
-                    <p class="text-body-md text-on-surface font-medium">Aucun voyage dans les 7 derniers jours.</p>
+                    <span class="material-symbols-outlined text-[48px] text-outline-variant">event_busy</span>
+                    <p class="text-body-md text-on-surface font-medium">Aucun voyage planifié prochainement.</p>
                 </div>`;
             return;
         }
 
         container.innerHTML = '<div class="divide-y divide-outline-variant/40">' +
-            past.map(p => {
+            upcoming.map(p => {
                 const depart  = p.lieu_depart ?? '?';
                 const arrivee = p.lieu_arrivee ?? '?';
                 const heure   = (p.heure_depart ?? '').slice(0, 5);
                 const dateParts = (p.date_programme ?? '').split('-');
                 const formattedDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}` : (p.date_programme ?? '');
                 
-                const statut = p.statut ?? 'Terminé';
+                const statut = p.statut ?? 'Planifié';
                 const statBg = statut.toLowerCase().includes('ouvert')   ? 'bg-success-container text-success border border-success/10' :
                                statut.toLowerCase().includes('planif')   ? 'bg-primary-container text-primary border border-primary/10' :
                                statut.toLowerCase().includes('suspendu') ? 'bg-warning-container text-warning border border-warning/10' :
@@ -320,8 +325,14 @@ document.getElementById('btn-load-history').addEventListener('click', async () =
             }).join('') + '</div>';
 
     } catch {
-        container.innerHTML = '<div class="p-6 text-center text-error text-sm font-semibold">Erreur lors du chargement de l\'historique.</div>';
+        container.innerHTML = '<div class="p-6 text-center text-error text-sm font-semibold">Erreur lors du chargement des programmes à venir.</div>';
     }
-});
+}
+
+// 1. Relier le bouton Actualiser à la fonction
+document.getElementById('btn-refresh-upcoming').addEventListener('click', loadUpcomingProgrammes);
+
+// 2. Charger les données automatiquement quand la page s'ouvre
+window.addEventListener('load', loadUpcomingProgrammes);
 </script>
 <?= $this->endSection() ?>

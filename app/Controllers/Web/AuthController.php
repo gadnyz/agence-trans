@@ -30,7 +30,7 @@ class AuthController extends BaseWebController
             case 'super_admin':
                 return redirect()->to('/super-admin/dashboard');
             case 'admin':
-                return redirect()->to('/admin/dashboard');
+                return redirect()->to('/admin/rapports');
             case 'recept':
                 return redirect()->to('/recept/reservations');
             case 'driver':

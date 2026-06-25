@@ -47,6 +47,9 @@ $routes->group('', ['namespace' => 'App\Controllers\Web', 'filter' => 'auth'], s
         $routes->get('reservation/(:num)/ticket', 'ReservationController::ticket/$1');
         $routes->get('planification',           'PlanningController::index');
         $routes->get('rapports',                'ReportController::index');
+        $routes->get('bus',                     'ReferenceController::bus');
+        $routes->get('chauffeurs',              'ReferenceController::chauffeurs');
+        $routes->get('trajets',                 'ReferenceController::trajets');
     });
 
     // -------------------------------------------------------------------------
@@ -122,7 +125,9 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
         // --- CRUD Référentiel ---
         $registerCrud = function ($routes, $uri, $resource, $readPerm, $writePerm) {
             $routes->get($uri,           "ReferenceDataController::list/$resource",          ['filter' => "permission:$readPerm"]);
+            $routes->get("$uri/(:num)",  "ReferenceDataController::detail/$resource/$1",     ['filter' => "permission:$readPerm"]);
             $routes->post($uri,          "ReferenceDataController::store/$resource",         ['filter' => "permission:$writePerm"]);
+            $routes->put("$uri/(:num)",   "ReferenceDataController::modify/$resource/$1",    ['filter' => "permission:$writePerm"]);
             $routes->delete("$uri/(:num)", "ReferenceDataController::remove/$resource/$1",   ['filter' => "permission:$writePerm"]);
         };
 

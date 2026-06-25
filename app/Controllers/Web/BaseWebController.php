@@ -88,7 +88,7 @@ abstract class BaseWebController extends Controller
 
         return match ($role) {
             'super_admin' => '/super-admin/dashboard',
-            'admin'       => '/admin/dashboard',
+            'admin'       => '/admin/rapports',
             'recept'      => '/recept/reservations',
             'driver'      => '/driver/planning',
             default       => '/',

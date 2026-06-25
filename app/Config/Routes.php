@@ -94,6 +94,12 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
         // --- Réservations ---
         $routes->get('reservations',    'ReservationController::list',   ['filter' => 'permission:reservations.manage']);
         $routes->post('reservations',   'ReservationController::create', ['filter' => 'permission:reservations.manage,payments.manage']);
+        $routes->get('reservations/(:num)', 'ReservationController::show/$1', ['filter' => 'permission:reservations.manage']);
+        $routes->put('reservations/(:num)', 'ReservationController::update/$1', ['filter' => 'permission:reservations.manage']);
+        $routes->delete('reservations/(:num)', 'ReservationController::delete/$1', ['filter' => 'permission:reservations.manage']);
+        $routes->post('reservations/(:num)/cancel', 'ReservationController::cancel/$1', ['filter' => 'permission:reservations.manage']);
+        $routes->post('reservations/(:num)/payment', 'ReservationController::addPayment/$1', ['filter' => 'permission:reservations.manage,payments.manage']);
+        $routes->get('reservations/statuts', 'ReservationController::statutsList', ['filter' => 'permission:reservations.manage']);
 
         // --- NOUVEAU : Clients (Guichetier) ---
         $routes->get('clients',  'ClientController::index',  ['filter' => 'permission:clients.manage,reservations.manage']);
@@ -106,10 +112,10 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
             $routes->delete("$uri/(:num)", "ReferenceDataController::remove/$resource/$1",   ['filter' => "permission:$writePerm"]);
         };
 
-        $registerCrud($routes, 'bus',         'bus',         'fleet.manage',                'fleet.manage');
+        $registerCrud($routes, 'bus',         'bus',         'fleet.manage,routes.read,planning.read',                'fleet.manage');
         $registerCrud($routes, 'trajets',     'trajets',     'routes.read,routes.manage',   'routes.manage');
         // Attention : la ligne clients a été retirée d'ici car on la gère avec le ClientController ci-dessus.
-        $registerCrud($routes, 'conducteurs', 'conducteurs', 'fleet.manage',                'fleet.manage');
+        $registerCrud($routes, 'conducteurs', 'conducteurs', 'fleet.manage,routes.read,planning.read',                'fleet.manage');
         $registerCrud($routes, 'horaires',    'horaires',    'routes.read,routes.manage',   'routes.manage');
         $registerCrud($routes, 'lieux',       'lieux',       'routes.read,routes.manage',   'routes.manage');
     });

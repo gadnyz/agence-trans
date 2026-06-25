@@ -53,9 +53,23 @@ $routes->group('', ['namespace' => 'App\Controllers\Web', 'filter' => 'auth'], s
     // RÉCEPTIONNISTE — Guichet uniquement (préfixe: /recept/)
     // -------------------------------------------------------------------------
     $routes->group('recept', ['filter' => 'role:recept,admin,super_admin'], static function ($routes) {
-        $routes->get('reservations',            'ReceptController::index');
-        $routes->get('reservations/(:num)/ticket', 'ReservationController::ticket/$1');
+        // Tableau de bord (page d'accueil)
+        $routes->get('dashboard',                   'ReceptController::index');
+        $routes->get('/',                           'ReceptController::index');
+
+        // Réservations
+        $routes->get('reservations',                'ReceptController::reservations');
+        $routes->get('reservations/(:num)/ticket',  'ReservationController::ticket/$1');
+
+        // Paiements
+        $routes->get('paiements',                   'ReceptController::paiements');
+
+        // Programmes de voyage
+        $routes->get('programmes',                  'ReceptController::programmes');
         $routes->get('programmes/(:num)/manifeste', 'ReservationController::manifeste/$1');
+
+        // Flotte & Réseau (lecture seule)
+        $routes->get('flotte',                      'ReceptController::flotte');
     });
 
     // -------------------------------------------------------------------------

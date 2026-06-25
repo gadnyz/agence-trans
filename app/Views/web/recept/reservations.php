@@ -14,7 +14,7 @@ $todayIso    = date('Y-m-d');
     <!-- ── En-tête ── -->
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-sm">
         <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Guichet d'enregistrement</h2>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface">Gestion des Réservations</h2>
             <p class="text-body-lg text-outline"><?= esc($today) ?> &mdash; <?= esc($displayName) ?> (Réceptionniste)</p>
         </div>
         <button
@@ -29,342 +29,130 @@ $todayIso    = date('Y-m-d');
     <!-- ── Flash/Alert global ── -->
     <div id="page-alert" class="hidden rounded-xl p-md text-sm font-medium border transition-all"></div>
 
-    <!-- ── Barre d'onglets principale ── -->
-    <div class="border-b border-outline-variant">
-        <nav class="flex space-x-md" aria-label="Onglets principaux">
-            <button id="tab-btn-reservations" class="tab-btn border-b-2 border-primary text-primary px-md py-sm font-title-sm flex items-center gap-xs focus:outline-none transition-all">
-                <span class="material-symbols-outlined text-[20px]">book_online</span>
-                Réservations
-            </button>
-            <button id="tab-btn-payments" class="tab-btn border-b-2 border-transparent text-outline hover:text-on-surface hover:border-outline-variant px-md py-sm font-title-sm flex items-center gap-xs focus:outline-none transition-all">
-                <span class="material-symbols-outlined text-[20px]">payments</span>
-                Paiements
-            </button>
-            <button id="tab-btn-consult" class="tab-btn border-b-2 border-transparent text-outline hover:text-on-surface hover:border-outline-variant px-md py-sm font-title-sm flex items-center gap-xs focus:outline-none transition-all">
-                <span class="material-symbols-outlined text-[20px]">search</span>
-                Consultation
-            </button>
-        </nav>
-    </div>
-
-    <!-- ═══════════════════════════════════════════════════════════════
-         ONGLET 1 : RÉSERVATIONS (CONTENU)
-         ═══════════════════════════════════════════════════════════════ -->
-    <div id="tab-content-reservations" class="tab-pane space-y-lg">
-        
-        <!-- Recherche Voyage / Programme -->
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
-            <h3 class="font-title-sm text-title-sm text-on-surface mb-md">Rechercher un programme de voyage</h3>
-            <div class="flex flex-col sm:flex-row gap-md">
-                <div class="relative flex-1">
-                    <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
-                    <input
-                        id="search-programme"
-                        type="text"
-                        placeholder="Trajet, ville de départ ou d'arrivée..."
-                        class="w-full pl-xl pr-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
-                    />
-                </div>
+    <!-- ── Recherche Voyage / Programme ── -->
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+        <h3 class="font-title-sm text-title-sm text-on-surface mb-md flex items-center gap-sm">
+            <span class="material-symbols-outlined text-primary text-[20px]">travel_explore</span>
+            Rechercher un programme de voyage
+        </h3>
+        <div class="flex flex-col sm:flex-row gap-md">
+            <div class="relative flex-1">
+                <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
                 <input
-                    type="date"
-                    id="filter-date"
-                    value="<?= $todayIso ?>"
-                    class="px-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none"
+                    id="search-programme"
+                    type="text"
+                    placeholder="Trajet, ville de départ ou d'arrivée..."
+                    class="w-full pl-xl pr-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                 />
-                <button
-                    id="btn-search-programme"
-                    class="inline-flex items-center gap-sm px-lg py-sm bg-primary text-on-primary rounded-lg font-label-lg hover:brightness-110 transition-all"
-                >
-                    <span class="material-symbols-outlined text-[20px]">search</span>
-                    Rechercher
-                </button>
             </div>
-        </div>
-
-        <!-- Liste des voyages programmés trouvés -->
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-            <div class="flex justify-between items-center p-lg border-b border-outline-variant bg-surface-container-low/30">
-                <h3 class="font-title-md text-title-md text-on-surface">Voyages programmés disponibles</h3>
-                <span id="programmes-count" class="text-label-sm text-outline bg-surface-container px-sm py-xs rounded-full">0 voyage(s)</span>
-            </div>
-            <div id="programmes-list" class="divide-y divide-outline-variant/50">
-                <!-- Chargé dynamiquement -->
-                <div class="flex flex-col items-center justify-center py-xl text-outline gap-md">
-                    <span class="material-symbols-outlined text-[56px] text-outline-variant">directions_bus</span>
-                    <div class="text-center">
-                        <p class="text-body-md font-medium text-on-surface">Recherchez un programme ci-dessus</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Barre de recherche de réservations -->
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
-            <h3 class="font-title-sm text-title-sm text-on-surface mb-md">Rechercher une réservation</h3>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-md">
-                <div class="relative md:col-span-2">
-                    <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
-                    <input
-                        id="search-res-text"
-                        type="text"
-                        placeholder="Référence, Nom client, Téléphone..."
-                        class="w-full pl-xl pr-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none"
-                    />
-                </div>
-                <select id="filter-res-status" class="px-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none">
-                    <option value="">Tous les statuts</option>
-                    <option value="EN ATTENTE">En attente</option>
-                    <option value="CONFIRME">Confirmé</option>
-                    <option value="ANNULE">Annulé</option>
-                </select>
-                <button
-                    id="btn-search-res"
-                    class="inline-flex items-center justify-center gap-sm px-lg py-sm bg-primary text-on-primary rounded-lg font-label-lg hover:brightness-110 transition-all"
-                >
-                    <span class="material-symbols-outlined text-[20px]">search</span>
-                    Filtrer
-                </button>
-            </div>
-        </div>
-
-        <!-- Liste des réservations -->
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-            <div class="flex justify-between items-center p-lg border-b border-outline-variant bg-surface-container-low/30">
-                <h3 class="font-title-md text-title-md text-on-surface">Liste des réservations</h3>
-                <button
-                    id="btn-refresh-reservations"
-                    class="inline-flex items-center gap-xs px-md py-xs bg-surface-container border border-outline-variant rounded-lg text-label-sm hover:bg-surface-container-high transition-all"
-                >
-                    <span class="material-symbols-outlined text-[16px]">refresh</span>
-                    Actualiser
-                </button>
-            </div>
-            <div id="reservations-table-container" class="overflow-x-auto">
-                <!-- Rempli par JS -->
-                <table class="w-full text-left border-collapse text-body-md">
-                    <thead>
-                        <tr class="bg-surface-container border-b border-outline-variant text-on-surface font-semibold">
-                            <th class="p-md">Référence</th>
-                            <th class="p-md">Client</th>
-                            <th class="p-md">Trajet</th>
-                            <th class="p-md">Date voyage</th>
-                            <th class="p-md">Places</th>
-                            <th class="p-md">Statut</th>
-                            <th class="p-md text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reservations-table-body" class="divide-y divide-outline-variant/40">
-                        <tr>
-                            <td colspan="7" class="p-xl text-center text-outline">Aucune réservation chargée.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <!-- Pagination -->
-            <div id="reservations-pagination" class="flex justify-between items-center p-md border-t border-outline-variant bg-surface-container-low/20"></div>
-        </div>
-
-    </div>
-
-    <!-- ═══════════════════════════════════════════════════════════════
-         ONGLET 2 : PAIEMENTS (CONTENU)
-         ═══════════════════════════════════════════════════════════════ -->
-    <div id="tab-content-payments" class="tab-pane hidden space-y-lg">
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
-            <h3 class="font-title-sm text-title-sm text-on-surface mb-md">Rechercher un paiement</h3>
-            <div class="flex flex-col sm:flex-row gap-md">
-                <div class="relative flex-1">
-                    <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
-                    <input
-                        id="search-payment-text"
-                        type="text"
-                        placeholder="Réf paiement, Réf réservation, Client..."
-                        class="w-full pl-xl pr-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none"
-                    />
-                </div>
-                <button
-                    id="btn-search-payments"
-                    class="inline-flex items-center gap-sm px-lg py-sm bg-primary text-on-primary rounded-lg font-label-lg hover:brightness-110 transition-all"
-                >
-                    <span class="material-symbols-outlined text-[20px]">search</span>
-                    Rechercher
-                </button>
-            </div>
-        </div>
-
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-            <div class="p-lg border-b border-outline-variant bg-surface-container-low/30">
-                <h3 class="font-title-md text-title-md text-on-surface">Historique des transactions</h3>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-body-md">
-                    <thead>
-                        <tr class="bg-surface-container border-b border-outline-variant text-on-surface font-semibold">
-                            <th class="p-md">Date</th>
-                            <th class="p-md">Référence Transaction</th>
-                            <th class="p-md">Réservation</th>
-                            <th class="p-md">Client</th>
-                            <th class="p-md">Mode</th>
-                            <th class="p-md">Montant</th>
-                            <th class="p-md">Statut</th>
-                            <th class="p-md text-right">Ticket</th>
-                        </tr>
-                    </thead>
-                    <tbody id="payments-table-body" class="divide-y divide-outline-variant/40">
-                        <tr>
-                            <td colspan="8" class="p-xl text-center text-outline">Aucun paiement trouvé.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div id="payments-pagination" class="flex justify-between items-center p-md border-t border-outline-variant bg-surface-container-low/20"></div>
+            <input
+                type="date"
+                id="filter-date"
+                value="<?= $todayIso ?>"
+                class="px-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none"
+            />
+            <button
+                id="btn-search-programme"
+                class="inline-flex items-center gap-sm px-lg py-sm bg-primary text-on-primary rounded-lg font-label-lg hover:brightness-110 transition-all"
+            >
+                <span class="material-symbols-outlined text-[20px]">search</span>
+                Rechercher
+            </button>
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         ONGLET 3 : CONSULTATION (CONTENU)
-         ═══════════════════════════════════════════════════════════════ -->
-    <div id="tab-content-consult" class="tab-pane hidden space-y-lg">
-        
-        <!-- Sous-onglets de consultation -->
-        <div class="flex flex-wrap gap-sm p-xs bg-surface-container-low rounded-xl">
-            <button data-subtab="bus" class="subtab-btn bg-primary text-on-primary px-md py-sm rounded-lg font-label-lg transition-all flex items-center gap-xs">
-                <span class="material-symbols-outlined text-[18px]">directions_bus</span> Bus
+    <!-- Liste des voyages programmés -->
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+        <div class="flex justify-between items-center p-lg border-b border-outline-variant bg-surface-container-low/30">
+            <h3 class="font-title-md text-title-md text-on-surface">Voyages programmés disponibles</h3>
+            <span id="programmes-count" class="text-label-sm text-outline bg-surface-container px-sm py-xs rounded-full">0 voyage(s)</span>
+        </div>
+        <div id="programmes-list" class="divide-y divide-outline-variant/50">
+            <div class="flex flex-col items-center justify-center py-xl text-outline gap-md">
+                <span class="material-symbols-outlined text-[56px] text-outline-variant">directions_bus</span>
+                <div class="text-center">
+                    <p class="text-body-md font-medium text-on-surface">Recherchez un programme ci-dessus</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Recherche réservations ── -->
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+        <h3 class="font-title-sm text-title-sm text-on-surface mb-md flex items-center gap-sm">
+            <span class="material-symbols-outlined text-primary text-[20px]">manage_search</span>
+            Filtrer les réservations
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-md">
+            <div class="relative md:col-span-2">
+                <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+                <input
+                    id="search-res-text"
+                    type="text"
+                    placeholder="Référence, Nom client, Téléphone..."
+                    class="w-full pl-xl pr-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none"
+                />
+            </div>
+            <select id="filter-res-status" class="px-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none">
+                <option value="">Tous les statuts</option>
+                <option value="EN ATTENTE">En attente</option>
+                <option value="CONFIRME">Confirmé</option>
+                <option value="ANNULE">Annulé</option>
+            </select>
+            <button
+                id="btn-search-res"
+                class="inline-flex items-center justify-center gap-sm px-lg py-sm bg-primary text-on-primary rounded-lg font-label-lg hover:brightness-110 transition-all"
+            >
+                <span class="material-symbols-outlined text-[20px]">filter_list</span>
+                Filtrer
             </button>
-            <button data-subtab="conducteurs" class="subtab-btn bg-transparent text-outline hover:bg-surface-container-high px-md py-sm rounded-lg font-label-lg transition-all flex items-center gap-xs">
-                <span class="material-symbols-outlined text-[18px]">badge</span> Chauffeurs
+        </div>
+    </div>
+
+    <!-- ── Liste des réservations ── -->
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+        <div class="flex justify-between items-center p-lg border-b border-outline-variant bg-surface-container-low/30">
+            <h3 class="font-title-md text-title-md text-on-surface">Liste des réservations</h3>
+            <button
+                id="btn-refresh-reservations"
+                class="inline-flex items-center gap-xs px-md py-xs bg-surface-container border border-outline-variant rounded-lg text-label-sm hover:bg-surface-container-high transition-all"
+            >
+                <span class="material-symbols-outlined text-[16px]">refresh</span>
+                Actualiser
             </button>
-            <button data-subtab="trajets" class="subtab-btn bg-transparent text-outline hover:bg-surface-container-high px-md py-sm rounded-lg font-label-lg transition-all flex items-center gap-xs">
-                <span class="material-symbols-outlined text-[18px]">route</span> Trajets
-            </button>
-            <button data-subtab="horaires" class="subtab-btn bg-transparent text-outline hover:bg-surface-container-high px-md py-sm rounded-lg font-label-lg transition-all flex items-center gap-xs">
-                <span class="material-symbols-outlined text-[18px]">schedule</span> Horaires
-            </button>
-            <button data-subtab="programmes" class="subtab-btn bg-transparent text-outline hover:bg-surface-container-high px-md py-sm rounded-lg font-label-lg transition-all flex items-center gap-xs">
-                <span class="material-symbols-outlined text-[18px]">calendar_today</span> Programmes
-            </button>
         </div>
-
-        <!-- Contenus sous-onglets -->
-        
-        <!-- Sous-onglet : BUS -->
-        <div id="subtab-content-bus" class="subtab-pane bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-            <div class="p-md bg-surface-container-low border-b border-outline-variant font-title-md text-on-surface">Liste des Bus de la flotte</div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-surface-container-low/50 text-outline font-semibold border-b border-outline-variant text-[13px]">
-                            <th class="p-md">Plaque d'immatriculation</th>
-                            <th class="p-md">Marque & Modèle</th>
-                            <th class="p-md">Nombre de places</th>
-                            <th class="p-md">Couleur / Année</th>
-                            <th class="p-md">Statut</th>
-                        </tr>
-                    </thead>
-                    <tbody id="consult-bus-body" class="divide-y divide-outline-variant/30 text-body-md">
-                        <tr><td colspan="5" class="p-md text-center text-outline">Chargement...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+        <div id="reservations-table-container" class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-body-md">
+                <thead>
+                    <tr class="bg-surface-container border-b border-outline-variant text-on-surface font-semibold">
+                        <th class="p-md">Référence</th>
+                        <th class="p-md">Client</th>
+                        <th class="p-md">Trajet</th>
+                        <th class="p-md">Date voyage</th>
+                        <th class="p-md">Places</th>
+                        <th class="p-md">Statut</th>
+                        <th class="p-md text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reservations-table-body" class="divide-y divide-outline-variant/40">
+                    <tr>
+                        <td colspan="7" class="p-xl text-center text-outline">Aucune réservation chargée.</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-
-        <!-- Sous-onglet : CONDUCTEURS -->
-        <div id="subtab-content-conducteurs" class="subtab-pane hidden bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-            <div class="p-md bg-surface-container-low border-b border-outline-variant font-title-md text-on-surface">Conducteurs & Chauffeurs actifs</div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-surface-container-low/50 text-outline font-semibold border-b border-outline-variant text-[13px]">
-                            <th class="p-md">Chauffeur</th>
-                            <th class="p-md">Téléphone</th>
-                            <th class="p-md">Numéro de Permis</th>
-                            <th class="p-md">Date d'embauche</th>
-                            <th class="p-md">Statut</th>
-                        </tr>
-                    </thead>
-                    <tbody id="consult-conducteurs-body" class="divide-y divide-outline-variant/30 text-body-md">
-                        <tr><td colspan="5" class="p-md text-center text-outline">Chargement...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Sous-onglet : TRAJETS -->
-        <div id="subtab-content-trajets" class="subtab-pane hidden bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-            <div class="p-md bg-surface-container-low border-b border-outline-variant font-title-md text-on-surface">Lignes de voyage (Tarifs et distances)</div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-surface-container-low/50 text-outline font-semibold border-b border-outline-variant text-[13px]">
-                            <th class="p-md">Départ → Arrivée</th>
-                            <th class="p-md">Prix standard</th>
-                            <th class="p-md">Distance (km)</th>
-                            <th class="p-md">Durée estimée</th>
-                            <th class="p-md">Statut</th>
-                        </tr>
-                    </thead>
-                    <tbody id="consult-trajets-body" class="divide-y divide-outline-variant/30 text-body-md">
-                        <tr><td colspan="5" class="p-md text-center text-outline">Chargement...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Sous-onglet : HORAIRES -->
-        <div id="subtab-content-horaires" class="subtab-pane hidden bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-            <div class="p-md bg-surface-container-low border-b border-outline-variant font-title-md text-on-surface">Créneaux horaires standards</div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-surface-container-low/50 text-outline font-semibold border-b border-outline-variant text-[13px]">
-                            <th class="p-md">Heure de départ</th>
-                            <th class="p-md">Heure d'arrivée</th>
-                        </tr>
-                    </thead>
-                    <tbody id="consult-horaires-body" class="divide-y divide-outline-variant/30 text-body-md">
-                        <tr><td colspan="2" class="p-md text-center text-outline">Chargement...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Sous-onglet : PROGRAMMES -->
-        <div id="subtab-content-programmes" class="subtab-pane hidden bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-            <div class="flex justify-between items-center p-md bg-surface-container-low border-b border-outline-variant">
-                <span class="font-title-md text-on-surface">Programmes planifiés</span>
-                <input type="date" id="consult-programmes-date" value="<?= $todayIso ?>" class="px-sm py-xs bg-surface-container-lowest border border-outline-variant rounded-lg text-body-sm outline-none">
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-surface-container-low/50 text-outline font-semibold border-b border-outline-variant text-[13px]">
-                            <th class="p-md">Trajet</th>
-                            <th class="p-md">Horaire</th>
-                            <th class="p-md">Bus</th>
-                            <th class="p-md">Conducteur</th>
-                            <th class="p-md">Places disponibles</th>
-                            <th class="p-md">Statut</th>
-                        </tr>
-                    </thead>
-                    <tbody id="consult-programmes-body" class="divide-y divide-outline-variant/30 text-body-md">
-                        <tr><td colspan="6" class="p-md text-center text-outline">Chargement...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
+        <div id="reservations-pagination" class="flex justify-between items-center p-md border-t border-outline-variant bg-surface-container-low/20"></div>
     </div>
 
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     MODAL 1 — Nouvelle réservation (Polie)
+     MODAL 1 — Nouvelle réservation
      ═══════════════════════════════════════════════════════════════ -->
 <div id="modal-reservation" class="fixed inset-0 z-50 hidden bg-on-surface/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modal-res-title">
     <div class="flex items-center justify-center min-h-screen px-md pt-md pb-xl sm:p-0">
         <div class="relative bg-surface-container-lowest rounded-2xl text-left overflow-hidden shadow-2xl border border-outline-variant sm:my-lg sm:max-w-2xl w-full">
 
-            <!-- Header modal -->
             <div class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
                 <div class="flex items-center gap-md">
                     <div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center">
@@ -377,12 +165,10 @@ $todayIso    = date('Y-m-d');
                 </button>
             </div>
 
-            <!-- Erreurs -->
             <div id="modal-errors" class="hidden mx-lg mt-md p-md bg-error-container border border-error/30 text-on-error-container rounded-xl text-sm font-medium"></div>
 
             <div class="px-lg py-lg space-y-md">
 
-                <!-- Programme -->
                 <div>
                     <label class="block text-label-lg text-on-surface mb-xs">Voyage / Programme <span class="text-error">*</span></label>
                     <select id="modal-id-programme" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none transition-all">
@@ -390,7 +176,6 @@ $todayIso    = date('Y-m-d');
                     </select>
                 </div>
 
-                <!-- Client -->
                 <div class="relative">
                     <label class="block text-label-lg text-on-surface mb-xs">Client <span class="text-error">*</span></label>
                     <div class="relative">
@@ -407,7 +192,6 @@ $todayIso    = date('Y-m-d');
                     <input type="hidden" id="modal-id-client">
                     <p id="modal-client-selected" class="mt-xs text-xs text-primary font-medium hidden"></p>
 
-                    <!-- Nouveau client rapide -->
                     <button
                         id="btn-nouveau-client"
                         type="button"
@@ -418,7 +202,6 @@ $todayIso    = date('Y-m-d');
                     </button>
                 </div>
 
-                <!-- Nouveau client (caché par défaut) -->
                 <div id="nouveau-client-form" class="hidden bg-surface-container-low rounded-xl p-md space-y-sm border border-outline-variant">
                     <p class="text-label-lg font-semibold text-on-surface">Nouveau client</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
@@ -441,7 +224,6 @@ $todayIso    = date('Y-m-d');
                     </button>
                 </div>
 
-                <!-- Nombre de places + Lieu de montée -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
                     <div>
                         <label class="block text-label-lg text-on-surface mb-xs">Nombre de places <span class="text-error">*</span></label>
@@ -455,7 +237,6 @@ $todayIso    = date('Y-m-d');
                     </div>
                 </div>
 
-                <!-- Paiement -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-md border-t border-outline-variant/40 pt-md">
                     <div>
                         <label class="block text-label-lg text-on-surface mb-xs">Mode de paiement</label>
@@ -472,7 +253,6 @@ $todayIso    = date('Y-m-d');
                     </div>
                 </div>
 
-                <!-- Référence de paiement (affiché pour Mobile/Banque) -->
                 <div id="modal-ref-paiement-container" class="hidden">
                     <label class="block text-label-lg text-on-surface mb-xs">Référence de transaction / Paiement <span class="text-error">*</span></label>
                     <input id="modal-ref-paiement" type="text" placeholder="Ex: MP-2309489-CDF ou N° Bordereau..." class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
@@ -492,13 +272,10 @@ $todayIso    = date('Y-m-d');
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     MODAL 2 — Détail Réservation
-     ═══════════════════════════════════════════════════════════════ -->
+<!-- MODAL 2 — Détail Réservation -->
 <div id="modal-detail" class="fixed inset-0 z-50 hidden bg-on-surface/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
     <div class="flex items-center justify-center min-h-screen px-md py-md">
         <div class="relative bg-surface-container-lowest rounded-2xl text-left overflow-hidden shadow-2xl border border-outline-variant sm:max-w-xl w-full">
-            
             <div class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
                 <div class="flex items-center gap-md">
                     <span class="material-symbols-outlined text-primary text-[24px]">info</span>
@@ -508,11 +285,7 @@ $todayIso    = date('Y-m-d');
                     <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
-
-            <div class="px-lg py-lg space-y-md text-body-md" id="detail-modal-body">
-                <!-- Rempli dynamiquement -->
-            </div>
-
+            <div class="px-lg py-lg space-y-md text-body-md" id="detail-modal-body"></div>
             <div class="px-lg py-md bg-surface-container-low/50 border-t border-outline-variant flex justify-end gap-sm">
                 <button onclick="closeDetailModal()" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">
                     Fermer
@@ -522,25 +295,19 @@ $todayIso    = date('Y-m-d');
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     MODAL 3 — Modifier Réservation
-     ═══════════════════════════════════════════════════════════════ -->
+<!-- MODAL 3 — Modifier Réservation -->
 <div id="modal-edit" class="fixed inset-0 z-50 hidden bg-on-surface/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
     <div class="flex items-center justify-center min-h-screen px-md py-md">
         <div class="relative bg-surface-container-lowest rounded-2xl text-left overflow-hidden shadow-2xl border border-outline-variant sm:max-w-md w-full">
-            
             <div class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
                 <h3 class="font-title-md text-title-md text-on-surface">Modifier la réservation</h3>
                 <button onclick="closeEditModal()" class="text-outline hover:text-on-surface p-xs rounded-lg transition-colors">
                     <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
-
             <div id="modal-edit-errors" class="hidden mx-lg mt-md p-md bg-error-container border border-error/30 text-on-error-container rounded-xl text-sm font-medium"></div>
-
             <div class="px-lg py-lg space-y-md">
                 <input type="hidden" id="edit-id-reservation">
-                
                 <div>
                     <label class="block text-label-lg text-on-surface mb-xs">Nombre de places <span class="text-error">*</span></label>
                     <input id="edit-nombre-places" type="number" min="1" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
@@ -553,48 +320,34 @@ $todayIso    = date('Y-m-d');
                 </div>
                 <div>
                     <label class="block text-label-lg text-on-surface mb-xs">Statut de la réservation <span class="text-error">*</span></label>
-                    <select id="edit-id-statut" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
-                        <!-- Rempli dynamiquement -->
-                    </select>
+                    <select id="edit-id-statut" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none"></select>
                 </div>
             </div>
-
             <div class="px-lg py-md bg-surface-container-low/50 border-t border-outline-variant flex justify-end gap-sm">
-                <button onclick="closeEditModal()" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">
-                    Annuler
-                </button>
-                <button id="btn-save-edit" class="px-lg py-sm bg-primary text-on-primary font-label-lg rounded-lg hover:brightness-110 transition-all">
-                    Enregistrer
-                </button>
+                <button onclick="closeEditModal()" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">Annuler</button>
+                <button id="btn-save-edit" class="px-lg py-sm bg-primary text-on-primary font-label-lg rounded-lg hover:brightness-110 transition-all">Enregistrer</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     MODAL 4 — Enregistrer un Paiement
-     ═══════════════════════════════════════════════════════════════ -->
+<!-- MODAL 4 — Enregistrer un Paiement -->
 <div id="modal-payment" class="fixed inset-0 z-50 hidden bg-on-surface/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
     <div class="flex items-center justify-center min-h-screen px-md py-md">
         <div class="relative bg-surface-container-lowest rounded-2xl text-left overflow-hidden shadow-2xl border border-outline-variant sm:max-w-md w-full">
-            
             <div class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
                 <h3 class="font-title-md text-title-md text-on-surface">Enregistrer un Paiement</h3>
                 <button onclick="closePaymentModal()" class="text-outline hover:text-on-surface p-xs rounded-lg transition-colors">
                     <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
-
             <div id="modal-payment-errors" class="hidden mx-lg mt-md p-md bg-error-container border border-error/30 text-on-error-container rounded-xl text-sm font-medium"></div>
-
             <div class="px-lg py-lg space-y-md">
                 <input type="hidden" id="pay-id-reservation">
-                
                 <div class="p-sm bg-primary-fixed rounded-xl text-on-primary-container text-body-sm font-medium">
                     Référence : <span id="pay-reservation-ref"></span><br>
                     Montant dû : <span id="pay-reservation-du"></span>
                 </div>
-
                 <div>
                     <label class="block text-label-lg text-on-surface mb-xs">Mode de paiement <span class="text-error">*</span></label>
                     <select id="pay-id-mode-paiement" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
@@ -612,30 +365,21 @@ $todayIso    = date('Y-m-d');
                     <input id="pay-reference" type="text" placeholder="ID M-Pesa, Airtel Money, N° Bordereau..." class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
                 </div>
             </div>
-
             <div class="px-lg py-md bg-surface-container-low/50 border-t border-outline-variant flex justify-end gap-sm">
-                <button onclick="closePaymentModal()" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">
-                    Annuler
-                </button>
-                <button id="btn-save-payment" class="px-lg py-sm bg-primary text-on-primary font-label-lg rounded-lg hover:brightness-110 transition-all">
-                    Confirmer le paiement
-                </button>
+                <button onclick="closePaymentModal()" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">Annuler</button>
+                <button id="btn-save-payment" class="px-lg py-sm bg-primary text-on-primary font-label-lg rounded-lg hover:brightness-110 transition-all">Confirmer le paiement</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     MODAL 5 — Confirmer Annulation
-     ═══════════════════════════════════════════════════════════════ -->
+<!-- MODAL 5 — Confirmer Annulation -->
 <div id="modal-cancel" class="fixed inset-0 z-50 hidden bg-on-surface/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
     <div class="flex items-center justify-center min-h-screen px-md py-md">
         <div class="relative bg-surface-container-lowest rounded-2xl text-left overflow-hidden shadow-2xl border border-outline-variant sm:max-w-md w-full">
-            
             <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low/50">
                 <h3 class="font-title-md text-title-md text-on-surface">Annuler la réservation</h3>
             </div>
-
             <div class="px-lg py-lg space-y-md">
                 <input type="hidden" id="cancel-id-reservation">
                 <p class="text-body-md text-on-surface-variant">Voulez-vous vraiment annuler la réservation <strong id="cancel-reservation-ref"></strong> ? Cette action libérera les places correspondantes.</p>
@@ -644,43 +388,29 @@ $todayIso    = date('Y-m-d');
                     <textarea id="cancel-motif" rows="3" placeholder="Indiquez le motif de l'annulation..." class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none"></textarea>
                 </div>
             </div>
-
             <div class="px-lg py-md bg-surface-container-low/50 border-t border-outline-variant flex justify-end gap-sm">
-                <button onclick="closeCancelModal()" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">
-                    Garder
-                </button>
-                <button id="btn-confirm-cancel" class="px-lg py-sm bg-error text-on-error font-label-lg rounded-lg hover:brightness-110 transition-all">
-                    Annuler la réservation
-                </button>
+                <button onclick="closeCancelModal()" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">Garder</button>
+                <button id="btn-confirm-cancel" class="px-lg py-sm bg-error text-on-error font-label-lg rounded-lg hover:brightness-110 transition-all">Annuler la réservation</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     MODAL 6 — Confirmer Suppression
-     ═══════════════════════════════════════════════════════════════ -->
+<!-- MODAL 6 — Confirmer Suppression -->
 <div id="modal-delete" class="fixed inset-0 z-50 hidden bg-on-surface/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
     <div class="flex items-center justify-center min-h-screen px-md py-md">
         <div class="relative bg-surface-container-lowest rounded-2xl text-left overflow-hidden shadow-2xl border border-outline-variant sm:max-w-md w-full">
-            
             <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low/50">
                 <h3 class="font-title-md text-title-md text-on-surface text-error">Supprimer la réservation</h3>
             </div>
-
             <div class="px-lg py-lg space-y-md">
                 <input type="hidden" id="delete-id-reservation">
                 <p class="text-body-md text-on-surface-variant">Êtes-vous absolument sûr de vouloir supprimer définitivement la réservation <strong id="delete-reservation-ref"></strong> de la base de données ?</p>
                 <p class="text-body-sm text-error bg-error-container p-sm rounded-lg">Cette action est irréversible et supprimera également les paiements rattachés.</p>
             </div>
-
             <div class="px-lg py-md bg-surface-container-low/50 border-t border-outline-variant flex justify-end gap-sm">
-                <button onclick="closeDeleteModal()" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">
-                    Annuler
-                </button>
-                <button id="btn-confirm-delete" class="px-lg py-sm bg-error text-on-error font-label-lg rounded-lg hover:brightness-110 transition-all">
-                    Supprimer définitivement
-                </button>
+                <button onclick="closeDeleteModal()" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">Annuler</button>
+                <button id="btn-confirm-delete" class="px-lg py-sm bg-error text-on-error font-label-lg rounded-lg hover:brightness-110 transition-all">Supprimer définitivement</button>
             </div>
         </div>
     </div>
@@ -694,34 +424,22 @@ const API_TOKEN = <?= json_encode((string)($api_token ?? ''), JSON_HEX_TAG | JSO
 const BASE_URL  = '<?= base_url() ?>';
 const TODAY     = '<?= $todayIso ?>';
 
-// Caches globaux pour l'affichage en lecture seule
 let CACHE_LOCATIONS = {};
 let CACHE_SCHEDULES = {};
-let CACHE_STATUSES = [];
+let CACHE_STATUSES  = [];
 
-// ── Fetch Helper ───────────────────────────────────────────────────────────
 async function apiFetch(url, options = {}) {
     let token = (typeof API_TOKEN !== 'undefined' && API_TOKEN) ? API_TOKEN : localStorage.getItem('access_token');
-    if (!token) console.error("Aucun token trouvé !");
-    
-    const headers = { 
-        'Accept': 'application/json', 
-        'Authorization': `Bearer ${token}`, 
-        ...(options.headers || {}) 
-    };
+    const headers = { 'Accept': 'application/json', 'Authorization': `Bearer ${token}`, ...(options.headers || {}) };
     const response = await fetch(url, { ...options, headers });
-    if (response.status === 401) {
-        window.location.href = BASE_URL;
-    }
+    if (response.status === 401) window.location.href = BASE_URL;
     return response;
 }
 
 function showPageAlert(message, type = 'success') {
     const el = document.getElementById('page-alert');
     el.className = 'rounded-xl p-md text-sm font-medium border transition-all ' + (
-        type === 'success'
-            ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-            : 'bg-red-50 border-red-200 text-red-800'
+        type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'
     );
     el.textContent = message;
     el.classList.remove('hidden');
@@ -734,92 +452,34 @@ function esc(str) {
     return d.innerHTML;
 }
 
-// ── Switcher d'onglets ───────────────────────────────────────────────────────
-const tabs = {
-    'reservations': { btn: 'tab-btn-reservations', pane: 'tab-content-reservations', load: () => { searchProgrammes(); loadReservations(); } },
-    'payments': { btn: 'tab-btn-payments', pane: 'tab-content-payments', load: () => { loadPayments(); } },
-    'consult': { btn: 'tab-btn-consult', pane: 'tab-content-consult', load: () => { switchSubtab('bus'); } }
-};
-
-Object.keys(tabs).forEach(tabKey => {
-    document.getElementById(tabs[tabKey].btn).addEventListener('click', () => {
-        // Désactiver tous les onglets
-        Object.keys(tabs).forEach(k => {
-            document.getElementById(tabs[k].btn).className = "tab-btn border-b-2 border-transparent text-outline hover:text-on-surface hover:border-outline-variant px-md py-sm font-title-sm flex items-center gap-xs focus:outline-none transition-all";
-            document.getElementById(tabs[k].pane).classList.add('hidden');
-        });
-        // Activer l'onglet sélectionné
-        document.getElementById(tabs[tabKey].btn).className = "tab-btn border-b-2 border-primary text-primary px-md py-sm font-title-sm flex items-center gap-xs focus:outline-none transition-all";
-        document.getElementById(tabs[tabKey].pane).classList.remove('hidden');
-        
-        tabs[tabKey].load();
-    });
-});
-
-// ── Switcher sous-onglets Consultation ──────────────────────────────────────
-const subtabs = ['bus', 'conducteurs', 'trajets', 'horaires', 'programmes'];
-function switchSubtab(activeSubtab) {
-    document.querySelectorAll('.subtab-btn').forEach(btn => {
-        const isSelected = btn.getAttribute('data-subtab') === activeSubtab;
-        btn.className = isSelected
-            ? "subtab-btn bg-primary text-on-primary px-md py-sm rounded-lg font-label-lg transition-all flex items-center gap-xs"
-            : "subtab-btn bg-transparent text-outline hover:bg-surface-container-high px-md py-sm rounded-lg font-label-lg transition-all flex items-center gap-xs";
-    });
-    subtabs.forEach(st => {
-        document.getElementById(`subtab-content-${st}`).classList.toggle('hidden', st !== activeSubtab);
-    });
-
-    if (activeSubtab === 'bus') loadBus();
-    else if (activeSubtab === 'conducteurs') loadConducteurs();
-    else if (activeSubtab === 'trajets') loadTrajets();
-    else if (activeSubtab === 'horaires') loadHoraires();
-    else if (activeSubtab === 'programmes') loadConsultProgrammes();
-}
-
-document.querySelectorAll('.subtab-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchSubtab(btn.getAttribute('data-subtab')));
-});
-
-// ── Initialisation Caches & Démarrage ───────────────────────────────────────
+// ── INITIALISATION ──────────────────────────────────────────────────────────
 async function initializeApp() {
     try {
-        // Charger Lieux
         const resLieux = await apiFetch(`${BASE_URL}api/lieux?per_page=100`);
         const jsonLieux = await resLieux.json();
-        (jsonLieux.data?.items ?? []).forEach(l => {
-            CACHE_LOCATIONS[l.id_lieu] = l.nom_lieu;
-        });
+        (jsonLieux.data?.items ?? []).forEach(l => { CACHE_LOCATIONS[l.id_lieu] = l.nom_lieu; });
 
-        // Charger Horaires
         const resHoraires = await apiFetch(`${BASE_URL}api/horaires?per_page=100`);
         const jsonHoraires = await resHoraires.json();
         (jsonHoraires.data?.items ?? []).forEach(h => {
             CACHE_SCHEDULES[h.id_horaire] = `${h.heure_depart.slice(0, 5)} - ${h.heure_arrivee.slice(0, 5)}`;
         });
 
-        // Charger Statuts Réservation
         const resStatuts = await apiFetch(`${BASE_URL}api/reservations/statuts`);
         const jsonStatuts = await resStatuts.json();
         CACHE_STATUSES = jsonStatuts.data?.items ?? [];
-        
-        // Remplir le select de modification
-        const editStatutSelect = document.getElementById('edit-id-statut');
-        editStatutSelect.innerHTML = CACHE_STATUSES.map(s => 
+        document.getElementById('edit-id-statut').innerHTML = CACHE_STATUSES.map(s =>
             `<option value="${s.id_statut_reservation}">${esc(s.libelle)}</option>`
         ).join('');
+    } catch (e) { console.error('Erreur initialisation cache:', e); }
 
-    } catch (e) {
-        console.error("Erreur lors de l'initialisation du cache :", e);
-    }
-    
-    // Premier chargement
     searchProgrammes();
     loadReservations();
 }
 
 window.addEventListener('load', initializeApp);
 
-// ── ONGLETS : RECHERCHE PROGRAMMES ─────────────────────────────────────────
+// ── RECHERCHE PROGRAMMES ────────────────────────────────────────────────────
 async function searchProgrammes() {
     const date   = document.getElementById('filter-date').value || TODAY;
     const search = document.getElementById('search-programme').value.trim();
@@ -843,7 +503,7 @@ async function searchProgrammes() {
                     <span class="material-symbols-outlined text-[56px] text-outline-variant">directions_bus</span>
                     <div class="text-center">
                         <p class="text-body-md font-medium text-on-surface">Aucun voyage programmé pour cette date</p>
-                        <p class="text-body-sm text-outline mt-xs">Modifiez vos critères ou contactez un administrateur.</p>
+                        <p class="text-body-sm text-outline mt-xs">Modifiez vos critères ou consultez la page Programmes.</p>
                     </div>
                 </div>`;
             return;
@@ -883,7 +543,7 @@ async function searchProgrammes() {
 document.getElementById('btn-search-programme').addEventListener('click', searchProgrammes);
 document.getElementById('filter-date').addEventListener('change', searchProgrammes);
 
-// ── ONGLETS : LISTE DES RÉSERVATIONS ───────────────────────────────────────
+// ── LISTE RÉSERVATIONS ───────────────────────────────────────────────────────
 let currentResPage = 1;
 async function loadReservations(page = 1) {
     currentResPage = page;
@@ -902,7 +562,7 @@ async function loadReservations(page = 1) {
         const response = await apiFetch(`${BASE_URL}api/reservations?${params}`);
         const json = await response.json();
         const items = json.data?.items ?? [];
-        const meta = json.data?.meta ?? { page: 1, total_pages: 1, total: 0 };
+        const meta  = json.data?.meta ?? { page: 1, total_pages: 1, total: 0 };
 
         if (!items.length) {
             body.innerHTML = '<tr><td colspan="7" class="p-xl text-center text-outline">Aucune réservation trouvée.</td></tr>';
@@ -913,15 +573,13 @@ async function loadReservations(page = 1) {
         body.innerHTML = items.map(r => {
             const statut = (r.statut_reservation ?? '').toUpperCase();
             const statBg = statut.includes('CONFIRM') ? 'bg-green-100 text-green-700'
-                         : statut.includes('ATTENTE')  ? 'bg-yellow-100 text-yellow-700'
-                         : statut.includes('ANNUL')    ? 'bg-red-100 text-red-700'
+                         : statut.includes('ATTENTE') ? 'bg-yellow-100 text-yellow-700'
+                         : statut.includes('ANNUL')   ? 'bg-red-100 text-red-700'
                          : 'bg-surface-container text-on-surface-variant';
-            
-            // Montant total et paiement
             const totalPaye = parseFloat(r.montant_paye ?? 0);
-            const totalDu = parseFloat(r.nombre_places ?? 1) * parseFloat(r.prix ?? 0);
-            const isPaye = totalPaye >= totalDu;
-            
+            const totalDu   = parseFloat(r.nombre_places ?? 1) * parseFloat(r.prix ?? 0);
+            const isPaye    = totalPaye >= totalDu;
+
             return `
             <tr class="hover:bg-surface-container-low transition-colors">
                 <td class="p-md font-semibold">${esc(r.reference_reservation)}</td>
@@ -959,15 +617,10 @@ async function loadReservations(page = 1) {
             </tr>`;
         }).join('');
 
-        // Pagination HTML
         let paginHtml = `<span class="text-xs text-outline">Total: ${meta.total} réservation(s)</span><div class="inline-flex gap-xs">`;
-        if (meta.page > 1) {
-            paginHtml += `<button onclick="loadReservations(${meta.page - 1})" class="px-sm py-xs border border-outline-variant bg-surface-container rounded hover:bg-surface-container-high text-xs">Précédent</button>`;
-        }
+        if (meta.page > 1) paginHtml += `<button onclick="loadReservations(${meta.page - 1})" class="px-sm py-xs border border-outline-variant bg-surface-container rounded hover:bg-surface-container-high text-xs">Précédent</button>`;
         paginHtml += `<span class="px-md py-xs text-xs font-semibold">Page ${meta.page} / ${meta.total_pages}</span>`;
-        if (meta.page < meta.total_pages) {
-            paginHtml += `<button onclick="loadReservations(${meta.page + 1})" class="px-sm py-xs border border-outline-variant bg-surface-container rounded hover:bg-surface-container-high text-xs">Suivant</button>`;
-        }
+        if (meta.page < meta.total_pages) paginHtml += `<button onclick="loadReservations(${meta.page + 1})" class="px-sm py-xs border border-outline-variant bg-surface-container rounded hover:bg-surface-container-high text-xs">Suivant</button>`;
         paginHtml += `</div>`;
         pagin.innerHTML = paginHtml;
 
@@ -978,201 +631,6 @@ async function loadReservations(page = 1) {
 
 document.getElementById('btn-search-res').addEventListener('click', () => loadReservations(1));
 document.getElementById('btn-refresh-reservations').addEventListener('click', () => loadReservations(currentResPage));
-
-// ── ONGLETS : HISTORIQUE PAIEMENTS ─────────────────────────────────────────
-async function loadPayments(page = 1) {
-    const body = document.getElementById('payments-table-body');
-    const pagin = document.getElementById('payments-pagination');
-    const search = document.getElementById('search-payment-text').value.trim();
-
-    body.innerHTML = '<tr><td colspan="8" class="p-xl text-center"><div class="inline-block animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div></td></tr>';
-
-    try {
-        const params = new URLSearchParams({ page, per_page: 15 });
-        if (search) params.set('search', search);
-
-        // On appelle le list API avec filtre pour récupérer les paiements associés
-        const response = await apiFetch(`${BASE_URL}api/reservations?${params}`);
-        const json = await response.json();
-        const items = json.data?.items ?? [];
-        const meta = json.data?.meta ?? { page: 1, total_pages: 1, total: 0 };
-
-        // Filtrer pour n'afficher que les réservations ayant une référence de paiement
-        const payments = items.filter(r => r.reference_paiement);
-
-        if (!payments.length) {
-            body.innerHTML = '<tr><td colspan="8" class="p-xl text-center text-outline">Aucun paiement trouvé dans cette plage.</td></tr>';
-            pagin.innerHTML = '';
-            return;
-        }
-
-        body.innerHTML = payments.map(p => {
-            const datePaiement = p.date_paiement ? p.date_paiement : '-';
-            const status = (p.statut_paiement ?? 'Invalide').toUpperCase();
-            const statusClass = status.includes('VALI') ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800';
-            const montant = parseFloat(p.montant_paye ?? 0).toFixed(2);
-            return `
-            <tr class="hover:bg-surface-container-low transition-colors">
-                <td class="p-md text-xs text-outline">${esc(datePaiement)}</td>
-                <td class="p-md font-semibold">${esc(p.reference_paiement)}</td>
-                <td class="p-md font-medium text-primary">${esc(p.reference_reservation)}</td>
-                <td class="p-md">${esc(p.client_nom)}</td>
-                <td class="p-md"><span class="px-sm py-xs bg-surface-container text-on-surface-variant rounded text-xs">${esc(p.mode_paiement ?? 'Inconnu')}</span></td>
-                <td class="p-md font-semibold">${esc(montant)} ${esc(p.symbole || p.code_currency)}</td>
-                <td class="p-md"><span class="px-sm py-xs text-[11px] font-semibold rounded-full ${statusClass}">${esc(status)}</span></td>
-                <td class="p-md text-right">
-                    <a href="${BASE_URL}recept/reservations/${p.id_reservation}/ticket" target="_blank" class="inline-flex items-center gap-xs px-sm py-xs bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-xs font-semibold">
-                        <span class="material-symbols-outlined text-[14px]">receipt</span> Reçu
-                    </a>
-                </td>
-            </tr>`;
-        }).join('');
-
-        // Simple Pagination
-        let paginHtml = `<span class="text-xs text-outline">Affichage paginé des paiements</span><div class="inline-flex gap-xs">`;
-        if (meta.page > 1) {
-            paginHtml += `<button onclick="loadPayments(${meta.page - 1})" class="px-sm py-xs border border-outline-variant bg-surface-container rounded hover:bg-surface-container-high text-xs">Précédent</button>`;
-        }
-        paginHtml += `<span class="px-md py-xs text-xs font-semibold">Page ${meta.page}</span>`;
-        if (meta.page < meta.total_pages) {
-            paginHtml += `<button onclick="loadPayments(${meta.page + 1})" class="px-sm py-xs border border-outline-variant bg-surface-container rounded hover:bg-surface-container-high text-xs">Suivant</button>`;
-        }
-        paginHtml += `</div>`;
-        pagin.innerHTML = paginHtml;
-
-    } catch (e) {
-        body.innerHTML = '<tr><td colspan="8" class="p-xl text-center text-error">Erreur de chargement des transactions.</td></tr>';
-    }
-}
-
-document.getElementById('btn-search-payments').addEventListener('click', () => loadPayments(1));
-
-// ── ONGLETS : CONSULTATION (LISTES) ────────────────────────────────────────
-async function loadBus() {
-    const body = document.getElementById('consult-bus-body');
-    body.innerHTML = '<tr><td colspan="5" class="p-md text-center text-outline">Chargement...</td></tr>';
-    try {
-        const response = await apiFetch(`${BASE_URL}api/bus?per_page=100`);
-        const json = await response.json();
-        const items = json.data?.items ?? [];
-        if (!items.length) {
-            body.innerHTML = '<tr><td colspan="5" class="p-md text-center text-outline font-medium">Aucun bus répertorié.</td></tr>';
-            return;
-        }
-        body.innerHTML = items.map(b => `
-        <tr>
-            <td class="p-md font-semibold">${esc(b.numero_plaque)}</td>
-            <td class="p-md">${esc(b.marque ?? '-')} ${esc(b.modele ?? '-')}</td>
-            <td class="p-md font-medium">${esc(b.nombre_places ?? '0')} places</td>
-            <td class="p-md text-xs">${esc(b.couleur ?? '-')} / ${esc(b.annee ?? '-')}</td>
-            <td class="p-md"><span class="px-sm py-xs text-xs font-medium rounded-full bg-blue-100 text-blue-700">${esc(b.statut ?? 'Actif')}</span></td>
-        </tr>`).join('');
-    } catch {
-        body.innerHTML = '<tr><td colspan="5" class="p-md text-center text-error">Erreur de chargement.</td></tr>';
-    }
-}
-
-async function loadConducteurs() {
-    const body = document.getElementById('consult-conducteurs-body');
-    body.innerHTML = '<tr><td colspan="5" class="p-md text-center text-outline">Chargement...</td></tr>';
-    try {
-        const response = await apiFetch(`${BASE_URL}api/conducteurs?per_page=100`);
-        const json = await response.json();
-        const items = json.data?.items ?? [];
-        if (!items.length) {
-            body.innerHTML = '<tr><td colspan="5" class="p-md text-center text-outline font-medium">Aucun chauffeur.</td></tr>';
-            return;
-        }
-        body.innerHTML = items.map(c => `
-        <tr>
-            <td class="p-md font-medium">${esc(c.prenom)} ${esc(c.nom)} ${esc(c.postnom ?? '')}</td>
-            <td class="p-md">${esc(c.telephone ?? '-')}</td>
-            <td class="p-md font-mono text-xs">${esc(c.numero_permis ?? '-')}</td>
-            <td class="p-md text-xs">${esc(c.date_embauche ?? '-')}</td>
-            <td class="p-md"><span class="px-sm py-xs text-xs font-medium rounded-full bg-green-100 text-green-700">${esc(c.statut ?? 'Actif')}</span></td>
-        </tr>`).join('');
-    } catch {
-        body.innerHTML = '<tr><td colspan="5" class="p-md text-center text-error">Erreur de chargement.</td></tr>';
-    }
-}
-
-async function loadTrajets() {
-    const body = document.getElementById('consult-trajets-body');
-    body.innerHTML = '<tr><td colspan="5" class="p-md text-center text-outline">Chargement...</td></tr>';
-    try {
-        const response = await apiFetch(`${BASE_URL}api/trajets?per_page=100`);
-        const json = await response.json();
-        const items = json.data?.items ?? [];
-        if (!items.length) {
-            body.innerHTML = '<tr><td colspan="5" class="p-md text-center text-outline font-medium">Aucun trajet configuré.</td></tr>';
-            return;
-        }
-        body.innerHTML = items.map(t => {
-            const depart = CACHE_LOCATIONS[t.id_lieu_depart] ?? `Lieu ${t.id_lieu_depart}`;
-            const arrivee = CACHE_LOCATIONS[t.id_lieu_arrivee] ?? `Lieu ${t.id_lieu_arrivee}`;
-            return `
-            <tr>
-                <td class="p-md font-medium">${esc(depart)} → ${esc(arrivee)}</td>
-                <td class="p-md font-semibold text-primary">${esc(parseFloat(t.prix).toFixed(2))}</td>
-                <td class="p-md">${esc(t.distance_km ?? '-')} km</td>
-                <td class="p-md text-xs text-outline">${esc(t.duree_estimee ?? '-')}</td>
-                <td class="p-md"><span class="px-sm py-xs text-xs font-medium rounded-full bg-surface-container text-on-surface-variant">${esc(t.statut ?? 'Actif')}</span></td>
-            </tr>`;
-        }).join('');
-    } catch {
-        body.innerHTML = '<tr><td colspan="5" class="p-md text-center text-error">Erreur de chargement.</td></tr>';
-    }
-}
-
-async function loadHoraires() {
-    const body = document.getElementById('consult-horaires-body');
-    body.innerHTML = '<tr><td colspan="2" class="p-md text-center text-outline">Chargement...</td></tr>';
-    try {
-        const response = await apiFetch(`${BASE_URL}api/horaires?per_page=100`);
-        const json = await response.json();
-        const items = json.data?.items ?? [];
-        if (!items.length) {
-            body.innerHTML = '<tr><td colspan="2" class="p-md text-center text-outline font-medium">Aucun horaire programmé.</td></tr>';
-            return;
-        }
-        body.innerHTML = items.map(h => `
-        <tr>
-            <td class="p-md font-semibold text-primary">${esc(h.heure_depart.slice(0, 5))}</td>
-            <td class="p-md">${esc(h.heure_arrivee.slice(0, 5))}</td>
-        </tr>`).join('');
-    } catch {
-        body.innerHTML = '<tr><td colspan="2" class="p-md text-center text-error">Erreur de chargement.</td></tr>';
-    }
-}
-
-async function loadConsultProgrammes() {
-    const body = document.getElementById('consult-programmes-body');
-    const date = document.getElementById('consult-programmes-date').value || TODAY;
-    body.innerHTML = '<tr><td colspan="6" class="p-md text-center text-outline">Chargement...</td></tr>';
-    try {
-        const response = await apiFetch(`${BASE_URL}api/planification?per_page=100&date_debut=${date}&date_fin=${date}`);
-        const json = await response.json();
-        const items = json.data?.items ?? [];
-        if (!items.length) {
-            body.innerHTML = '<tr><td colspan="6" class="p-md text-center text-outline py-xl font-medium">Aucun voyage planifié pour ce jour.</td></tr>';
-            return;
-        }
-        body.innerHTML = items.map(p => `
-        <tr>
-            <td class="p-md font-medium">${esc(p.lieu_depart)} → ${esc(p.lieu_arrivee)}</td>
-            <td class="p-md text-xs font-semibold">${esc(p.heure_depart.slice(0, 5))} - ${esc(p.heure_arrivee.slice(0, 5))}</td>
-            <td class="p-md font-mono text-xs">${esc(p.numero_plaque)}</td>
-            <td class="p-md">${esc(p.conducteur_prenom)} ${esc(p.conducteur_nom)}</td>
-            <td class="p-md font-medium text-emerald-600">${esc(p.places_disponibles)} places libres</td>
-            <td class="p-md"><span class="px-sm py-xs text-xs font-medium rounded-full bg-green-100 text-green-700">${esc(p.statut ?? 'Planifié')}</span></td>
-        </tr>`).join('');
-    } catch {
-        body.innerHTML = '<tr><td colspan="6" class="p-md text-center text-error">Erreur de chargement.</td></tr>';
-    }
-}
-
-document.getElementById('consult-programmes-date').addEventListener('change', loadConsultProgrammes);
-
 
 // ── MODAL : NOUVELLE RÉSERVATION ───────────────────────────────────────────
 const modal = document.getElementById('modal-reservation');
@@ -1192,7 +650,6 @@ function openModal(programmeId = null) {
         document.getElementById('modal-id-programme').value = programmeId;
         onProgrammeChange();
     }
-
     loadProgrammesModal(programmeId);
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -1208,15 +665,9 @@ document.getElementById('btn-annuler-modal').addEventListener('click', closeModa
 document.getElementById('btn-nouvelle-reservation').addEventListener('click', () => openModal());
 modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
-// Changer dynamiquement l'affichage du champ référence de paiement
 document.getElementById('modal-id-mode-paiement').addEventListener('change', function() {
-    const val = this.value;
     const refContainer = document.getElementById('modal-ref-paiement-container');
-    if (val === '2' || val === '3') { // Transfert Mobile ou Virement Bancaire
-        refContainer.classList.remove('hidden');
-    } else {
-        refContainer.classList.add('hidden');
-    }
+    (this.value === '2' || this.value === '3') ? refContainer.classList.remove('hidden') : refContainer.classList.add('hidden');
 });
 
 async function loadProgrammesModal(selectId = null) {
@@ -1230,10 +681,7 @@ async function loadProgrammesModal(selectId = null) {
         items.forEach(p => {
             const opt = document.createElement('option');
             opt.value = p.id_programme;
-            const depart  = p.lieu_depart ?? '?';
-            const arrivee = p.lieu_arrivee ?? '?';
-            const heure   = (p.heure_depart ?? '').slice(0, 5);
-            opt.textContent = `${p.date_programme} | ${depart} → ${arrivee} ${heure} (${p.places_disponibles ?? 0} places)`;
+            opt.textContent = `${p.date_programme} | ${p.lieu_depart ?? '?'} → ${p.lieu_arrivee ?? '?'} ${(p.heure_depart ?? '').slice(0, 5)} (${p.places_disponibles ?? 0} places)`;
             opt.dataset.arrets = JSON.stringify(p.arrets ?? []);
             select.appendChild(opt);
         });
@@ -1259,7 +707,6 @@ function onProgrammeChange() {
     } catch {}
 }
 
-// Recherche client auto-complete
 let searchTimeout = null;
 document.getElementById('modal-client-search').addEventListener('input', function() {
     clearTimeout(searchTimeout);
@@ -1320,9 +767,7 @@ document.getElementById('btn-creer-client').addEventListener('click', async () =
         document.getElementById('nouveau-client-form').classList.add('hidden');
         document.getElementById('nouveau-client-nom').value = '';
         document.getElementById('nouveau-client-telephone').value = '';
-    } catch {
-        showModalError('Erreur réseau.');
-    }
+    } catch { showModalError('Erreur réseau.'); }
 });
 
 function showModalError(message) {
@@ -1331,7 +776,6 @@ function showModalError(message) {
     el.classList.remove('hidden');
 }
 
-// Soumission nouvelle réservation
 document.getElementById('btn-enregistrer-reservation').addEventListener('click', async () => {
     document.getElementById('modal-errors').classList.add('hidden');
     const btn = document.getElementById('btn-enregistrer-reservation');
@@ -1353,19 +797,13 @@ document.getElementById('btn-enregistrer-reservation').addEventListener('click',
     const errors = [];
     if (!payload.id_programme) errors.push('Veuillez sélectionner un voyage.');
     if (!payload.id_client)    errors.push('Veuillez sélectionner un client.');
-    
-    // Si paiement externe, référence obligatoire
     if (paymentMode && (paymentMode === 2 || paymentMode === 3)) {
         if (!refPaiement) {
             errors.push('La référence de transaction est obligatoire pour ce mode de paiement.');
         } else {
-            payload.payment = {
-                statut: 'success',
-                reference_paiement: refPaiement
-            };
+            payload.payment = { statut: 'success', reference_paiement: refPaiement };
         }
     }
-    
     if (errors.length) { showModalError(errors.join(' ')); btn.disabled = false; return; }
 
     try {
@@ -1383,21 +821,13 @@ document.getElementById('btn-enregistrer-reservation').addEventListener('click',
         closeModal();
         showPageAlert('Réservation enregistrée avec succès !');
         loadReservations(1);
-
-        // Ouvrir le ticket dans un nouvel onglet
         const idReservation = json.data?.reservation?.id_reservation;
-        if (idReservation) {
-            setTimeout(() => window.open(`${BASE_URL}recept/reservations/${idReservation}/ticket`, '_blank'), 500);
-        }
-    } catch {
-        showModalError('Erreur réseau. Veuillez réessayer.');
-    } finally {
-        btn.disabled = false;
-    }
+        if (idReservation) setTimeout(() => window.open(`${BASE_URL}recept/reservations/${idReservation}/ticket`, '_blank'), 500);
+    } catch { showModalError('Erreur réseau. Veuillez réessayer.'); }
+    finally { btn.disabled = false; }
 });
 
-
-// ── MODAL : DETAILS ────────────────────────────────────────────────────────
+// ── MODAL : DÉTAILS ────────────────────────────────────────────────────────
 async function viewDetail(id) {
     const body = document.getElementById('detail-modal-body');
     body.innerHTML = '<div class="flex justify-center items-center py-lg"><div class="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div></div>';
@@ -1408,11 +838,7 @@ async function viewDetail(id) {
         const response = await apiFetch(`${BASE_URL}api/reservations/${id}`);
         const json = await response.json();
         const r = json.data;
-
-        if (!response.ok || !r) {
-            body.innerHTML = `<div class="text-error text-center font-medium">Erreur lors de la récupération des détails.</div>`;
-            return;
-        }
+        if (!response.ok || !r) { body.innerHTML = `<div class="text-error text-center font-medium">Erreur lors de la récupération des détails.</div>`; return; }
 
         const totalPaye = parseFloat(r.montant_paye ?? 0).toFixed(2);
         const prixFinal = (parseFloat(r.prix ?? 0) * parseInt(r.nombre_places ?? 1)).toFixed(2);
@@ -1420,7 +846,6 @@ async function viewDetail(id) {
 
         body.innerHTML = `
         <div class="space-y-md">
-            <!-- Réf & Statut -->
             <div class="flex justify-between items-center bg-surface-container p-md rounded-xl">
                 <div>
                     <div class="text-xs text-outline font-semibold">RÉFÉRENCE</div>
@@ -1431,88 +856,41 @@ async function viewDetail(id) {
                     <span class="px-sm py-xs text-xs font-bold rounded-full bg-primary-container text-on-primary-container">${esc(r.statut_reservation)}</span>
                 </div>
             </div>
-
-            <!-- Client Info -->
             <div class="border border-outline-variant rounded-xl p-md">
                 <h4 class="font-title-sm text-on-surface mb-sm flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">person</span> Informations Client</h4>
                 <div class="grid grid-cols-2 gap-sm">
-                    <div>
-                        <span class="text-xs text-outline block">Nom</span>
-                        <span class="font-semibold">${esc(r.client_nom)}</span>
-                    </div>
-                    <div>
-                        <span class="text-xs text-outline block">Téléphone</span>
-                        <span>${esc(r.client_telephone)}</span>
-                    </div>
+                    <div><span class="text-xs text-outline block">Nom</span><span class="font-semibold">${esc(r.client_nom)}</span></div>
+                    <div><span class="text-xs text-outline block">Téléphone</span><span>${esc(r.client_telephone)}</span></div>
                 </div>
             </div>
-
-            <!-- Voyage Info -->
             <div class="border border-outline-variant rounded-xl p-md">
                 <h4 class="font-title-sm text-on-surface mb-sm flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">directions_bus</span> Voyage & Programme</h4>
                 <div class="grid grid-cols-2 gap-md text-body-sm">
-                    <div>
-                        <span class="text-xs text-outline block">Itinéraire</span>
-                        <span class="font-semibold text-on-surface">${esc(r.lieu_depart)} → ${esc(r.lieu_arrivee)}</span>
-                    </div>
-                    <div>
-                        <span class="text-xs text-outline block">Date & Heure</span>
-                        <span>${esc(r.date_programme)} à <strong>${esc(r.heure_depart.slice(0, 5))}</strong></span>
-                    </div>
-                    <div>
-                        <span class="text-xs text-outline block">Lieu de descente</span>
-                        <span>${esc(r.lieu_reservation ?? 'Départ principal')}</span>
-                    </div>
-                    <div>
-                        <span class="text-xs text-outline block">Bus & Chauffeur</span>
-                        <span>Bus ${esc(r.numero_plaque)} · Chauffeur ${esc(r.conducteur_prenom)} ${esc(r.conducteur_nom)}</span>
-                    </div>
+                    <div><span class="text-xs text-outline block">Itinéraire</span><span class="font-semibold text-on-surface">${esc(r.lieu_depart)} → ${esc(r.lieu_arrivee)}</span></div>
+                    <div><span class="text-xs text-outline block">Date & Heure</span><span>${esc(r.date_programme)} à <strong>${esc(r.heure_depart.slice(0, 5))}</strong></span></div>
+                    <div><span class="text-xs text-outline block">Lieu de descente</span><span>${esc(r.lieu_reservation ?? 'Départ principal')}</span></div>
+                    <div><span class="text-xs text-outline block">Bus & Chauffeur</span><span>Bus ${esc(r.numero_plaque)} · ${esc(r.conducteur_prenom)} ${esc(r.conducteur_nom)}</span></div>
                 </div>
             </div>
-
-            <!-- Paiement Info -->
             <div class="border border-outline-variant rounded-xl p-md">
                 <h4 class="font-title-sm text-on-surface mb-sm flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">payments</span> Comptabilité & Paiement</h4>
                 <div class="grid grid-cols-2 gap-md text-body-sm">
-                    <div>
-                        <span class="text-xs text-outline block">Places réservées</span>
-                        <span class="font-semibold text-on-surface">${esc(r.nombre_places)} place(s)</span>
-                    </div>
-                    <div>
-                        <span class="text-xs text-outline block">Prix final dû</span>
-                        <span class="font-bold text-primary">${esc(prixFinal)} ${symb}</span>
-                    </div>
-                    <div>
-                        <span class="text-xs text-outline block">Mode de paiement</span>
-                        <span>${esc(r.mode_paiement ?? 'Non payé')}</span>
-                    </div>
-                    <div>
-                        <span class="text-xs text-outline block">Montant payé</span>
-                        <span class="font-semibold text-emerald-600">${esc(totalPaye)} ${symb}</span>
-                    </div>
+                    <div><span class="text-xs text-outline block">Places réservées</span><span class="font-semibold">${esc(r.nombre_places)} place(s)</span></div>
+                    <div><span class="text-xs text-outline block">Prix final dû</span><span class="font-bold text-primary">${esc(prixFinal)} ${symb}</span></div>
+                    <div><span class="text-xs text-outline block">Mode de paiement</span><span>${esc(r.mode_paiement ?? 'Non payé')}</span></div>
+                    <div><span class="text-xs text-outline block">Montant payé</span><span class="font-semibold text-emerald-600">${esc(totalPaye)} ${symb}</span></div>
                     ${r.reference_paiement ? `
                     <div class="col-span-2 bg-surface-container-low p-sm rounded-lg flex justify-between">
-                        <div>
-                            <span class="text-[11px] text-outline block">RÉF TRANSACTION</span>
-                            <span class="font-mono text-xs font-semibold">${esc(r.reference_paiement)}</span>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-[11px] text-outline block">DATE TRANSACTION</span>
-                            <span class="text-xs">${esc(r.date_paiement ?? '')}</span>
-                        </div>
+                        <div><span class="text-[11px] text-outline block">RÉF TRANSACTION</span><span class="font-mono text-xs font-semibold">${esc(r.reference_paiement)}</span></div>
+                        <div class="text-right"><span class="text-[11px] text-outline block">DATE TRANSACTION</span><span class="text-xs">${esc(r.date_paiement ?? '')}</span></div>
                     </div>` : ''}
                 </div>
             </div>
-
-            <!-- Métadonnées -->
             <div class="text-[11px] text-outline text-right">
                 Enregistré par: ${esc(r.created_by_prenom ?? '')} ${esc(r.created_by_nom ?? r.created_by_username ?? 'Système')}
             </div>
         </div>`;
-
-    } catch (e) {
-        body.innerHTML = `<div class="text-error text-center">Erreur réseau lors de la récupération des détails.</div>`;
-    }
+    } catch { body.innerHTML = `<div class="text-error text-center">Erreur réseau lors de la récupération des détails.</div>`; }
 }
 
 function closeDetailModal() {
@@ -1520,32 +898,23 @@ function closeDetailModal() {
     document.body.style.overflow = '';
 }
 
-
 // ── MODAL : MODIFIER ───────────────────────────────────────────────────────
 async function openEditModal(id) {
     document.getElementById('modal-edit-errors').classList.add('hidden');
     document.getElementById('edit-id-reservation').value = id;
-    
     const response = await apiFetch(`${BASE_URL}api/reservations/${id}`);
     const json = await response.json();
     const r = json.data;
-
-    if (!response.ok || !r) {
-        showPageAlert('Impossible de récupérer la réservation', 'error');
-        return;
-    }
-
+    if (!response.ok || !r) { showPageAlert('Impossible de récupérer la réservation', 'error'); return; }
     document.getElementById('edit-nombre-places').value = r.nombre_places;
     document.getElementById('edit-id-statut').value = r.id_statut_reservation;
-
-    // Charger les arrêts/lieux intermédiaires pour ce voyage
     const selectLieu = document.getElementById('edit-id-lieu');
     selectLieu.innerHTML = '<option value="">Départ principal</option>';
     try {
         const respArrets = await apiFetch(`${BASE_URL}api/planification/search?date_debut=${r.date_programme}&date_fin=${r.date_programme}`);
         const jsonArrets = await respArrets.json();
         const currentProg = (jsonArrets.data?.items ?? []).find(p => p.id_programme === r.id_programme);
-        if (currentProg && currentProg.arrets) {
+        if (currentProg?.arrets) {
             currentProg.arrets.forEach(a => {
                 const opt = document.createElement('option');
                 opt.value = a.id_lieu;
@@ -1555,7 +924,6 @@ async function openEditModal(id) {
         }
         selectLieu.value = r.id_lieu_reservation ?? '';
     } catch {}
-
     document.getElementById('modal-edit').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
@@ -1569,13 +937,11 @@ document.getElementById('btn-save-edit').addEventListener('click', async () => {
     const id = document.getElementById('edit-id-reservation').value;
     const errorEl = document.getElementById('modal-edit-errors');
     errorEl.classList.add('hidden');
-
     const payload = {
         nombre_places: parseInt(document.getElementById('edit-nombre-places').value) || 1,
         id_lieu_reservation: parseInt(document.getElementById('edit-id-lieu').value) || null,
         id_statut_reservation: parseInt(document.getElementById('edit-id-statut').value) || null,
     };
-
     try {
         const response = await apiFetch(`${BASE_URL}api/reservations/${id}`, {
             method: 'PUT',
@@ -1588,7 +954,6 @@ document.getElementById('btn-save-edit').addEventListener('click', async () => {
             errorEl.classList.remove('hidden');
             return;
         }
-
         closeEditModal();
         showPageAlert('Réservation modifiée avec succès.');
         loadReservations(currentResPage);
@@ -1598,8 +963,7 @@ document.getElementById('btn-save-edit').addEventListener('click', async () => {
     }
 });
 
-
-// ── MODAL : CONFIRMER PAIEMENT A POSTERIORI ─────────────────────────────────
+// ── MODAL : PAIEMENT ────────────────────────────────────────────────────────
 function openPaymentModal(id, ref, reste, devise) {
     document.getElementById('modal-payment-errors').classList.add('hidden');
     document.getElementById('pay-id-reservation').value = id;
@@ -1607,10 +971,7 @@ function openPaymentModal(id, ref, reste, devise) {
     document.getElementById('pay-reservation-du').textContent = `${reste.toFixed(2)} ${devise}`;
     document.getElementById('pay-montant').value = reste.toFixed(2);
     document.getElementById('pay-reference').value = '';
-
-    // Déclencher le type de validation
     togglePayRefValidation();
-
     document.getElementById('modal-payment').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
@@ -1618,13 +979,9 @@ function openPaymentModal(id, ref, reste, devise) {
 document.getElementById('pay-id-mode-paiement').addEventListener('change', togglePayRefValidation);
 
 function togglePayRefValidation() {
-    const val = document.getElementById('pay-id-mode-paiement').value;
+    const val  = document.getElementById('pay-id-mode-paiement').value;
     const star = document.getElementById('pay-ref-required-star');
-    if (val === '2' || val === '3') { // Mobile, Banque
-        star.classList.remove('hidden');
-    } else {
-        star.classList.add('hidden');
-    }
+    (val === '2' || val === '3') ? star.classList.remove('hidden') : star.classList.add('hidden');
 }
 
 function closePaymentModal() {
@@ -1633,53 +990,27 @@ function closePaymentModal() {
 }
 
 document.getElementById('btn-save-payment').addEventListener('click', async () => {
-    const id = document.getElementById('pay-id-reservation').value;
-    const errorEl = document.getElementById('modal-payment-errors');
-    errorEl.classList.add('hidden');
-
-    const mode = parseInt(document.getElementById('pay-id-mode-paiement').value) || 0;
+    const id        = document.getElementById('pay-id-reservation').value;
+    const errorEl   = document.getElementById('modal-payment-errors');
+    const mode      = parseInt(document.getElementById('pay-id-mode-paiement').value) || 0;
     const reference = document.getElementById('pay-reference').value.trim();
-    const montant = parseFloat(document.getElementById('pay-montant').value) || 0;
-
-    if (montant <= 0) {
-        errorEl.textContent = 'Le montant doit être supérieur à 0.';
-        errorEl.classList.remove('hidden');
-        return;
-    }
-    
-    // Si mobile money / banque, la réf est requise
-    if ((mode === 2 || mode === 3) && !reference) {
-        errorEl.textContent = 'Veuillez renseigner la référence de transaction bancaire ou mobile money.';
-        errorEl.classList.remove('hidden');
-        return;
-    }
-
+    const montant   = parseFloat(document.getElementById('pay-montant').value) || 0;
+    errorEl.classList.add('hidden');
+    if (montant <= 0) { errorEl.textContent = 'Le montant doit être supérieur à 0.'; errorEl.classList.remove('hidden'); return; }
+    if ((mode === 2 || mode === 3) && !reference) { errorEl.textContent = 'Veuillez renseigner la référence de transaction.'; errorEl.classList.remove('hidden'); return; }
     try {
         const response = await apiFetch(`${BASE_URL}api/reservations/${id}/payment`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id_mode_paiement: mode,
-                montant_paye: montant,
-                reference_paiement: reference
-            })
+            body: JSON.stringify({ id_mode_paiement: mode, montant_paye: montant, reference_paiement: reference })
         });
         const json = await response.json();
-        if (!response.ok || json.success === false) {
-            errorEl.textContent = json.message || 'Erreur d\'enregistrement.';
-            errorEl.classList.remove('hidden');
-            return;
-        }
-
+        if (!response.ok || json.success === false) { errorEl.textContent = json.message || 'Erreur.'; errorEl.classList.remove('hidden'); return; }
         closePaymentModal();
         showPageAlert('Paiement enregistré avec succès.');
         loadReservations(currentResPage);
-    } catch {
-        errorEl.textContent = 'Erreur réseau.';
-        errorEl.classList.remove('hidden');
-    }
+    } catch { errorEl.textContent = 'Erreur réseau.'; errorEl.classList.remove('hidden'); }
 });
-
 
 // ── MODAL : ANNULATION ─────────────────────────────────────────────────────
 function openCancelModal(id, ref) {
@@ -1696,9 +1027,8 @@ function closeCancelModal() {
 }
 
 document.getElementById('btn-confirm-cancel').addEventListener('click', async () => {
-    const id = document.getElementById('cancel-id-reservation').value;
+    const id    = document.getElementById('cancel-id-reservation').value;
     const motif = document.getElementById('cancel-motif').value.trim();
-
     try {
         const response = await apiFetch(`${BASE_URL}api/reservations/${id}/cancel`, {
             method: 'POST',
@@ -1706,19 +1036,12 @@ document.getElementById('btn-confirm-cancel').addEventListener('click', async ()
             body: JSON.stringify({ motif })
         });
         const json = await response.json();
-        if (!response.ok || json.success === false) {
-            showPageAlert(json.message || 'Impossible d\'annuler la réservation.', 'error');
-            return;
-        }
-
+        if (!response.ok || json.success === false) { showPageAlert(json.message || "Impossible d'annuler la réservation.", 'error'); return; }
         closeCancelModal();
         showPageAlert('Réservation annulée.');
         loadReservations(currentResPage);
-    } catch {
-        showPageAlert('Erreur de réseau.', 'error');
-    }
+    } catch { showPageAlert('Erreur de réseau.', 'error'); }
 });
-
 
 // ── MODAL : SUPPRESSION ─────────────────────────────────────────────────────
 function openDeleteModal(id, ref) {
@@ -1735,23 +1058,14 @@ function closeDeleteModal() {
 
 document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
     const id = document.getElementById('delete-id-reservation').value;
-
     try {
-        const response = await apiFetch(`${BASE_URL}api/reservations/${id}`, {
-            method: 'DELETE'
-        });
+        const response = await apiFetch(`${BASE_URL}api/reservations/${id}`, { method: 'DELETE' });
         const json = await response.json();
-        if (!response.ok || json.success === false) {
-            showPageAlert(json.message || 'Impossible de supprimer la réservation.', 'error');
-            return;
-        }
-
+        if (!response.ok || json.success === false) { showPageAlert(json.message || 'Impossible de supprimer la réservation.', 'error'); return; }
         closeDeleteModal();
         showPageAlert('La réservation a été définitivement supprimée.');
         loadReservations(currentResPage);
-    } catch {
-        showPageAlert('Erreur réseau lors de la suppression.', 'error');
-    }
+    } catch { showPageAlert('Erreur réseau lors de la suppression.', 'error'); }
 });
 </script>
 <?= $this->endSection() ?>

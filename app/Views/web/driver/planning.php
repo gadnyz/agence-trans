@@ -14,154 +14,218 @@ $dayName     = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi
 $programmes  = $programmes ?? [];
 ?>
 
-<div class="space-y-lg max-w-2xl mx-auto">
-
-    <!-- ── Carte profil chauffeur ── -->
-    <div class="bg-primary text-on-primary rounded-2xl p-lg shadow-md">
-        <div class="flex items-center gap-lg">
-            <div class="w-16 h-16 rounded-full bg-on-primary/20 flex items-center justify-center font-bold text-[24px] text-on-primary shrink-0 border-2 border-on-primary/30">
-                <?= esc($initials ?: '?') ?>
+<!-- ── Top bar (Design System Admin) ── -->
+<div class="max-w-[1600px] mx-auto px-4 mt-4">
+    <div class="w-full h-[60px] rounded-2xl mb-6 flex items-center justify-between px-6 bg-surface-container-lowest border border-gray-100 *border-outline-variant shadow-sm transition-all">
+        <div class="flex items-center gap-3 h-full">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-container text-primary">
+                <span class="material-symbols-outlined text-[20px]">calendar_today</span>
             </div>
-            <div class="flex-1 min-w-0">
-                <h2 class="font-headline-md text-headline-md font-bold leading-tight truncate">
-                    <?= esc($displayName) ?>
-                </h2>
-                <p class="text-on-primary/70 text-body-md mt-xs">
-                    <span class="material-symbols-outlined text-[14px] align-text-bottom">event</span>
-                    <?= esc($dayName) ?>, <?= esc($today) ?>
-                </p>
-                <div class="flex items-center gap-xs mt-sm">
-                    <span class="inline-flex items-center gap-xs px-sm py-xs bg-on-primary/20 text-on-primary rounded-full text-label-sm font-medium">
-                        <span class="material-symbols-outlined text-[14px]">verified</span>
-                        Chauffeur actif
-                    </span>
-                </div>
-            </div>
-            <div class="hidden sm:block shrink-0">
-                <span class="material-symbols-outlined text-[48px] text-on-primary/30">directions_bus</span>
-            </div>
+            <h2 class="text-lg font-semibold text-on-surface tracking-tight">Mon Planning</h2>
+        </div>
+        <div class="hidden sm:flex items-center gap-2 text-sm text-primary bg-primary-container/20 px-4 py-1.5 rounded-full border border-primary/20 shadow-sm">
+            <span class="material-symbols-outlined text-[16px] text-primary">verified</span>
+            <span class="text-on-primary-container font-semibold">Chauffeur Actif</span>
         </div>
     </div>
+</div>
 
-    <!-- ── Statistiques du jour ── -->
-    <div class="grid grid-cols-3 gap-gutter">
-        <?php
-        $stats = [
-            ['icon' => 'route',    'label' => 'Voyages du jour', 'value' => count($programmes), 'color' => 'text-primary'],
-            ['icon' => 'schedule', 'label' => 'Heures de route', 'value' => '—',                'color' => 'text-secondary'],
-            ['icon' => 'people',   'label' => 'Passagers',       'value' => '—',                'color' => 'text-tertiary'],
-        ];
-        foreach ($stats as $s): ?>
-            <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm text-center">
-                <span class="material-symbols-outlined <?= $s['color'] ?> text-[28px]"><?= $s['icon'] ?></span>
-                <p class="text-headline-md font-bold mt-sm"><?= $s['value'] ?></p>
-                <p class="text-label-sm text-outline"><?= $s['label'] ?></p>
-            </div>
-        <?php endforeach; ?>
-    </div>
-
-    <!-- ── Planning du jour ── -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-        <div class="flex items-center gap-md p-lg border-b border-outline-variant">
-            <span class="material-symbols-outlined text-primary">event_note</span>
-            <h3 class="font-title-md text-title-md text-on-surface">Mon planning — <?= esc($today) ?></h3>
-        </div>
-
-        <?php if (empty($programmes)): ?>
-            <div class="flex flex-col items-center justify-center py-xl text-outline gap-md">
-                <span class="material-symbols-outlined text-[56px] text-outline-variant">event_available</span>
-                <div class="text-center">
-                    <p class="font-medium text-on-surface">Aucun voyage planifié aujourd'hui</p>
-                    <p class="text-body-sm text-outline mt-xs">Profitez de votre journée de repos !</p>
+<!-- ── Main Grid Layout ── -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg max-w-[1600px] mx-auto px-4 pb-12">
+    
+    <!-- Left Column: Stats & Schedules (spans 2 columns on large screens) -->
+    <div class="lg:col-span-2 space-y-lg">
+        
+        <!-- ── Stats Grid (Design System Admin) ── -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter">
+            <!-- Stat 1: Today's Trips -->
+            <div class="bg-surface-container-lowest border border-gray-100 rounded-2xl p-md shadow-soft flex items-center gap-md">
+                <div class="w-12 h-12 rounded-xl bg-primary-container text-primary flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[24px]">route</span>
+                </div>
+                <div>
+                    <p class="text-label-sm text-outline font-medium">Voyages du jour</p>
+                    <p class="text-title-lg font-bold text-on-surface"><?= count($programmes) ?></p>
                 </div>
             </div>
-        <?php else: ?>
-            <div class="divide-y divide-outline-variant/50">
-                <?php foreach ($programmes as $prog): ?>
-                    <?php
-                    $statut = $prog['statut'] ?? 'Planifié';
-                    $statBg = match(true) {
-                        str_contains(strtolower($statut), 'ouvert')   => 'bg-green-100 text-green-700',
-                        str_contains(strtolower($statut), 'planif')   => 'bg-blue-100 text-blue-700',
-                        str_contains(strtolower($statut), 'suspendu') => 'bg-yellow-100 text-yellow-700',
-                        str_contains(strtolower($statut), 'termin')   => 'bg-gray-100 text-gray-600',
-                        default => 'bg-surface-container text-on-surface-variant',
-                    };
-                    ?>
-                    <div class="p-lg hover:bg-surface-container-low transition-colors">
-                        <div class="flex items-start justify-between gap-md">
-                            <div class="flex items-start gap-lg">
-                                <!-- Heure départ -->
-                                <div class="text-center shrink-0 w-16 pt-xs">
-                                    <p class="font-bold text-on-surface text-body-md"><?= esc(substr($prog['heure_depart'] ?? '—', 0, 5)) ?></p>
-                                    <p class="text-label-sm text-outline">Départ</p>
-                                </div>
-                                <div class="w-px self-stretch bg-outline-variant"></div>
-                                <!-- Détails trajet -->
-                                <div class="flex-1 min-w-0">
-                                    <p class="font-label-lg text-on-surface">
-                                        <?= esc($prog['trajet'] ?? ($prog['lieu_depart'] ?? '?') . ' → ' . ($prog['lieu_arrivee'] ?? '?')) ?>
-                                    </p>
-                                    <div class="flex flex-wrap gap-sm mt-xs">
-                                        <span class="inline-flex items-center gap-xs text-body-sm text-outline">
-                                            <span class="material-symbols-outlined text-[14px]">directions_bus</span>
-                                            <?= esc($prog['bus'] ?? $prog['numero_plaque'] ?? '—') ?>
-                                        </span>
-                                        <?php if (!empty($prog['nb_passagers'])): ?>
-                                        <span class="inline-flex items-center gap-xs text-body-sm text-outline">
-                                            <span class="material-symbols-outlined text-[14px]">people</span>
-                                            <?= esc($prog['nb_passagers']) ?> passagers
-                                        </span>
-                                        <?php endif; ?>
-                                        <?php if (!empty($prog['heure_arrivee'])): ?>
-                                        <span class="inline-flex items-center gap-xs text-body-sm text-outline">
-                                            <span class="material-symbols-outlined text-[14px]">flag</span>
-                                            Arr. <?= esc(substr($prog['heure_arrivee'], 0, 5)) ?>
-                                        </span>
-                                        <?php endif; ?>
+
+            <!-- Stat 2: Total Trips Completed -->
+            <div class="bg-surface-container-lowest border border-gray-100 rounded-2xl p-md shadow-soft flex items-center gap-md">
+                <div class="w-12 h-12 rounded-xl bg-success-container text-success flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[24px]">local_shipping</span>
+                </div>
+                <div>
+                    <p class="text-label-sm text-outline font-medium">Total Voyages</p>
+                    <p class="text-title-lg font-bold text-on-surface"><?= esc($driverStats['total_voyages_assures'] ?? 0) ?></p>
+                </div>
+            </div>
+
+            <!-- Stat 3: Different Bus Driven -->
+            <div class="bg-surface-container-lowest border border-gray-100 rounded-2xl p-md shadow-soft flex items-center gap-md">
+                <div class="w-12 h-12 rounded-xl bg-secondary-container text-secondary flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[24px]">directions_bus</span>
+                </div>
+                <div>
+                    <p class="text-label-sm text-outline font-medium">Bus différents</p>
+                    <p class="text-title-lg font-bold text-on-surface"><?= esc($driverStats['nombre_bus_differents_utilises'] ?? 0) ?></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Current Planning Card ── -->
+        <div class="bg-surface-container-lowest border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-outline-variant/60 bg-surface-container-low/30 flex items-center gap-md">
+                <span class="material-symbols-outlined text-primary">event_note</span>
+                <h3 class="font-title-md text-title-md text-on-surface font-bold">Planning d'aujourd'hui — <?= esc($dayName) ?> <?= esc($today) ?></h3>
+            </div>
+
+            <?php if (empty($programmes)): ?>
+                <div class="flex flex-col items-center justify-center py-12 text-outline gap-md">
+                    <span class="material-symbols-outlined text-[56px] text-outline-variant">event_available</span>
+                    <div class="text-center">
+                        <p class="font-semibold text-on-surface text-base">Aucun voyage planifié aujourd'hui</p>
+                        <p class="text-body-sm text-outline mt-1">Profitez de votre journée de repos !</p>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="divide-y divide-outline-variant/40">
+                    <?php foreach ($programmes as $prog): ?>
+                        <?php
+                        $statut = $prog['statut'] ?? 'Planifié';
+                        $statBg = match(true) {
+                            str_contains(strtolower($statut), 'ouvert')   => 'bg-success-container text-success border border-success/10',
+                            str_contains(strtolower($statut), 'planif')   => 'bg-primary-container text-primary border border-primary/10',
+                            str_contains(strtolower($statut), 'suspendu') => 'bg-warning-container text-warning border border-warning/10',
+                            str_contains(strtolower($statut), 'termin')   => 'bg-surface-container-high text-on-surface-variant',
+                            default => 'bg-surface-container text-on-surface-variant',
+                        };
+                        ?>
+                        <div class="p-6 hover:bg-surface-container-low/20 transition-colors">
+                            <div class="flex items-start justify-between gap-md">
+                                <div class="flex items-start gap-lg">
+                                    <!-- Heure départ -->
+                                    <div class="text-center shrink-0 w-16 pt-xs">
+                                        <p class="font-bold text-on-surface text-body-md"><?= esc(substr($prog['heure_depart'] ?? '—', 0, 5)) ?></p>
+                                        <p class="text-label-sm text-outline">Départ</p>
+                                    </div>
+                                    <div class="w-px h-12 bg-outline-variant/60 shrink-0 self-stretch"></div>
+                                    <!-- Détails trajet -->
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-title-sm text-title-sm text-on-surface font-semibold text-base">
+                                            <?= esc(($prog['lieu_depart'] ?? '?') . ' → ' . ($prog['lieu_arrivee'] ?? '?')) ?>
+                                        </p>
+                                        <div class="flex flex-wrap gap-sm mt-xs">
+                                            <span class="inline-flex items-center gap-xs text-body-sm text-outline">
+                                                <span class="material-symbols-outlined text-[14px]">directions_bus</span>
+                                                Bus: <span class="font-semibold text-on-surface-variant"><?= esc($prog['numero_plaque'] ?? '—') ?></span>
+                                            </span>
+                                            <span class="h-3 w-px bg-outline-variant/60 self-center"></span>
+                                            <span class="inline-flex items-center gap-xs text-body-sm text-outline">
+                                                <span class="material-symbols-outlined text-[14px]">people</span>
+                                                <?= esc($prog['nb_passagers']) ?> passagers
+                                            </span>
+                                            <?php if (!empty($prog['heure_arrivee'])): ?>
+                                            <span class="h-3 w-px bg-outline-variant/60 self-center"></span>
+                                            <span class="inline-flex items-center gap-xs text-body-sm text-outline">
+                                                <span class="material-symbols-outlined text-[14px]">flag</span>
+                                                Arrivée estimée: <span class="font-semibold text-on-surface-variant"><?= esc(substr($prog['heure_arrivee'], 0, 5)) ?></span>
+                                            </span>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
+                                <span class="px-sm py-xs text-label-sm rounded-full font-medium shrink-0 <?= $statBg ?>">
+                                    <?= esc($statut) ?>
+                                </span>
                             </div>
-                            <span class="px-sm py-xs text-label-sm rounded-full font-medium shrink-0 <?= $statBg ?>">
-                                <?= esc($statut) ?>
-                            </span>
                         </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- ── Recent History Card ── -->
+        <div class="bg-surface-container-lowest border border-gray-100 rounded-2xl shadow-sm overflow-hidden" id="historique-section">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant/60 bg-surface-container-low/30">
+                <div class="flex items-center gap-md">
+                    <span class="material-symbols-outlined text-secondary">history</span>
+                    <h3 class="font-title-md text-title-md text-on-surface font-bold">Historique récent (7 derniers jours)</h3>
+                </div>
+                <button
+                    id="btn-load-history"
+                    class="inline-flex items-center gap-xs px-md py-1.5 bg-surface-container border border-outline-variant rounded-xl text-label-sm font-semibold hover:bg-surface-container-high transition-all shadow-soft"
+                >
+                    <span class="material-symbols-outlined text-[16px]">expand_more</span>
+                    Charger l'historique
+                </button>
+            </div>
+
+            <div id="historique-list">
+                <div class="flex flex-col items-center justify-center py-12 text-outline gap-sm">
+                    <span class="material-symbols-outlined text-[48px] text-outline-variant">history</span>
+                    <p class="text-body-md text-on-surface font-medium">Cliquez sur "Charger l'historique" pour voir vos courses précédentes.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Sidebar Widgets (spans 1 column on large screens) -->
+    <div class="space-y-lg">
+        
+        <!-- ── Driver Profile Card ── -->
+        <div class="bg-surface-container-lowest border border-gray-100 rounded-2xl shadow-sm p-6 space-y-md">
+            <h3 class="text-base font-bold text-on-surface border-b border-outline-variant/60 pb-3 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[20px]">badge</span>
+                Profil Chauffeur
+            </h3>
+            
+            <?php if ($conducteur): ?>
+                <div class="flex flex-col items-center text-center py-2 border-b border-outline-variant/40 pb-4">
+                    <div class="w-20 h-20 rounded-full bg-primary-container text-primary flex items-center justify-center font-bold text-[28px] shadow-sm mb-3 border border-primary/10">
+                        <?= esc($initials) ?>
                     </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-    </div>
-
-    <!-- ── Historique récent (7 derniers jours) ── -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden" id="historique-section">
-        <div class="flex items-center justify-between p-lg border-b border-outline-variant">
-            <div class="flex items-center gap-md">
-                <span class="material-symbols-outlined text-secondary">history</span>
-                <h3 class="font-title-md text-title-md text-on-surface">Historique récent</h3>
-            </div>
-            <button
-                id="btn-load-history"
-                class="inline-flex items-center gap-xs px-md py-xs bg-surface-container border border-outline-variant rounded-lg text-label-sm hover:bg-surface-container-high transition-all"
-            >
-                <span class="material-symbols-outlined text-[16px]">expand_more</span>
-                Charger
-            </button>
+                    <h4 class="text-title-md font-bold text-on-surface"><?= esc($conducteur['prenom'] . ' ' . $conducteur['nom'] . ' ' . ($conducteur['postnom'] ?? '')) ?></h4>
+                    <p class="text-body-sm text-outline font-medium mt-0.5">Chauffeur Kashala Trans</p>
+                </div>
+                
+                <div class="space-y-sm text-body-sm pt-2">
+                    <div class="flex justify-between py-1.5 border-b border-outline-variant/30">
+                        <span class="text-outline">Téléphone</span>
+                        <span class="font-semibold text-on-surface"><?= esc($conducteur['telephone'] ?: '—') ?></span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-outline-variant/30">
+                        <span class="text-outline">N° Permis</span>
+                        <span class="font-semibold text-on-surface"><?= esc($conducteur['numero_permis'] ?: '—') ?></span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-outline-variant/30">
+                        <span class="text-outline">Date d'embauche</span>
+                        <span class="font-semibold text-on-surface"><?= esc(!empty($conducteur['date_embauche']) ? date('d/m/Y', strtotime($conducteur['date_embauche'])) : '—') ?></span>
+                    </div>
+                    <div class="flex flex-col gap-0.5 py-1.5">
+                        <span class="text-outline">Adresse domicile</span>
+                        <span class="font-semibold text-on-surface leading-tight mt-0.5"><?= esc($conducteur['adresse'] ?: '—') ?></span>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="text-center py-6">
+                    <span class="material-symbols-outlined text-[48px] text-outline-variant mb-2">person_off</span>
+                    <p class="text-body-md text-on-surface font-medium">Aucun profil associé</p>
+                    <p class="text-body-sm text-outline mt-1">Veuillez contacter le support pour relier votre compte utilisateur.</p>
+                </div>
+            <?php endif; ?>
         </div>
 
-        <div id="historique-list">
-            <div class="flex flex-col items-center justify-center py-xl text-outline gap-sm">
-                <span class="material-symbols-outlined text-[48px] text-outline-variant">history</span>
-                <p class="text-body-md">Cliquez sur "Charger" pour voir votre historique.</p>
+        <!-- ── Note Card ── -->
+        <!-- <div class="flex items-start gap-md p-lg bg-primary-container/10 border border-primary/20 rounded-2xl text-on-surface-variant">
+            <span class="material-symbols-outlined text-primary shrink-0">info</span>
+            <div class="space-y-1">
+                <h4 class="text-body-md font-semibold text-on-primary-container leading-tight">Note de service</h4>
+                <p class="text-body-sm text-on-primary-container/80 leading-normal">
+                    Pour toute modification de planning, incident sur la route ou retard, veuillez contacter le répartiteur de garde.
+                </p>
             </div>
-        </div>
-    </div>
-
-    <!-- ── Note information ── -->
-    <div class="flex items-start gap-md p-lg bg-secondary-container/40 border border-secondary/20 rounded-xl text-on-surface-variant">
-        <span class="material-symbols-outlined text-secondary shrink-0">info</span>
-        <p class="text-body-sm">
-            Pour toute modification de planning ou problème technique, contactez l'administrateur ou le réceptionniste de permanence.
-        </p>
+        </div> -->
+        
     </div>
 
 </div>
@@ -173,6 +237,7 @@ $programmes  = $programmes ?? [];
 const API_TOKEN = <?= json_encode((string)($api_token ?? ''), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 const BASE_URL  = '<?= base_url() ?>';
 const TODAY     = '<?= $todayIso ?>';
+const ID_CONDUCTEUR = <?= json_encode($conducteur ? (int)$conducteur['id_conducteur'] : null) ?>;
 
 async function apiFetch(url, options = {}) {
     const headers = { Accept: 'application/json', Authorization: `Bearer ${API_TOKEN}`, ...(options.headers || {}) };
@@ -194,7 +259,13 @@ document.getElementById('btn-load-history').addEventListener('click', async () =
         const dateDebut = new Date();
         dateDebut.setDate(dateDebut.getDate() - 7);
         const dateDebutStr = dateDebut.toISOString().slice(0, 10);
-        const response = await apiFetch(`${BASE_URL}api/planification?per_page=30&date_debut=${dateDebutStr}&date_fin=${TODAY}&sort=date_programme`);
+        
+        let url = `${BASE_URL}api/planification?per_page=30&date_debut=${dateDebutStr}&date_fin=${TODAY}&sort=date_programme`;
+        if (ID_CONDUCTEUR) {
+            url += `&id_conducteur=${ID_CONDUCTEUR}`;
+        }
+        
+        const response = await apiFetch(url);
         const json     = await response.json();
         const items    = json.data?.items ?? [];
 
@@ -202,37 +273,54 @@ document.getElementById('btn-load-history').addEventListener('click', async () =
 
         if (!past.length) {
             container.innerHTML = `
-                <div class="flex flex-col items-center justify-center py-xl text-outline gap-sm">
+                <div class="flex flex-col items-center justify-center py-12 text-outline gap-sm">
                     <span class="material-symbols-outlined text-[48px] text-outline-variant">history</span>
-                    <p class="text-body-md">Aucun voyage dans les 7 derniers jours.</p>
+                    <p class="text-body-md text-on-surface font-medium">Aucun voyage dans les 7 derniers jours.</p>
                 </div>`;
             return;
         }
 
-        container.innerHTML = '<div class="divide-y divide-outline-variant/50">' +
+        container.innerHTML = '<div class="divide-y divide-outline-variant/40">' +
             past.map(p => {
                 const depart  = p.lieu_depart ?? '?';
                 const arrivee = p.lieu_arrivee ?? '?';
                 const heure   = (p.heure_depart ?? '').slice(0, 5);
+                const dateParts = (p.date_programme ?? '').split('-');
+                const formattedDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}` : (p.date_programme ?? '');
+                
+                const statut = p.statut ?? 'Terminé';
+                const statBg = statut.toLowerCase().includes('ouvert')   ? 'bg-success-container text-success border border-success/10' :
+                               statut.toLowerCase().includes('planif')   ? 'bg-primary-container text-primary border border-primary/10' :
+                               statut.toLowerCase().includes('suspendu') ? 'bg-warning-container text-warning border border-warning/10' :
+                               'bg-surface-container-high text-on-surface-variant';
+
                 return `
-                <div class="flex items-center gap-lg p-lg">
-                    <div class="w-12 text-center shrink-0">
-                        <p class="text-label-sm font-bold text-on-surface">${esc(p.date_programme ?? '')}</p>
-                        <p class="text-label-sm text-outline">${esc(heure)}</p>
+                <div class="p-6 hover:bg-surface-container-low/20 transition-colors">
+                    <div class="flex items-start justify-between gap-md">
+                        <div class="flex items-start gap-lg">
+                            <div class="text-center shrink-0 w-16 pt-xs">
+                                <p class="font-bold text-on-surface text-body-md">${esc(formattedDate)}</p>
+                                <p class="text-label-sm text-outline">${esc(heure)}</p>
+                            </div>
+                            <div class="w-px h-10 bg-outline-variant/60 shrink-0 self-stretch"></div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-title-sm text-title-sm text-on-surface font-semibold text-base">${esc(depart)} → ${esc(arrivee)}</p>
+                                <p class="text-body-sm text-outline mt-0.5">
+                                    Bus: <span class="font-semibold text-on-surface-variant">${esc(p.numero_plaque ?? '—')}</span>
+                                    &middot;
+                                    ${p.places_disponibles ?? 0} places disp.
+                                </p>
+                            </div>
+                        </div>
+                        <span class="px-sm py-xs text-label-sm rounded-full font-medium shrink-0 ${statBg}">
+                            ${esc(statut)}
+                        </span>
                     </div>
-                    <div class="w-px h-10 bg-outline-variant shrink-0"></div>
-                    <div class="flex-1 min-w-0">
-                        <p class="font-label-lg text-on-surface truncate">${esc(depart)} → ${esc(arrivee)}</p>
-                        <p class="text-body-sm text-outline">${esc(p.numero_plaque ?? '—')} · ${p.places_disponibles ?? 0} places</p>
-                    </div>
-                    <span class="px-sm py-xs text-label-sm rounded-full bg-surface-container text-on-surface-variant shrink-0">
-                        ${esc(p.statut ?? 'Terminé')}
-                    </span>
                 </div>`;
             }).join('') + '</div>';
 
     } catch {
-        container.innerHTML = '<div class="p-lg text-center text-error text-sm">Erreur lors du chargement.</div>';
+        container.innerHTML = '<div class="p-6 text-center text-error text-sm font-semibold">Erreur lors du chargement de l\'historique.</div>';
     }
 });
 </script>

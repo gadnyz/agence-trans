@@ -141,19 +141,5 @@ $roleLabel   = $user['role']['libelle'] ?? '';
     </div>
 
     <?= $this->renderSection('scripts') ?>
-    <script>
-    // ── Sidebar collapse ──
-    (function () {
-        const sidebar   = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggle-sidebar');
-        const KEY       = 'kt_sidebar_collapsed';
-        if (!sidebar || !toggleBtn) return;
-        if (localStorage.getItem(KEY) === '1') sidebar.classList.add('collapsed');
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-            localStorage.setItem(KEY, sidebar.classList.contains('collapsed') ? '1' : '0');
-        });
-    })();
-    </script>
 </body>
 </html>

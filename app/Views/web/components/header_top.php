@@ -12,7 +12,7 @@ if (empty($displayName)) {
 $roleLabel = esc($user['role']['libelle'] ?? 'Fleet Manager');
 ?>
 
-<header class="flex justify-end items-center h-16 px-md lg:px-margin-desktop w-full bg-surface-container-lowest border-b border-outline-variant shrink-0 z-20 sticky top-0">
+<header class="flex justify-end items-center h-16 px-md lg:px-margin-desktop w-full bg-surface-container-lowest border-b border-gray-100 shrink-0 z-20 sticky top-0">
     
     <!-- <div class="flex items-center flex-1 max-w-xl">
         <div class="relative w-full max-w-md">
@@ -50,7 +50,7 @@ $roleLabel = esc($user['role']['libelle'] ?? 'Fleet Manager');
                     <p class="font-label-lg text-label-lg text-on-surface"><?= esc($displayName) ?></p>
                     <p class="text-label-sm text-outline"><?= $roleLabel ?></p>
                 </div>
-                <div class="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center font-bold border border-outline-variant shadow-sm overflow-hidden">
+                <div class="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center font-bold *border border-outline-variant shadow-sm overflow-hidden">
                     <?= esc(strtoupper(substr($displayName, 0, 1))) ?>
                 </div>
             </div>

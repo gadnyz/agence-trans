@@ -55,11 +55,15 @@ $roleMenu = $menus[$userRole] ?? ['label' => '', 'links' => []];
 $links    = $roleMenu['links'];
 ?>
 
-<aside id="sidebar" class="sticky top-0 hidden md:flex flex-col h-screen p-3 bg-surface-container-lowest border-r border-outline-variant shadow-sm shrink-0 transition-all duration-300 ease-in-out w-72 [&.collapsed]:w-20">
-    
+<aside id="sidebar" class="sticky top-0 hidden md:flex flex-col h-screen p-3 bg-surface-container-lowest border-r border-gray-100 shadow-sm shrink-0 transition-all duration-300 ease-in-out w-72 [&.collapsed]:w-20">
+    <script>
+        if (localStorage.getItem('sidebar_collapsed') === '1') {
+            document.getElementById('sidebar').classList.add('collapsed');
+        }
+    </script>
     <div class="flex items-center gap-3 px-2 py-3 mb-4 overflow-hidden h-16 shrink-0">
         <div class="w-10 h-10 bg-primary -ml-1 rounded-xl flex items-center justify-center shrink-0 shadow-md">
-            <span class="material-symbols-outlined text-on-primary text-headline-sm">directions_bus</span>
+            <span class="material-symbols-outlined text-on-primary text-[22px]">directions_bus</span>
         </div>
         <div class="[.collapsed_&]:opacity-0 [.collapsed_&]:w-0 transition-all duration-200 ease-in-out whitespace-nowrap overflow-hidden">
             <h1 class="font-bold text-title-md text-on-surface leading-tight">Kashala Trans</h1>
@@ -78,7 +82,7 @@ $links    = $roleMenu['links'];
                 <?= ($currentPath === $link['path']) ? 'aria-current="page"' : '' ?>
             >
                 <div class="w-6 h-6 flex items-center justify-center shrink-0">
-                    <span class="material-symbols-outlined"><?= $link['icon'] ?></span>
+                    <span class="material-symbols-outlined text-[20px]"><?= $link['icon'] ?></span>
                 </div>
                 <span class="text-sm font-medium transition-all duration-200 ease-in-out whitespace-nowrap overflow-hidden [.collapsed_&]:opacity-0 [.collapsed_&]:w-0"><?= esc($link['label']) ?></span>
             </a>
@@ -91,7 +95,7 @@ $links    = $roleMenu['links'];
         aria-label="Réduire le menu"
     >
         <div class="w-6 h-6 flex items-center justify-center shrink-0">
-            <span id="toggle-icon" class="material-symbols-outlined">menu_open</span>
+            <span id="toggle-icon" class="material-symbols-outlined text-[20px]">menu_open</span>
         </div>
         <span class="text-sm font-medium transition-all duration-200 ease-in-out whitespace-nowrap overflow-hidden [.collapsed_&]:opacity-0 [.collapsed_&]:w-0">Réduire le menu</span>
     </button>
@@ -103,7 +107,7 @@ $links    = $roleMenu['links'];
             title="Déconnexion"
         >
             <div class="w-6 h-6 flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined">logout</span>
+                <span class="material-symbols-outlined text-[20px]">logout</span>
             </div>
             <span class="text-sm font-medium transition-all duration-200 ease-in-out whitespace-nowrap overflow-hidden [.collapsed_&]:opacity-0 [.collapsed_&]:w-0">Déconnexion</span>
         </a>
@@ -113,7 +117,7 @@ $links    = $roleMenu['links'];
 </aside>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+(function () {
     const sidebar    = document.getElementById('sidebar');
     const toggleBtn  = document.getElementById('toggle-sidebar');
     const toggleIcon = document.getElementById('toggle-icon');
@@ -140,5 +144,5 @@ document.addEventListener('DOMContentLoaded', function () {
         localStorage.setItem(KEY, collapsed ? '1' : '0');
         updateIcon(collapsed);
     });
-});
+})();
 </script>

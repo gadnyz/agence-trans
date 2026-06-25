@@ -147,7 +147,7 @@ $pageEnd     = min((int) $pagination['total_pages'], (int) $pagination['page'] +
                         <th class="px-6 py-4">Date</th>
                         <th class="px-6 py-4">Course</th>
                         <th class="px-6 py-4">Client</th>
-                        <th class="px-6 py-4">Agent</th>
+                        <!-- <th class="px-6 py-4">Agent</th> -->
                         <th class="px-6 py-4 text-center">Statut</th>
                         <th class="px-6 py-4 text-right">Sièges</th>
                         <th class="px-6 py-4 text-right">Payé</th>
@@ -181,7 +181,7 @@ $pageEnd     = min((int) $pagination['total_pages'], (int) $pagination['page'] +
                                 <div class="font-medium text-gray-900"><?= esc($row['client'] ?: '-') ?></div>
                                 <div class="text-xs text-gray-500 mt-0.5"><?= esc($row['telephone'] ?: '-') ?></div>
                             </td>
-                            <td class="px-6 py-4 text-gray-600"><?= esc($row['agent'] ?: '-') ?></td>
+                            
                             <td class="px-6 py-4 text-center">
                                 <?php 
                                     $statut = strtoupper($row['statut_reservation'] ?? 'INCONNU');
@@ -190,7 +190,7 @@ $pageEnd     = min((int) $pagination['total_pages'], (int) $pagination['page'] +
                                     elseif (in_array($statut, ['CONFIRME', 'CONFIRMÉ'])) $badgeClass = 'bg-green-50 text-green-700 border-green-200';
                                     elseif (in_array($statut, ['ANNULE', 'ANNULÉ'])) $badgeClass = 'bg-red-50 text-red-700 border-red-200';
                                 ?>
-                                <span class="inline-block px-2.5 py-0.5 text-[11px] font-semibold rounded-full border <?= $badgeClass ?>">
+                                <span class="inline-block px-2 py-0.5 text-[10px] font-semibold rounded-full <?= $badgeClass ?>">
                                     <?= esc($row['statut_reservation']) ?>
                                 </span>
                             </td>

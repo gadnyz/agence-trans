@@ -137,5 +137,6 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
         $registerCrud($routes, 'conducteurs', 'conducteurs', 'fleet.manage,routes.read,planning.read',                'fleet.manage');
         $registerCrud($routes, 'horaires',    'horaires',    'routes.read,routes.manage',   'routes.manage');
         $registerCrud($routes, 'lieux',       'lieux',       'routes.read,routes.manage',   'routes.manage');
+        $registerCrud($routes, 'utilisateurs', 'utilisateurs', 'settings.manage',             'settings.manage');
     });
 });

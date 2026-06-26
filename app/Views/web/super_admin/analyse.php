@@ -1,197 +1,340 @@
 <?= $this->extend($layout ?? 'web/layouts/super_admin') ?>
 
+<?= $this->section('styles') ?>
+<style>
+    @media print {
+        @page { size: A4 landscape; margin: 10mm; }
+        header, aside, .no-print { display: none !important; }
+        body { background: #FFFFFF !important; }
+        main { max-width: none !important; padding: 0 !important; }
+        .report-card { border: 1px solid #E5E7EB !important; box-shadow: none !important; }
+    }
+</style>
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
-<div class="space-y-lg">
-    <div class="flex justify-between items-end mb-lg">
-        <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Analyse</h2>
-            <p class="text-body-lg text-outline">Analyses croisées et graphiques de performance</p>
+<?php
+$money       = static fn ($value): string => number_format((float) ($value ?? 0), 2, '.', ' ');
+$number      = static fn ($value): string => number_format((float) ($value ?? 0), 0, '.', ' ');
+$selected    = static fn ($left, $right): string => (string) $left === (string) $right ? 'selected' : '';
+$routeLabel  = static fn (array $route): string => trim(($route['lieu_depart'] ?? '-') . ' - ' . ($route['lieu_arrivee'] ?? '-') . ' | ' . substr((string) ($route['heure_depart'] ?? ''), 0, 5));
+$periodLabel = 'Du ' . $filters['date_debut'] . ' au ' . $filters['date_fin'];
+$pageTitle   = $pageTitle ?? 'Analyse';
+$analyseActionUrl = $analyseActionUrl ?? base_url('super-admin/analyse');
+
+// Chart max value for scaling
+$maxRouteMontant = 0;
+foreach ($routesReport as $route) {
+    $maxRouteMontant = max($maxRouteMontant, (float) ($route['montant'] ?? 0));
+}
+$maxRouteMontant = $maxRouteMontant ?: 1;
+
+// Weekday demand max
+$maxWeekdayReservations = 0;
+foreach ($demandByWeekday as $day) {
+    $maxWeekdayReservations = max($maxWeekdayReservations, (int) ($day['reservations'] ?? 0));
+}
+$maxWeekdayReservations = $maxWeekdayReservations ?: 1;
+?>
+
+<main class="px-4 pb-12 max-w-[1600px] mx-auto">
+
+    <!-- ── En-tête + Filtres ── -->
+    <div class="no-print w-full min-h-[60px] py-3 mb-6 rounded-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between px-6 bg-white border border-gray-200 shadow-sm gap-4">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
+                <span class="material-symbols-outlined text-[20px]">analytics</span>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900 tracking-tight"><?= esc($pageTitle) ?></h2>
+                <p class="text-xs text-gray-500"><?= esc($periodLabel) ?></p>
+            </div>
         </div>
-        <div class="flex gap-sm">
-            <button class="bg-surface-container-lowest px-md py-sm border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors flex items-center gap-xs font-body-md text-on-surface">
-                <span class="material-symbols-outlined text-[18px]">download</span>
-                Exporter Excel/PDF
+
+        <form class="flex flex-wrap items-center gap-2" method="get" action="<?= esc($analyseActionUrl) ?>">
+            <input class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none" type="date" name="date_debut" value="<?= esc($filters['date_debut']) ?>" title="Date début">
+            <input class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none" type="date" name="date_fin" value="<?= esc($filters['date_fin']) ?>" title="Date fin">
+
+            <select class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none bg-white max-w-[240px]" name="id_trajet" title="Trajet">
+                <option value="">Tous les trajets</option>
+                <?php foreach ($options['trajets'] as $route): ?>
+                    <option value="<?= esc($route['id_trajet']) ?>" <?= $selected($filters['id_trajet'], $route['id_trajet']) ?>><?= esc($routeLabel($route)) ?></option>
+                <?php endforeach; ?>
+            </select>
+
+            <select class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none bg-white max-w-[200px]" name="id_agent" title="Agent">
+                <option value="">Tous les agents</option>
+                <?php foreach ($options['agents'] as $agent): ?>
+                    <option value="<?= esc($agent['id_utilisateur']) ?>" <?= $selected($filters['id_agent'], $agent['id_utilisateur']) ?>><?= esc($agent['username']) ?></option>
+                <?php endforeach; ?>
+            </select>
+
+            <button class="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all shadow-sm" type="submit" title="Appliquer">
+                <span class="material-symbols-outlined text-[20px]">filter_alt</span>
             </button>
+            <a class="h-9 w-9 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center justify-center hover:bg-gray-50 transition-all shadow-sm" href="<?= esc($analyseActionUrl) ?>" title="Réinitialiser">
+                <span class="material-symbols-outlined text-[20px]">restart_alt</span>
+            </a>
+            <button class="h-9 px-4 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm" type="button" onclick="window.print()">
+                <span class="material-symbols-outlined text-[18px]">print</span>
+                <span class="hidden sm:inline text-sm font-medium">Imprimer</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- ── KPI Summary Cards ── -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <div class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+            <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Encaissements</span>
+            <strong class="block text-xl font-bold text-gray-900 mt-2"><?= esc($money($summary['encaissements'])) ?> <span class="text-xs text-gray-500 font-normal">USD</span></strong>
+            <span class="block text-xs text-gray-500 mt-1"><?= esc($number($summary['paiements'])) ?> paiement(s)</span>
         </div>
-    </div>
-        <!-- Horizontal Filter Bar -->
-        <section
-            class="bg-surface-container-lowest border border-outline-variant rounded shadow-[0_1px_3px_rgba(0,0,0,0.05)] p-md mb-lg flex flex-wrap items-center gap-lg">
-            <div class="flex-1 min-w-[200px]">
-                <label class="font-label-caps text-label-caps text-on-surface-variant block mb-base">Période</label>
-                <div class="relative">
-                    <select
-                        class="w-full bg-surface border border-outline-variant rounded px-sm py-xs font-body-sm focus:border-primary focus:ring-1 focus:ring-primary appearance-none">
-                        <option>Derniers 30 jours</option>
-                        <option>Ce mois</option>
-                        <option>Cette année</option>
-                        <option>Personnalisé</option>
-                    </select>
-                    <span
-                        class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+        <div class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+            <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Réservations</span>
+            <strong class="block text-xl font-bold text-gray-900 mt-2"><?= esc($number($summary['reservations'])) ?></strong>
+            <span class="block text-xs text-gray-500 mt-1"><?= esc($number($summary['sieges'])) ?> siège(s)</span>
+        </div>
+        <div class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+            <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Clients</span>
+            <strong class="block text-xl font-bold text-gray-900 mt-2"><?= esc($number($summary['clients'])) ?></strong>
+            <span class="block text-xs text-gray-500 mt-1"><?= esc($number($summary['nouveaux_clients'])) ?> nouveau(x)</span>
+        </div>
+        <div class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+            <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Courses</span>
+            <strong class="block text-xl font-bold text-gray-900 mt-2"><?= esc($number($summary['courses'])) ?></strong>
+            <span class="block text-xs text-gray-500 mt-1"><?= esc($number($summary['conducteurs'])) ?> conducteur(s)</span>
+        </div>
+        <div class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+            <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Bus</span>
+            <strong class="block text-xl font-bold text-gray-900 mt-2"><?= esc($number($summary['bus'])) ?></strong>
+            <span class="block text-xs text-gray-500 mt-1">utilisé(s)</span>
+        </div>
+    </section>
+
+    <!-- ── Bar Chart: Recettes par trajet ── -->
+    <section class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-semibold text-gray-900">Recettes par trajet</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Montant total des réservations par destination</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5">
+                    <div class="w-2.5 h-2.5 bg-blue-600 rounded-full"></div>
+                    <span class="text-xs text-gray-500">Revenu</span>
                 </div>
             </div>
-            <div class="flex-1 min-w-[150px]">
-                <label class="font-label-caps text-label-caps text-on-surface-variant block mb-base">Site</label>
-                <select
-                    class="w-full bg-surface border border-outline-variant rounded px-sm py-xs font-body-sm focus:border-primary focus:ring-1 focus:ring-primary">
-                    <option>Tous les sites</option>
-                    <option>Kinshasa - Gombe</option>
-                    <option>Lubumbashi - Centre</option>
-                </select>
+        </div>
+        <div class="p-6">
+            <?php if (empty($routesReport)): ?>
+                <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+                    <span class="material-symbols-outlined text-[36px] mb-2">bar_chart</span>
+                    <p class="text-sm font-medium">Aucune donnée pour la période sélectionnée.</p>
+                </div>
+            <?php else: ?>
+                <div class="h-64 flex items-end gap-3 border-b border-gray-100 pb-2 pt-4">
+                    <?php foreach ($routesReport as $i => $route): ?>
+                        <?php
+                        $montant = (float) ($route['montant'] ?? 0);
+                        $heightPercent = ($montant / $maxRouteMontant) * 100;
+                        $opacity = max(40, min(100, 40 + ($heightPercent * 0.6)));
+                        ?>
+                        <div class="flex-1 flex flex-col items-center gap-1.5 min-w-0">
+                            <div
+                                class="w-full bg-blue-600 rounded-t-lg relative group cursor-pointer transition-all hover:bg-blue-700"
+                                style="height: <?= round($heightPercent) ?>%; opacity: <?= $opacity / 100 ?>;"
+                            >
+                                <div class="absolute -top-9 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-lg">
+                                    <?= esc($money($montant)) ?> $
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-semibold text-gray-500 text-center leading-tight truncate w-full" title="<?= esc($route['trajet']) ?>">
+                                <?= esc($route['trajet']) ?>
+                            </span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    </section>
+
+    <!-- ── Bar Chart: Demande par jour de semaine ── -->
+    <section class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-semibold text-gray-900">Demande par jour de la semaine</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Nombre de réservations par jour</p>
             </div>
-            <div class="flex-1 min-w-[150px]">
-                <label class="font-label-caps text-label-caps text-on-surface-variant block mb-base">Bus</label>
-                <select
-                    class="w-full bg-surface border border-outline-variant rounded px-sm py-xs font-body-sm focus:border-primary focus:ring-1 focus:ring-primary">
-                    <option>Tous les bus</option>
-                    <option>King Long - 45 Places</option>
-                    <option>Coaster - 22 Places</option>
-                </select>
+            <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5">
+                    <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
+                    <span class="text-xs text-gray-500">Réservations</span>
+                </div>
             </div>
-            <div class="flex-1 min-w-[150px]">
-                <label class="font-label-caps text-label-caps text-on-surface-variant block mb-base">Statut</label>
-                <select
-                    class="w-full bg-surface border border-outline-variant rounded px-sm py-xs font-body-sm focus:border-primary focus:ring-1 focus:ring-primary">
-                    <option>Validé</option>
-                    <option>En attente</option>
-                    <option>Annulé</option>
-                </select>
+        </div>
+        <div class="p-6">
+            <?php if (empty($demandByWeekday)): ?>
+                <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+                    <span class="material-symbols-outlined text-[36px] mb-2">calendar_today</span>
+                    <p class="text-sm font-medium">Aucune donnée pour la période sélectionnée.</p>
+                </div>
+            <?php else: ?>
+                <div class="h-48 flex items-end gap-4 border-b border-gray-100 pb-2 pt-4">
+                    <?php foreach ($demandByWeekday as $day): ?>
+                        <?php
+                        $reservations = (int) ($day['reservations'] ?? 0);
+                        $heightPercent = ($reservations / $maxWeekdayReservations) * 100;
+                        ?>
+                        <div class="flex-1 flex flex-col items-center gap-1.5">
+                            <div
+                                class="w-full bg-emerald-500 rounded-t-lg relative group cursor-pointer transition-all hover:bg-emerald-600"
+                                style="height: <?= max(4, round($heightPercent)) ?>%;"
+                            >
+                                <div class="absolute -top-9 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-lg">
+                                    <?= esc($number($reservations)) ?> rés. · <?= esc($number($day['sieges'] ?? 0)) ?> sièges
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-semibold text-gray-500 text-center"><?= esc($day['jour'] ?? '') ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    </section>
+
+    <!-- ── Data Tables ── -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+
+        <!-- Trajets Table -->
+        <section class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                <h3 class="text-base font-semibold text-gray-900">Détail par trajet</h3>
+                <span class="text-xs font-medium text-gray-500 bg-white px-2 py-1 rounded-md border border-gray-200">
+                    <?= count($routesReport) ?> trajet(s)
+                </span>
             </div>
-            <div class="flex items-end h-full">
-                <button
-                    class="bg-[#2563EB] text-white px-lg py-xs rounded font-body-md hover:opacity-90 transition-opacity">
-                    Appliquer
-                </button>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="text-gray-600 uppercase text-[11px] font-semibold bg-gray-50 border-b border-gray-100">
+                        <tr>
+                            <th class="px-6 py-4">Trajet</th>
+                            <th class="px-6 py-4 text-right">Courses</th>
+                            <th class="px-6 py-4 text-right">Rés.</th>
+                            <th class="px-6 py-4 text-right">Sièges</th>
+                            <th class="px-6 py-4 text-right">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <?php if (empty($routesReport)): ?>
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-400">
+                                    <span class="material-symbols-outlined text-[24px]">inbox</span>
+                                    <p class="text-sm mt-1">Aucune donnée</p>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                        <?php foreach ($routesReport as $route): ?>
+                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                <td class="px-6 py-4 font-medium text-gray-900"><?= esc($route['trajet']) ?></td>
+                                <td class="px-6 py-4 text-right text-gray-600"><?= esc($number($route['courses'])) ?></td>
+                                <td class="px-6 py-4 text-right text-gray-600"><?= esc($number($route['reservations'])) ?></td>
+                                <td class="px-6 py-4 text-right text-gray-600"><?= esc($number($route['sieges'])) ?></td>
+                                <td class="px-6 py-4 text-right font-semibold text-gray-900"><?= esc($money($route['montant'])) ?> $</td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
         </section>
-        <!-- Main Results Area -->
-        <section
-            class="bg-surface-container-lowest border border-outline-variant rounded shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
-            <!-- View Tabs -->
-            <div class="flex border-b border-outline-variant">
-                <button
-                    class="px-lg py-md border-b-2 border-[#2563EB] text-[#2563EB] font-bold flex items-center gap-xs">
-                    <span class="material-symbols-outlined text-[20px]">bar_chart</span>
-                    Graphique
-                </button>
-                <button
-                    class="px-lg py-md text-on-surface-variant hover:bg-surface-container-high flex items-center gap-xs">
-                    <span class="material-symbols-outlined text-[20px]">table_chart</span>
-                    Tableau
-                </button>
-                <button
-                    class="px-lg py-md text-on-surface-variant hover:bg-surface-container-high flex items-center gap-xs">
-                    <span class="material-symbols-outlined text-[20px]">insights</span>
-                    KPI
-                </button>
+
+        <!-- Chauffeurs Table -->
+        <section class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                <h3 class="text-base font-semibold text-gray-900">Performance chauffeurs</h3>
+                <span class="text-xs font-medium text-gray-500 bg-white px-2 py-1 rounded-md border border-gray-200">
+                    <?= count($driversReport) ?> conducteur(s)
+                </span>
             </div>
-            <div class="p-lg">
-                <!-- Bar Chart Section -->
-                <div class="mb-xl">
-                    <div class="flex items-center justify-between mb-lg">
-                        <h3 class="font-h2 text-h2 text-on-surface">Recettes par destination</h3>
-                        <div class="flex gap-sm">
-                            <div class="flex items-center gap-xs">
-                                <div class="w-3 h-3 bg-[#2563EB] rounded-full"></div>
-                                <span class="text-body-sm text-on-surface-variant">Revenu total</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Simulated Bar Chart -->
-                    <div class="h-64 flex items-end gap-lg border-b border-outline-variant pb-base pt-lg">
-                        <div class="flex-1 flex flex-col items-center gap-sm">
-                            <div class="w-full bg-[#2563EB] opacity-90 rounded-t h-[85%] relative group">
-                                <div
-                                    class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-white text-[10px] px-sm py-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                    85,400$</div>
-                            </div>
-                            <span
-                                class="font-label-caps text-label-caps text-on-surface-variant text-center">Kinshasa</span>
-                        </div>
-                        <div class="flex-1 flex flex-col items-center gap-sm">
-                            <div class="w-full bg-[#2563EB] opacity-70 rounded-t h-[60%] relative group">
-                                <div
-                                    class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-white text-[10px] px-sm py-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                    60,200$</div>
-                            </div>
-                            <span
-                                class="font-label-caps text-label-caps text-on-surface-variant text-center">Lubumbashi</span>
-                        </div>
-                        <div class="flex-1 flex flex-col items-center gap-sm">
-                            <div class="w-full bg-[#2563EB] opacity-50 rounded-t h-[45%] relative group">
-                                <div
-                                    class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-white text-[10px] px-sm py-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                    45,100$</div>
-                            </div>
-                            <span
-                                class="font-label-caps text-label-caps text-on-surface-variant text-center">Matadi</span>
-                        </div>
-                        <div class="flex-1 flex flex-col items-center gap-sm">
-                            <div class="w-full bg-[#2563EB] opacity-80 rounded-t h-[75%] relative group">
-                                <div
-                                    class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-white text-[10px] px-sm py-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                    75,800$</div>
-                            </div>
-                            <span
-                                class="font-label-caps text-label-caps text-on-surface-variant text-center">Goma</span>
-                        </div>
-                        <div class="flex-1 flex flex-col items-center gap-sm">
-                            <div class="w-full bg-[#2563EB] opacity-40 rounded-t h-[30%] relative group">
-                                <div
-                                    class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-white text-[10px] px-sm py-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                    30,500$</div>
-                            </div>
-                            <span
-                                class="font-label-caps text-label-caps text-on-surface-variant text-center">Kikwit</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Pivot Table Section -->
-                <div>
-                    <h3 class="font-h2 text-h2 text-on-surface mb-lg">Analyse Croisée : Site vs Statut</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr
-                                    class="bg-surface-container text-on-surface-variant font-label-caps text-label-caps">
-                                    <th class="p-md border-b border-outline-variant">SITE / STATUT</th>
-                                    <th class="p-md border-b border-outline-variant text-right">VALIDÉ</th>
-                                    <th class="p-md border-b border-outline-variant text-right">EN ATTENTE</th>
-                                    <th class="p-md border-b border-outline-variant text-right">TOTAL</th>
-                                </tr>
-                            </thead>
-                            <tbody class="font-body-md">
-                                <tr class="hover:bg-surface-container-low transition-colors">
-                                    <td class="p-md border-b border-outline-variant font-bold">Kinshasa - Gombe</td>
-                                    <td class="p-md border-b border-outline-variant text-right">45,600 $</td>
-                                    <td class="p-md border-b border-outline-variant text-right">12,400 $</td>
-                                    <td class="p-md border-b border-outline-variant text-right font-bold">58,000 $</td>
-                                </tr>
-                                <tr class="hover:bg-surface-container-low transition-colors">
-                                    <td class="p-md border-b border-outline-variant font-bold">Lubumbashi</td>
-                                    <td class="p-md border-b border-outline-variant text-right">32,200 $</td>
-                                    <td class="p-md border-b border-outline-variant text-right">5,100 $</td>
-                                    <td class="p-md border-b border-outline-variant text-right font-bold">37,300 $</td>
-                                </tr>
-                                <tr class="hover:bg-surface-container-low transition-colors">
-                                    <td class="p-md border-b border-outline-variant font-bold">Matadi</td>
-                                    <td class="p-md border-b border-outline-variant text-right">18,900 $</td>
-                                    <td class="p-md border-b border-outline-variant text-right">2,300 $</td>
-                                    <td class="p-md border-b border-outline-variant text-right font-bold">21,200 $</td>
-                                </tr>
-                                <tr class="bg-surface-container-high font-bold">
-                                    <td class="p-md">GRAND TOTAL</td>
-                                    <td class="p-md text-right text-[#2563EB]">96,700 $</td>
-                                    <td class="p-md text-right">19,800 $</td>
-                                    <td class="p-md text-right">116,500 $</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="text-gray-600 uppercase text-[11px] font-semibold bg-gray-50 border-b border-gray-100">
+                        <tr>
+                            <th class="px-6 py-4">Conducteur</th>
+                            <th class="px-6 py-4 text-right">Courses</th>
+                            <th class="px-6 py-4 text-right">Rés.</th>
+                            <th class="px-6 py-4 text-right">Sièges</th>
+                            <th class="px-6 py-4 text-right">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <?php if (empty($driversReport)): ?>
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-400">
+                                    <span class="material-symbols-outlined text-[24px]">inbox</span>
+                                    <p class="text-sm mt-1">Aucune donnée</p>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                        <?php foreach ($driversReport as $driver): ?>
+                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                <td class="px-6 py-4 font-medium text-gray-900"><?= esc($driver['conducteur']) ?></td>
+                                <td class="px-6 py-4 text-right text-gray-600"><?= esc($number($driver['courses'])) ?></td>
+                                <td class="px-6 py-4 text-right text-gray-600"><?= esc($number($driver['reservations'])) ?></td>
+                                <td class="px-6 py-4 text-right text-gray-600"><?= esc($number($driver['sieges'])) ?></td>
+                                <td class="px-6 py-4 text-right font-semibold text-gray-900"><?= esc($money($driver['montant'])) ?> $</td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
         </section>
     </div>
-</div>
+
+    <!-- Flotte de Bus Table (full width) -->
+    <section class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+            <h3 class="text-base font-semibold text-gray-900">Utilisation de la flotte</h3>
+            <span class="text-xs font-medium text-gray-500 bg-white px-2 py-1 rounded-md border border-gray-200">
+                <?= count($busesReport) ?> bus
+            </span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-gray-600 uppercase text-[11px] font-semibold bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="px-6 py-4">Plaque</th>
+                        <th class="px-6 py-4 text-right">Capacité</th>
+                        <th class="px-6 py-4 text-right">Courses</th>
+                        <th class="px-6 py-4 text-right">Rés.</th>
+                        <th class="px-6 py-4 text-right">Passagers</th>
+                        <th class="px-6 py-4 text-right">Montant</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <?php if (empty($busesReport)): ?>
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-gray-400">
+                                <span class="material-symbols-outlined text-[24px]">inbox</span>
+                                <p class="text-sm mt-1">Aucune donnée</p>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                    <?php foreach ($busesReport as $bus): ?>
+                        <tr class="hover:bg-gray-50/50 transition-colors">
+                            <td class="px-6 py-4 font-semibold text-gray-900"><?= esc($bus['numero_plaque']) ?></td>
+                            <td class="px-6 py-4 text-right text-gray-600"><?= esc($number($bus['capacite'])) ?> pl.</td>
+                            <td class="px-6 py-4 text-right text-gray-600"><?= esc($number($bus['courses'])) ?></td>
+                            <td class="px-6 py-4 text-right text-gray-600"><?= esc($number($bus['reservations'])) ?></td>
+                            <td class="px-6 py-4 text-right text-gray-600"><?= esc($number($bus['passagers'])) ?></td>
+                            <td class="px-6 py-4 text-right font-semibold text-gray-900"><?= esc($money($bus['montant'])) ?> $</td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="text-xs text-gray-400 text-right">Généré le <?= esc(date('d/m/Y H:i')) ?></div>
+
+</main>
 <?= $this->endSection() ?>

@@ -78,13 +78,22 @@ class ReportController extends BaseWebController
             default       => 'web/layouts/super_admin',
         };
 
+        $filters = $this->filters();
+        $analyseActionUrl = base_url($userRole === 'super_admin' ? 'super-admin/analyse' : 'admin/analyse');
+
         return view('web/super_admin/analyse', [
-            'layout' => $layout,
-            'title' => 'Analyse',
-            'pageTitle' => 'Analyse',
-            'user' => $user,
-            'filters' => $this->filters(),
-            'options' => $this->filterOptions(),
+            'layout'           => $layout,
+            'title'            => 'Analyse',
+            'pageTitle'        => 'Analyse',
+            'user'             => $user,
+            'filters'          => $filters,
+            'options'          => $this->filterOptions(),
+            'analyseActionUrl' => $analyseActionUrl,
+            'summary'          => $this->summary($filters),
+            'routesReport'     => $this->routesReport($filters),
+            'driversReport'    => $this->driversReport($filters),
+            'busesReport'      => $this->busesReport($filters),
+            'demandByWeekday'  => $this->demandByWeekday($filters),
         ]);
     }
 

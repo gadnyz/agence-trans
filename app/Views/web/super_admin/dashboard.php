@@ -1,293 +1,205 @@
 <?= $this->extend($layout ?? 'web/layouts/super_admin') ?>
 
-<?= $this->section('content') ?>
+<?= $this->section('styles') ?>
+<style>
+    @media print {
+        @page { size: A4 landscape; margin: 10mm; }
+        header, aside, .no-print { display: none !important; }
+        body { background: #FFFFFF !important; }
+        main { max-width: none !important; padding: 0 !important; }
+        .report-card { border: 1px solid #E5E7EB !important; box-shadow: none !important; }
+    }
+</style>
+<?= $this->endSection() ?>
 
+<?= $this->section('content') ?>
 <?php
-// Valeurs de sécurité si les variables ne sont pas passées par le contrôleur
+$money       = static fn ($value): string => number_format((float) ($value ?? 0), 2, '.', ' ');
+$number      = static fn ($value): string => number_format((float) ($value ?? 0), 0, '.', ' ');
+$selected    = static fn ($left, $right): string => (string) $left === (string) $right ? 'selected' : '';
+$routeLabel  = static fn (array $route): string => trim(($route['lieu_depart'] ?? '-') . ' - ' . ($route['lieu_arrivee'] ?? '-') . ' | ' . substr((string) ($route['heure_depart'] ?? ''), 0, 5));
+$periodLabel = 'Du ' . $filters['date_debut'] . ' au ' . $filters['date_fin'];
+
 $user = session()->get('user') ?? [];
 $displayName = trim((string) (($user['prenom'] ?? '') ?: ($user['username'] ?? 'Admin')));
-$dateAujourdhui = date('F j, Y'); // Format: January 10, 2024
+
+// Determine the action URL based on the current layout
+$isDashboardSuperAdmin = str_contains($layout ?? '', 'super_admin');
+$dashboardActionUrl = base_url($isDashboardSuperAdmin ? 'super-admin/dashboard' : 'admin/dashboard');
 ?>
 
-<div class="space-y-lg">
-    <div class="flex justify-between items-end">
-        <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Aperçu des opérations</h2>
-            <p class="text-body-lg text-outline">État en temps réel de votre agence au <?= esc($dateAujourdhui) ?></p>
-        </div>
-        <div class="flex gap-sm">
-            <button class="flex items-center gap-sm px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg font-label-lg hover:bg-surface-container-high transition-all">
-                <span class="material-symbols-outlined text-[20px]">filter_list</span>
-                Filter
-            </button>
-            <button class="flex items-center gap-sm px-md py-sm bg-primary text-on-primary rounded-lg font-label-lg hover:brightness-110 transition-all shadow-sm">
-                <span class="material-symbols-outlined text-[20px]">share</span>
-                Export Data
-            </button>
-        </div>
-    </div>
+<main class="px-4 pb-12 max-w-[1600px] mx-auto">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
-        <div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow group">
-            <div class="flex justify-between items-start mb-md">
-                <div class="p-sm bg-primary-fixed text-on-primary-fixed rounded-lg">
-                    <span class="material-symbols-outlined">book_online</span>
-                </div>
-                <span class="text-label-md text-primary font-bold bg-primary-fixed px-sm py-xs rounded">+12%</span>
+    <!-- ── En-tête + Filtres ── -->
+    <div class="no-print w-full min-h-[60px] py-3 mb-6 rounded-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between px-6 bg-white border border-gray-200 shadow-sm gap-4">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
+                <span class="material-symbols-outlined text-[20px]">dashboard</span>
             </div>
-            <h3 class="text-label-lg text-outline">Total Reservations</h3>
-            <div class="flex items-baseline gap-sm">
-                <p class="text-headline-md font-bold">$24,200</p>
-            </div>
-            <div class="mt-md h-12 w-full overflow-hidden opacity-50 group-hover:opacity-100 transition-opacity">
-                <svg class="w-full h-full text-primary" preserveaspectratio="none" viewbox="0 0 100 20">
-                    <path d="M0 15 Q 10 5, 20 12 T 40 8 T 60 14 T 80 5 T 100 10" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"></path>
-                </svg>
-            </div>
-        </div>
-
-        <div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow group">
-            <div class="flex justify-between items-start mb-md">
-                <div class="p-sm bg-secondary-fixed text-on-secondary-fixed rounded-lg">
-                    <span class="material-symbols-outlined">directions_bus</span>
-                </div>
-                <span class="text-label-md text-secondary font-bold bg-secondary-fixed px-sm py-xs rounded">Live</span>
-            </div>
-            <h3 class="text-label-lg text-outline">Buses in Transit</h3>
-            <div class="flex items-baseline gap-sm">
-                <p class="text-headline-md font-bold">85</p>
-                <span class="text-label-sm text-outline">/ 112 Total</span>
-            </div>
-            <div class="mt-md h-2 w-full bg-surface-container rounded-full overflow-hidden">
-                <div class="h-full bg-primary" style="width: 75%"></div>
-            </div>
-        </div>
-
-        <div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow group">
-            <div class="flex justify-between items-start mb-md">
-                <div class="p-sm bg-tertiary-fixed text-on-tertiary-fixed rounded-lg">
-                    <span class="material-symbols-outlined">payments</span>
-                </div>
-                <span class="text-label-md text-on-tertiary-fixed-variant font-bold bg-tertiary-fixed px-sm py-xs rounded">+8.4%</span>
-            </div>
-            <h3 class="text-label-lg text-outline">Monthly Revenue</h3>
-            <div class="flex items-baseline gap-sm">
-                <p class="text-headline-md font-bold">$65,791</p>
-            </div>
-            <div class="mt-md h-12 w-full overflow-hidden opacity-50 group-hover:opacity-100 transition-opacity">
-                <svg class="w-full h-full text-secondary" preserveaspectratio="none" viewbox="0 0 100 20">
-                    <path d="M0 18 Q 20 18, 40 12 T 80 5 T 100 2" fill="none" stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke"></path>
-                </svg>
-            </div>
-        </div>
-
-        <div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow group">
-            <div class="flex justify-between items-start mb-md">
-                <div class="p-sm bg-error-container text-on-error-container rounded-lg">
-                    <span class="material-symbols-outlined">speed</span>
-                </div>
-                <span class="text-label-md text-error font-bold bg-error-container px-sm py-xs rounded">High</span>
-            </div>
-            <h3 class="text-label-lg text-outline">Driver Efficiency</h3>
-            <div class="flex items-baseline gap-sm">
-                <p class="text-headline-md font-bold">92%</p>
-            </div>
-            <div class="mt-md flex gap-xs">
-                <div class="h-4 w-full bg-primary rounded-xs"></div>
-                <div class="h-4 w-full bg-primary rounded-xs"></div>
-                <div class="h-4 w-full bg-primary rounded-xs"></div>
-                <div class="h-4 w-full bg-surface-container-high rounded-xs"></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
-        <div class="flex justify-between items-center mb-xl">
             <div>
-                <h3 class="font-title-lg text-title-lg text-on-surface">Demand & Revenue Analysis</h3>
-                <p class="text-body-md text-outline">Comparing fleet utilization vs booking revenue over the last 30 days</p>
+                <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Tableau de bord</h2>
+                <p class="text-xs text-gray-500"><?= esc($periodLabel) ?></p>
             </div>
-            <div class="flex items-center gap-md">
-                <div class="flex items-center gap-sm">
-                    <span class="w-3 h-3 rounded-full bg-primary"></span>
-                    <span class="text-label-md text-outline">Demand</span>
-                </div>
-                <div class="flex items-center gap-sm">
-                    <span class="w-3 h-3 rounded-full bg-secondary-container"></span>
-                    <span class="text-label-md text-outline">Revenue</span>
-                </div>
-                <select class="bg-surface-container-low border-none rounded-lg text-label-lg px-md py-sm focus:ring-0">
-                    <option>Last 30 Days</option>
-                    <option>Last 6 Months</option>
+        </div>
+
+        <form class="flex flex-wrap items-center gap-2" method="get" action="<?= esc($dashboardActionUrl) ?>">
+            <input class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none" type="date" name="date_debut" value="<?= esc($filters['date_debut']) ?>" title="Date début">
+            <input class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none" type="date" name="date_fin" value="<?= esc($filters['date_fin']) ?>" title="Date fin">
+
+            <select class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none bg-white max-w-[240px]" name="id_trajet" title="Trajet">
+                <option value="">Tous les trajets</option>
+                <?php foreach ($options['trajets'] as $route): ?>
+                    <option value="<?= esc($route['id_trajet']) ?>" <?= $selected($filters['id_trajet'], $route['id_trajet']) ?>><?= esc($routeLabel($route)) ?></option>
+                <?php endforeach; ?>
+            </select>
+
+            <?php if ($isDashboardSuperAdmin && !empty($options['agents'])): ?>
+                <select class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none bg-white max-w-[200px]" name="id_agent" title="Agent">
+                    <option value="">Tous les agents</option>
+                    <?php foreach ($options['agents'] as $agent): ?>
+                        <option value="<?= esc($agent['id_utilisateur']) ?>" <?= $selected($filters['id_agent'], $agent['id_utilisateur']) ?>><?= esc($agent['username']) ?></option>
+                    <?php endforeach; ?>
                 </select>
-            </div>
-        </div>
-        
-        <div class="h-72 w-full flex items-end justify-between gap-sm pt-md">
-            <div class="flex-1 h-[40%] bg-primary rounded-t-lg relative group"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">4.2k</div></div>
-            <div class="flex-1 h-[65%] bg-primary rounded-t-lg relative group"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">6.1k</div></div>
-            <div class="flex-1 h-[55%] bg-primary rounded-t-lg relative group"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">5.5k</div></div>
-            <div class="flex-1 h-[85%] bg-primary rounded-t-lg relative group"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">8.4k</div></div>
-            <div class="flex-1 h-[45%] bg-primary rounded-t-lg relative group"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">4.8k</div></div>
-            <div class="flex-1 h-[70%] bg-primary rounded-t-lg relative group"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">6.8k</div></div>
-            <div class="flex-1 h-[95%] bg-primary rounded-t-lg relative group"><div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">9.1k</div></div>
-            <div class="flex-1 h-[60%] bg-primary rounded-t-lg relative group"></div>
-            <div class="flex-1 h-[50%] bg-primary rounded-t-lg relative group"></div>
-            <div class="flex-1 h-[80%] bg-primary rounded-t-lg relative group"></div>
-            <div class="flex-1 h-[40%] bg-primary rounded-t-lg relative group"></div>
-            <div class="flex-1 h-[65%] bg-primary rounded-t-lg relative group"></div>
-        </div>
-        <div class="flex justify-between mt-md px-sm text-label-md text-outline">
-            <span>Jan 1</span><span>Jan 7</span><span>Jan 14</span><span>Jan 21</span><span>Jan 28</span><span>Feb 1</span>
-        </div>
+            <?php endif; ?>
+
+            <button class="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all shadow-sm" type="submit" title="Appliquer">
+                <span class="material-symbols-outlined text-[20px]">filter_alt</span>
+            </button>
+            <a class="h-9 w-9 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center justify-center hover:bg-gray-50 transition-all shadow-sm" href="<?= esc($dashboardActionUrl) ?>" title="Réinitialiser">
+                <span class="material-symbols-outlined text-[20px]">restart_alt</span>
+            </a>
+            <button class="h-9 px-4 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm" type="button" onclick="window.print()">
+                <span class="material-symbols-outlined text-[18px]">print</span>
+                <span class="hidden sm:inline text-sm font-medium">Imprimer</span>
+            </button>
+        </form>
     </div>
 
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-gutter pb-xl">
-        
-        <div class="xl:col-span-1 bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
-            <div class="flex justify-between items-center mb-lg">
-                <h3 class="font-title-md text-title-md text-on-surface">Active Fleet Distribution</h3>
-                <button class="text-primary font-label-md hover:underline">Details</button>
-            </div>
-            <div class="relative h-48 flex items-center justify-center">
-                <svg class="w-40 h-40 transform -rotate-90" viewbox="0 0 36 36">
-                    <circle cx="18" cy="18" fill="transparent" r="16" stroke="#edeef0" stroke-width="4"></circle>
-                    <circle cx="18" cy="18" fill="transparent" r="16" stroke="#1d4ed8" stroke-dasharray="75, 100" stroke-linecap="round" stroke-width="4"></circle>
-                    <circle cx="18" cy="18" fill="transparent" r="16" stroke="#515f74" stroke-dasharray="15, 100" stroke-dashoffset="-75" stroke-linecap="round" stroke-width="4"></circle>
-                </svg>
-                <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <p class="text-headline-md font-bold">112</p>
-                    <p class="text-label-sm text-outline">Total Assets</p>
+    <!-- ── KPI Summary Cards ── -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <div class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
+                    <span class="material-symbols-outlined text-[18px]">payments</span>
                 </div>
             </div>
-            <div class="mt-md space-y-sm">
-                <div class="flex justify-between items-center p-sm bg-surface-container rounded-lg">
-                    <div class="flex items-center gap-sm">
-                        <span class="w-2 h-2 rounded-full bg-primary"></span>
-                        <span class="text-label-lg">Regional Routes</span>
-                    </div>
-                    <span class="font-bold">75%</span>
-                </div>
-                <div class="flex justify-between items-center p-sm bg-surface-container rounded-lg">
-                    <div class="flex items-center gap-sm">
-                        <span class="w-2 h-2 rounded-full bg-secondary"></span>
-                        <span class="text-label-lg">Long Haul</span>
-                    </div>
-                    <span class="font-bold">15%</span>
-                </div>
-                <div class="flex justify-between items-center p-sm bg-surface-container rounded-lg">
-                    <div class="flex items-center gap-sm">
-                        <span class="w-2 h-2 rounded-full bg-outline-variant"></span>
-                        <span class="text-label-lg">Maintenance</span>
-                    </div>
-                    <span class="font-bold">10%</span>
+            <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Encaissements</span>
+            <strong class="block text-xl font-bold text-gray-900 mt-1"><?= esc($money($summary['encaissements'])) ?> <span class="text-xs text-gray-500 font-normal">USD</span></strong>
+            <span class="block text-xs text-gray-500 mt-1"><?= esc($number($summary['paiements'])) ?> paiement(s)</span>
+        </div>
+        <div class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600">
+                    <span class="material-symbols-outlined text-[18px]">book_online</span>
                 </div>
             </div>
+            <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Réservations</span>
+            <strong class="block text-xl font-bold text-gray-900 mt-1"><?= esc($number($summary['reservations'])) ?></strong>
+            <span class="block text-xs text-gray-500 mt-1"><?= esc($number($summary['sieges'])) ?> siège(s) réservé(s)</span>
+        </div>
+        <div class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-violet-50 text-violet-600">
+                    <span class="material-symbols-outlined text-[18px]">group</span>
+                </div>
+            </div>
+            <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Clients</span>
+            <strong class="block text-xl font-bold text-gray-900 mt-1"><?= esc($number($summary['clients'])) ?></strong>
+            <span class="block text-xs text-gray-500 mt-1"><?= esc($number($summary['nouveaux_clients'])) ?> nouveau(x)</span>
+        </div>
+        <div class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-50 text-amber-600">
+                    <span class="material-symbols-outlined text-[18px]">route</span>
+                </div>
+            </div>
+            <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Courses</span>
+            <strong class="block text-xl font-bold text-gray-900 mt-1"><?= esc($number($summary['courses'])) ?></strong>
+            <span class="block text-xs text-gray-500 mt-1"><?= esc($number($summary['conducteurs'])) ?> conducteur(s)</span>
+        </div>
+        <div class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-rose-50 text-rose-600">
+                    <span class="material-symbols-outlined text-[18px]">directions_bus</span>
+                </div>
+            </div>
+            <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Bus actifs</span>
+            <strong class="block text-xl font-bold text-gray-900 mt-1"><?= esc($number($summary['bus'])) ?></strong>
+            <span class="block text-xs text-gray-500 mt-1">utilisé(s) sur la période</span>
+        </div>
+    </section>
+
+    <!-- ── Recent Reservations Table ── -->
+    <section class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-semibold text-gray-900">Dernières réservations</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Les 10 réservations les plus récentes</p>
+            </div>
+            <a href="<?= base_url($isDashboardSuperAdmin ? 'super-admin/rapports' : 'admin/rapports') ?>" class="text-sm text-blue-600 font-medium hover:underline flex items-center gap-1">
+                Voir tout
+                <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </a>
         </div>
 
-        <div class="xl:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
-            <div class="flex justify-between items-center mb-lg">
-                <h3 class="font-title-md text-title-md text-on-surface">Recent Reservations</h3>
-                <button class="text-primary font-label-md hover:underline">View All</button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="border-b border-outline-variant">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-gray-600 uppercase text-[11px] font-semibold bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="px-6 py-4">Référence</th>
+                        <th class="px-6 py-4">Trajet</th>
+                        <th class="px-6 py-4">Client</th>
+                        <th class="px-6 py-4">Heure</th>
+                        <th class="px-6 py-4 text-center">Statut</th>
+                        <th class="px-6 py-4 text-right">Montant</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <?php if (empty($details['reservations'])): ?>
                         <tr>
-                            <th class="py-sm px-md text-label-md text-outline">ID</th>
-                            <th class="py-sm px-md text-label-md text-outline">Route / Trip</th>
-                            <th class="py-sm px-md text-label-md text-outline">Client</th>
-                            <th class="py-sm px-md text-label-md text-outline">Amount</th>
-                            <th class="py-sm px-md text-label-md text-outline text-right">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-outline-variant/50">
-                        <tr class="hover:bg-surface-container-low transition-colors cursor-pointer">
-                            <td class="py-md px-md text-label-lg font-bold">#RS-7821</td>
-                            <td class="py-md px-md">
-                                <div class="flex items-center gap-sm">
-                                    <span class="material-symbols-outlined text-[18px] text-outline">route</span>
-                                    <span class="text-body-md">SF → LA Express</span>
+                            <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+                                <div class="flex flex-col items-center gap-2">
+                                    <span class="material-symbols-outlined text-[36px]">inbox</span>
+                                    <p class="text-sm font-medium">Aucune réservation pour les filtres sélectionnés.</p>
                                 </div>
-                            </td>
-                            <td class="py-md px-md">
-                                <div class="flex items-center gap-sm">
-                                    <div class="w-6 h-6 rounded-full bg-secondary-fixed text-[10px] flex items-center justify-center font-bold">JD</div>
-                                    <span class="text-body-md">John Doe</span>
-                                </div>
-                            </td>
-                            <td class="py-md px-md text-body-md font-medium">$450.00</td>
-                            <td class="py-md px-md text-right">
-                                <span class="px-sm py-xs bg-primary-fixed text-on-primary-fixed-variant text-label-sm rounded-full">Confirmed</span>
                             </td>
                         </tr>
-                        <tr class="hover:bg-surface-container-low transition-colors cursor-pointer">
-                            <td class="py-md px-md text-label-lg font-bold">#RS-7819</td>
-                            <td class="py-md px-md">
-                                <div class="flex items-center gap-sm">
-                                    <span class="material-symbols-outlined text-[18px] text-outline">route</span>
-                                    <span class="text-body-md">NYC → BOS Shuttler</span>
+                    <?php endif; ?>
+                    <?php foreach ($details['reservations'] as $row): ?>
+                        <?php
+                        $statut = strtoupper($row['statut'] ?? 'INCONNU');
+                        $badgeClass = 'bg-gray-50 text-gray-700 border-gray-200';
+                        if ($statut === 'EN ATTENTE') $badgeClass = 'bg-yellow-50 text-yellow-700 border-yellow-200';
+                        elseif (in_array($statut, ['CONFIRME', 'CONFIRMÉ', 'VALIDE'])) $badgeClass = 'bg-green-50 text-green-700 border-green-200';
+                        elseif (in_array($statut, ['ANNULE', 'ANNULÉ'])) $badgeClass = 'bg-red-50 text-red-700 border-red-200';
+                        ?>
+                        <tr class="hover:bg-gray-50/50 transition-colors">
+                            <td class="px-6 py-4 font-semibold text-gray-900"><?= esc($row['reference_reservation'] ?? '#' . ($row['id_reservation'] ?? '-')) ?></td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[16px] text-gray-400">route</span>
+                                    <span class="text-gray-700"><?= esc($row['trajet'] ?? '-') ?></span>
                                 </div>
                             </td>
-                            <td class="py-md px-md">
-                                <div class="flex items-center gap-sm">
-                                    <div class="w-6 h-6 rounded-full bg-primary-fixed text-[10px] flex items-center justify-center font-bold">SA</div>
-                                    <span class="text-body-md">Sarah Alves</span>
-                                </div>
+                            <td class="px-6 py-4">
+                                <div class="font-medium text-gray-900"><?= esc($row['client'] ?? '-') ?></div>
+                                <div class="text-xs text-gray-500 mt-0.5"><?= esc($row['client_telephone'] ?? '') ?></div>
                             </td>
-                            <td class="py-md px-md text-body-md font-medium">$290.00</td>
-                            <td class="py-md px-md text-right">
-                                <span class="px-sm py-xs bg-tertiary-fixed text-on-tertiary-fixed-variant text-label-sm rounded-full">Pending</span>
+                            <td class="px-6 py-4 text-gray-600"><?= esc(substr((string) ($row['heure_depart'] ?? ''), 0, 5)) ?></td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-block px-2.5 py-0.5 text-[11px] font-semibold rounded-full border <?= $badgeClass ?>">
+                                    <?= esc($row['statut'] ?? '-') ?>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-right font-semibold text-gray-900">
+                                <?= esc(number_format((float) ($row['montant_final'] ?? 0), 2, '.', ' ')) ?> <?= esc($row['symbole'] ?? '$') ?>
                             </td>
                         </tr>
-                        <tr class="hover:bg-surface-container-low transition-colors cursor-pointer">
-                            <td class="py-md px-md text-label-lg font-bold">#RS-7815</td>
-                            <td class="py-md px-md">
-                                <div class="flex items-center gap-sm">
-                                    <span class="material-symbols-outlined text-[18px] text-outline">route</span>
-                                    <span class="text-body-md">Miami → Orlando</span>
-                                </div>
-                            </td>
-                            <td class="py-md px-md">
-                                <div class="flex items-center gap-sm">
-                                    <div class="w-6 h-6 rounded-full bg-surface-container-highest text-[10px] flex items-center justify-center font-bold">MB</div>
-                                    <span class="text-body-md">Mike Brown</span>
-                                </div>
-                            </td>
-                            <td class="py-md px-md text-body-md font-medium">$125.50</td>
-                            <td class="py-md px-md text-right">
-                                <span class="px-sm py-xs bg-error-container text-on-error-container text-label-sm rounded-full">Cancelled</span>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-surface-container-low transition-colors cursor-pointer">
-                            <td class="py-md px-md text-label-lg font-bold">#RS-7812</td>
-                            <td class="py-md px-md">
-                                <div class="flex items-center gap-sm">
-                                    <span class="material-symbols-outlined text-[18px] text-outline">route</span>
-                                    <span class="text-body-md">Chicago Local</span>
-                                </div>
-                            </td>
-                            <td class="py-md px-md">
-                                <div class="flex items-center gap-sm">
-                                    <div class="w-6 h-6 rounded-full bg-secondary-container text-[10px] flex items-center justify-center font-bold">EL</div>
-                                    <span class="text-body-md">Emma Lee</span>
-                                </div>
-                            </td>
-                            <td class="py-md px-md text-body-md font-medium">$85.00</td>
-                            <td class="py-md px-md text-right">
-                                <span class="px-sm py-xs bg-primary-fixed text-on-primary-fixed-variant text-label-sm rounded-full">Confirmed</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         </div>
-    </div>
-</div>
+    </section>
 
-<!-- <button class="fixed bottom-lg right-lg w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-30 group">
-    <span class="material-symbols-outlined text-[24px]">add</span>
-    <span class="absolute right-full mr-md px-md py-sm bg-inverse-surface text-inverse-on-surface text-label-lg rounded-lg opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity pointer-events-none shadow-xl">New Reservation</span>
-</button> -->
-
+</main>
 <?= $this->endSection() ?>

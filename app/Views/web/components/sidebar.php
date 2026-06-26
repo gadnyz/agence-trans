@@ -20,7 +20,6 @@ $menus = [
             ['path' => 'super-admin/dashboard',     'icon' => 'dashboard',      'label' => 'Dashboard'],
             ['path' => 'super-admin/reservation',   'icon' => 'book_online',    'label' => 'Réservations'],
             ['path' => 'super-admin/planification', 'icon' => 'calendar_today', 'label' => 'Planification'],
-            ['path' => 'super-admin/rapports',      'icon' => 'bar_chart',      'label' => 'Rapports'],
             ['path' => 'super-admin/analyse',       'icon' => 'analytics',      'label' => 'Analyse'],
             ['path' => 'admin/bus',                 'icon' => 'directions_bus', 'label' => 'Bus'],
             ['path' => 'admin/chauffeurs',          'icon' => 'badge',          'label' => 'Chauffeurs'],
@@ -82,7 +81,7 @@ $links    = $roleMenu['links'];
     <nav class="flex-1 space-y-1 overflow-y-auto overflow-x-hidden" aria-label="Navigation principale">
         <?php foreach ($links as $link): ?>
             <a
-                class="flex items-center rounded-xl transition-all duration-200 h-12 px-3 gap-4 [.collapsed_&]:gap-0 [.collapsed_&]:justify-center <?= $isActive($link['path']) ?>"
+                class="flex items-center rounded-xl transition-all duration-200 h-10 px-3 gap-4 [.collapsed_&]:gap-0 [.collapsed_&]:justify-center <?= $isActive($link['path']) ?>"
                 href="<?= base_url($link['path']) ?>"
                 title="<?= esc($link['label']) ?>"
                 <?= ($currentPath === $link['path']) ? 'aria-current="page"' : '' ?>
@@ -97,11 +96,11 @@ $links    = $roleMenu['links'];
 
     <button 
         id="toggle-sidebar" 
-        class="flex items-center rounded-xl transition-all duration-200 h-12 px-3 gap-4 [.collapsed_&]:gap-0 [.collapsed_&]:justify-center text-on-surface-variant hover:bg-surface-container" 
+        class="flex items-center rounded-xl transition-all duration-200 h-10 px-3 mb-2 gap-4 [.collapsed_&]:gap-0 [.collapsed_&]:justify-center text-on-surface-variant hover:bg-surface-container" 
         aria-label="Réduire le menu"
     >
         <div class="w-6 h-6 flex items-center justify-center shrink-0">
-            <span id="toggle-icon" class="material-symbols-outlined text-[20px]">menu_open</span>
+            <span id="toggle-icon" class="material-symbols-outlined text-[17px]">menu_open</span>
         </div>
         <span class="text-sm font-medium transition-all duration-200 ease-in-out whitespace-nowrap overflow-hidden [.collapsed_&]:opacity-0 [.collapsed_&]:w-0">Réduire le menu</span>
     </button>
@@ -109,11 +108,11 @@ $links    = $roleMenu['links'];
     <div class="pt-3 mt-auto border-t border-outline-variant flex flex-col gap-1 shrink-0">
         <a
             href="<?= base_url('logout') ?>"
-            class="flex items-center rounded-xl transition-all duration-200 h-12 px-3 gap-4 [.collapsed_&]:gap-0 [.collapsed_&]:justify-center text-on-surface-variant hover:bg-error-container hover:text-error"
+            class="flex items-center rounded-xl transition-all duration-200 h-10 px-3 gap-4 [.collapsed_&]:gap-0 [.collapsed_&]:justify-center text-on-surface-variant hover:bg-error-container hover:text-error"
             title="Déconnexion"
         >
             <div class="w-6 h-6 flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-[20px]">logout</span>
+                <span class="material-symbols-outlined text-[18px]">logout</span>
             </div>
             <span class="text-sm font-medium transition-all duration-200 ease-in-out whitespace-nowrap overflow-hidden [.collapsed_&]:opacity-0 [.collapsed_&]:w-0">Déconnexion</span>
         </a>

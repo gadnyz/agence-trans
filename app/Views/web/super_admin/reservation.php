@@ -94,8 +94,8 @@
                                             $badgeClass = 'bg-red-50 text-red-700 border-red-200';
                                         }
                                     ?>
-                                    <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full border <?= $badgeClass ?>">
-                                        <?= esc($res['statut_reservation']) ?>
+                                    <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full <?= $badgeClass ?>">
+                                        <?= esc(ucfirst(strtolower($res['statut_reservation']))) ?>
                                     </span>
                                 </td>
                                 

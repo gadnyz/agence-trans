@@ -131,8 +131,8 @@
                                     <?= esc($t['duree_estimee'] ?? '—') ?>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full border <?= $badgeClass ?>">
-                                        <?= esc($t['statut'] ?? 'Actif') ?>
+                                    <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full <?= $badgeClass ?>">
+                                        <?= esc(ucfirst(strtolower($t['statut'] ?? 'Actif'))) ?>
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-right">

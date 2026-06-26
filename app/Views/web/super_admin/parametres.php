@@ -139,7 +139,7 @@
                                     <?= esc($u['telephone'] ?? '—') ?>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full border <?= $badgeClass ?>">
+                                    <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full <?= $badgeClass ?>">
                                         <?= esc($u['statut'] ?? 'Actif') ?>
                                     </span>
                                 </td>

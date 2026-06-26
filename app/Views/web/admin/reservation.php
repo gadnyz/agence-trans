@@ -161,7 +161,7 @@
 
                                 <td class="px-6 py-4 text-center">
                                     <?php if ($paiementStatut): ?>
-                                        <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full border <?= $paiementClass ?>">
+                                        <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full <?= $paiementClass ?>">
                                             <?= esc($paiementStatut) ?>
                                         </span>
                                     <?php else: ?>
@@ -169,9 +169,9 @@
                                     <?php endif; ?>
                                 </td>
 
-                                <td class="px-6 py-4 text-center">
-                                    <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full border <?= $badgeClass ?>">
-                                        <?= esc($res['statut_reservation']) ?>
+                                <td class="px-2 py-4 text-center">
+                                    <span class="px-2 py-1 text-[11px] font-semibold rounded-full <?= $badgeClass ?>">
+                                        <?= esc(ucfirst(strtolower($res['statut_reservation']))) ?>
                                     </span>
                                 </td>
 

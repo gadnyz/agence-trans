@@ -59,12 +59,12 @@ $pageEnd     = min((int) $pagination['total_pages'], (int) $pagination['page'] +
             <input class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none" type="date" name="date_debut" value="<?= esc($filters['date_debut']) ?>" aria-label="Date début" title="Date début">
             <input class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none" type="date" name="date_fin"   value="<?= esc($filters['date_fin']) ?>"   aria-label="Date fin"   title="Date fin">
 
-            <select class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none bg-white max-w-[240px]" name="id_trajet" aria-label="Trajet" title="Trajet">
+            <!-- <select class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none bg-white max-w-[240px]" name="id_trajet" aria-label="Trajet" title="Trajet">
                 <option value="">Tous les trajets</option>
                 <?php foreach ($options['trajets'] as $route): ?>
                     <option value="<?= esc($route['id_trajet']) ?>" <?= $selected($filters['id_trajet'], $route['id_trajet']) ?>><?= esc($routeLabel($route)) ?></option>
                 <?php endforeach; ?>
-            </select>
+            </select> -->
 
             <button class="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all shadow-sm" type="submit" title="Appliquer" aria-label="Appliquer">
                 <span class="material-symbols-outlined text-[20px]">filter_alt</span>
@@ -90,7 +90,7 @@ $pageEnd     = min((int) $pagination['total_pages'], (int) $pagination['page'] +
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <div class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm p-5 transition-all">
             <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Encaissements</span>
-            <strong class="block text-xl font-bold text-gray-900 mt-2"><?= esc($money($summary['encaissements'])) ?> <span class="text-xs text-gray-500 font-normal">USD</span></strong>
+            <strong class="block text-xl font-bold text-gray-900 mt-2"><?= esc($money($summary['encaissements'])) ?> <span class="text-xs text-gray-500 font-normal">CDF</span></strong>
             <span class="block text-xs text-gray-500 mt-1"><?= esc($number($summary['paiements'])) ?> paiement(s)</span>
         </div>
         <div class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm p-5 transition-all">
@@ -182,7 +182,7 @@ $pageEnd     = min((int) $pagination['total_pages'], (int) $pagination['page'] +
                                 <div class="text-xs text-gray-500 mt-0.5"><?= esc($row['telephone'] ?: '-') ?></div>
                             </td>
                             
-                            <td class="px-6 py-4 text-center">
+                            <td class="px-0 py-4 text-center">
                                 <?php 
                                     $statut = strtoupper($row['statut_reservation'] ?? 'INCONNU');
                                     $badgeClass = 'bg-gray-50 text-gray-700 border-gray-200';
@@ -190,8 +190,8 @@ $pageEnd     = min((int) $pagination['total_pages'], (int) $pagination['page'] +
                                     elseif (in_array($statut, ['CONFIRME', 'CONFIRMÉ'])) $badgeClass = 'bg-green-50 text-green-700 border-green-200';
                                     elseif (in_array($statut, ['ANNULE', 'ANNULÉ'])) $badgeClass = 'bg-red-50 text-red-700 border-red-200';
                                 ?>
-                                <span class="inline-block px-2 py-0.5 text-[10px] font-semibold rounded-full <?= $badgeClass ?>">
-                                    <?= esc($row['statut_reservation']) ?>
+                                <span class="inline-block px-1 py-0.5 text-[11px] font-semibold rounded-full <?= $badgeClass ?>">
+                                    <?= esc(ucfirst(strtolower($row['statut_reservation']))) ?>
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right font-medium text-gray-700"><?= esc($number($row['nombre_places'])) ?></td>

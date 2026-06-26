@@ -55,19 +55,19 @@ $maxWeekdayReservations = $maxWeekdayReservations ?: 1;
             <input class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none" type="date" name="date_debut" value="<?= esc($filters['date_debut']) ?>" title="Date début">
             <input class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none" type="date" name="date_fin" value="<?= esc($filters['date_fin']) ?>" title="Date fin">
 
-            <select class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none bg-white max-w-[240px]" name="id_trajet" title="Trajet">
+            <!-- <select class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none bg-white max-w-[240px]" name="id_trajet" title="Trajet">
                 <option value="">Tous les trajets</option>
                 <?php foreach ($options['trajets'] as $route): ?>
                     <option value="<?= esc($route['id_trajet']) ?>" <?= $selected($filters['id_trajet'], $route['id_trajet']) ?>><?= esc($routeLabel($route)) ?></option>
                 <?php endforeach; ?>
-            </select>
+            </select> -->
 
-            <select class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none bg-white max-w-[200px]" name="id_agent" title="Agent">
+            <!-- <select class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none bg-white max-w-[200px]" name="id_agent" title="Agent">
                 <option value="">Tous les agents</option>
                 <?php foreach ($options['agents'] as $agent): ?>
                     <option value="<?= esc($agent['id_utilisateur']) ?>" <?= $selected($filters['id_agent'], $agent['id_utilisateur']) ?>><?= esc($agent['username']) ?></option>
                 <?php endforeach; ?>
-            </select>
+            </select> -->
 
             <button class="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all shadow-sm" type="submit" title="Appliquer">
                 <span class="material-symbols-outlined text-[20px]">filter_alt</span>
@@ -86,7 +86,7 @@ $maxWeekdayReservations = $maxWeekdayReservations ?: 1;
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <div class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
             <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Encaissements</span>
-            <strong class="block text-xl font-bold text-gray-900 mt-2"><?= esc($money($summary['encaissements'])) ?> <span class="text-xs text-gray-500 font-normal">USD</span></strong>
+            <strong class="block text-xl font-bold text-gray-900 mt-2"><?= esc($money($summary['encaissements'])) ?> <span class="text-xs text-gray-500 font-normal">CDF</span></strong>
             <span class="block text-xs text-gray-500 mt-1"><?= esc($number($summary['paiements'])) ?> paiement(s)</span>
         </div>
         <div class="report-card bg-white border border-gray-200 rounded-2xl shadow-sm p-5">

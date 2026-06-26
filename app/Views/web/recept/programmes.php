@@ -9,140 +9,146 @@ $today       = date('d/m/Y');
 $todayIso    = date('Y-m-d');
 ?>
 
-<div class="space-y-lg">
+<div class="px-4 pb-12 max-w-[1600px] mx-auto">
+
 
     <!-- ── En-tête ── -->
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-sm">
-        <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Programmes de Voyage</h2>
-            <p class="text-body-lg text-outline"><?= esc($today) ?> &mdash; <?= esc($displayName) ?></p>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
+                <span class="material-symbols-outlined text-[20px]">directions_bus</span>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Programmes de Voyage</h2>
+                <p class="text-xs text-gray-500"><?= esc($today) ?> — <?= esc($displayName) ?></p>
+            </div>
         </div>
         <a href="<?= base_url('recept/reservations') ?>"
-           class="inline-flex items-center gap-sm px-lg py-sm bg-primary text-on-primary rounded-lg font-label-lg hover:brightness-110 transition-all shadow-sm">
-            <span class="material-symbols-outlined text-[20px]">confirmation_number</span>
+           class="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-all shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">confirmation_number</span>
             Créer une réservation
         </a>
     </div>
 
-    <!-- ── Flash/Alert global ── -->
-    <div id="page-alert" class="hidden rounded-xl p-md text-sm font-medium border transition-all"></div>
+    <!-- ── Flash/Alert ── -->
+    <div id="page-alert" class="hidden rounded-xl p-3 text-sm font-medium border transition-all mb-4"></div>
 
     <!-- ── Filtres de recherche ── -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
-        <h3 class="font-title-sm text-title-sm text-on-surface mb-md flex items-center gap-sm">
-            <span class="material-symbols-outlined text-primary text-[20px]">travel_explore</span>
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 mb-6">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined text-blue-500 text-[18px]">travel_explore</span>
             Rechercher des voyages disponibles
         </h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div class="relative sm:col-span-2">
-                <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">search</span>
                 <input
                     id="search-programme"
                     type="text"
                     placeholder="Ville de départ, d'arrivée, trajet..."
-                    class="w-full pl-xl pr-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                    class="w-full pl-10 pr-3 h-9 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 />
             </div>
             <input
                 type="date"
                 id="filter-date"
                 value="<?= $todayIso ?>"
-                class="px-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none"
+                class="h-9 px-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
             />
             <button
                 id="btn-search-programme"
-                class="inline-flex items-center justify-center gap-sm px-lg py-sm bg-primary text-on-primary rounded-lg font-label-lg hover:brightness-110 transition-all"
+                class="h-9 px-4 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
-                <span class="material-symbols-outlined text-[20px]">search</span>
+                <span class="material-symbols-outlined text-[18px]">search</span>
                 Rechercher
             </button>
         </div>
     </div>
 
     <!-- ── Statistiques rapides ── -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-md">
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex items-center gap-md shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-on-primary-container">calendar_today</span>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-blue-600 text-[18px]">calendar_today</span>
+                </div>
             </div>
-            <div>
-                <div class="text-[11px] text-outline font-semibold uppercase tracking-wide">Voyages trouvés</div>
-                <div id="stat-total" class="font-bold text-title-md text-on-surface">—</div>
-            </div>
+            <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Voyages trouvés</span>
+            <strong id="stat-total" class="block text-xl font-bold text-gray-900 mt-1">—</strong>
         </div>
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex items-center gap-md shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-emerald-700">event_seat</span>
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-emerald-600 text-[18px]">event_seat</span>
+                </div>
             </div>
-            <div>
-                <div class="text-[11px] text-outline font-semibold uppercase tracking-wide">Places libres</div>
-                <div id="stat-places" class="font-bold text-title-md text-on-surface">—</div>
-            </div>
+            <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Places libres</span>
+            <strong id="stat-places" class="block text-xl font-bold text-gray-900 mt-1">—</strong>
         </div>
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex items-center gap-md shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-blue-700">directions_bus</span>
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-violet-600 text-[18px]">directions_bus</span>
+                </div>
             </div>
-            <div>
-                <div class="text-[11px] text-outline font-semibold uppercase tracking-wide">Bus actifs</div>
-                <div id="stat-bus" class="font-bold text-title-md text-on-surface">—</div>
-            </div>
+            <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Bus actifs</span>
+            <strong id="stat-bus" class="block text-xl font-bold text-gray-900 mt-1">—</strong>
         </div>
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex items-center gap-md shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-yellow-700">no_crash</span>
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-amber-600 text-[18px]">no_crash</span>
+                </div>
             </div>
-            <div>
-                <div class="text-[11px] text-outline font-semibold uppercase tracking-wide">Complets</div>
-                <div id="stat-complets" class="font-bold text-title-md text-on-surface">—</div>
-            </div>
+            <span class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Complets</span>
+            <strong id="stat-complets" class="block text-xl font-bold text-gray-900 mt-1">—</strong>
         </div>
     </div>
 
     <!-- ── Liste des programmes (cards) ── -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-        <div class="flex justify-between items-center p-lg border-b border-outline-variant bg-surface-container-low/30">
-            <h3 class="font-title-md text-title-md text-on-surface">Voyages disponibles</h3>
-            <button
-                id="btn-refresh"
-                class="inline-flex items-center gap-xs px-md py-xs bg-surface-container border border-outline-variant rounded-lg text-label-sm hover:bg-surface-container-high transition-all"
-            >
-                <span class="material-symbols-outlined text-[16px]">refresh</span>
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-semibold text-gray-900">Voyages disponibles</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Liste des programmes actifs</p>
+            </div>
+            <button id="btn-refresh"
+                    class="h-9 px-4 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm text-sm font-medium">
+                <span class="material-symbols-outlined text-[18px]">refresh</span>
                 Actualiser
             </button>
         </div>
-
-        <!-- Vue grille -->
-        <div id="programmes-grid" class="divide-y divide-outline-variant/50">
-            <div class="flex flex-col items-center justify-center py-xl text-outline gap-md">
-                <div class="animate-spin w-10 h-10 border-2 border-primary border-t-transparent rounded-full"></div>
-                <p class="text-body-md">Chargement des voyages...</p>
+        <div id="programmes-grid" class="divide-y divide-gray-100">
+            <div class="flex flex-col items-center justify-center py-12 gap-3 text-gray-400">
+                <div class="animate-spin w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                <p class="text-sm">Chargement des voyages...</p>
             </div>
         </div>
     </div>
 
     <!-- ── Vue tableau détaillée ── -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-        <div class="p-lg border-b border-outline-variant bg-surface-container-low/30">
-            <h3 class="font-title-md text-title-md text-on-surface">Tableau récapitulatif</h3>
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+            <h3 class="text-base font-semibold text-gray-900">Tableau récapitulatif</h3>
+            <p class="text-xs text-gray-500 mt-0.5">Vue détaillée de tous les programmes</p>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-body-md">
-                <thead>
-                    <tr class="bg-surface-container border-b border-outline-variant text-on-surface font-semibold text-[13px]">
-                        <th class="p-md">Trajet</th>
-                        <th class="p-md">Date</th>
-                        <th class="p-md">Horaire</th>
-                        <th class="p-md">Bus</th>
-                        <th class="p-md">Conducteur</th>
-                        <th class="p-md">Prix</th>
-                        <th class="p-md">Places libres</th>
-                        <th class="p-md">Statut</th>
-                        <th class="p-md text-right">Action</th>
+            <table class="w-full text-sm text-left">
+                <thead class="text-gray-600 uppercase text-[11px] font-semibold bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="px-6 py-4">Trajet</th>
+                        <th class="px-6 py-4">Date</th>
+                        <th class="px-6 py-4">Horaire</th>
+                        <th class="px-6 py-4">Bus</th>
+                        <th class="px-6 py-4">Conducteur</th>
+                        <th class="px-6 py-4">Prix</th>
+                        <th class="px-6 py-4">Places libres</th>
+                        <th class="px-6 py-4">Statut</th>
+                        <th class="px-6 py-4 text-right">Action</th>
                     </tr>
                 </thead>
-                <tbody id="programmes-table-body" class="divide-y divide-outline-variant/40">
-                    <tr><td colspan="9" class="p-xl text-center text-outline">Chargement...</td></tr>
+                <tbody id="programmes-table-body" class="divide-y divide-gray-100">
+                    <tr><td colspan="9" class="px-6 py-12 text-center text-gray-400">Chargement...</td></tr>
                 </tbody>
             </table>
         </div>

@@ -9,85 +9,93 @@ $today       = date('d/m/Y');
 $todayIso    = date('Y-m-d');
 ?>
 
-<div class="space-y-lg">
+<div class="px-4 pb-12 max-w-[1600px] mx-auto">
 
     <!-- ── En-tête ── -->
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-sm">
-        <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Flotte & Réseau</h2>
-            <p class="text-body-lg text-outline">Consultation en lecture seule &mdash; <?= esc($today) ?></p>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
+                <span class="material-symbols-outlined text-[20px]">directions_bus</span>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Flotte &amp; Réseau</h2>
+                <p class="text-xs text-gray-500">Consultation en lecture seule &mdash; <?= esc($today) ?></p>
+            </div>
         </div>
-        <span class="inline-flex items-center gap-sm px-md py-sm bg-surface-container border border-outline-variant rounded-xl text-label-sm text-outline">
+        <span class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-200 rounded-xl text-xs font-semibold text-gray-500">
             <span class="material-symbols-outlined text-[16px]">visibility</span>
             Mode consultation uniquement
         </span>
     </div>
 
-    <!-- ── Flash/Alert global ── -->
-    <div id="page-alert" class="hidden rounded-xl p-md text-sm font-medium border transition-all"></div>
+    <!-- ── Flash/Alert ── -->
+    <div id="page-alert" class="hidden rounded-xl p-3 text-sm font-medium border transition-all mb-4"></div>
 
     <!-- ── Navigation sous-sections ── -->
-    <div class="flex flex-wrap gap-sm">
-        <button data-section="bus" class="section-btn active-section inline-flex items-center gap-sm px-lg py-sm rounded-xl font-label-lg transition-all border">
+    <div class="flex flex-wrap gap-2 mb-6">
+        <button data-section="bus" class="section-btn active-section inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border">
             <span class="material-symbols-outlined text-[18px]">directions_bus</span>
             Bus
         </button>
-        <button data-section="conducteurs" class="section-btn inline-flex items-center gap-sm px-lg py-sm rounded-xl font-label-lg transition-all border border-transparent">
+        <button data-section="conducteurs" class="section-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border border-transparent">
             <span class="material-symbols-outlined text-[18px]">badge</span>
             Chauffeurs
         </button>
-        <button data-section="trajets" class="section-btn inline-flex items-center gap-sm px-lg py-sm rounded-xl font-label-lg transition-all border border-transparent">
+        <button data-section="trajets" class="section-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border border-transparent">
             <span class="material-symbols-outlined text-[18px]">route</span>
             Trajets
         </button>
-        <button data-section="horaires" class="section-btn inline-flex items-center gap-sm px-lg py-sm rounded-xl font-label-lg transition-all border border-transparent">
+        <button data-section="horaires" class="section-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border border-transparent">
             <span class="material-symbols-outlined text-[18px]">schedule</span>
             Horaires
         </button>
     </div>
 
     <!-- ═══ SECTION : BUS ═══ -->
-    <div id="section-bus" class="section-content space-y-md">
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-            <div class="flex justify-between items-center p-lg border-b border-outline-variant bg-surface-container-low/30">
-                <div class="flex items-center gap-sm">
-                    <div class="w-9 h-9 bg-primary-container rounded-lg flex items-center justify-center">
-                        <span class="material-symbols-outlined text-on-primary-container text-[18px]">directions_bus</span>
+    <div id="section-bus" class="section-content space-y-4">
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-blue-600 text-[18px]">directions_bus</span>
                     </div>
-                    <h3 class="font-title-md text-title-md text-on-surface">Flotte de bus</h3>
+                    <div>
+                        <h3 class="text-base font-semibold text-gray-900">Flotte de bus</h3>
+                        <p class="text-xs text-gray-500">Liste complète des véhicules</p>
+                    </div>
                 </div>
-                <button id="btn-refresh-bus" class="inline-flex items-center gap-xs px-md py-xs bg-surface-container border border-outline-variant rounded-lg text-label-sm hover:bg-surface-container-high transition-all">
+                <button id="btn-refresh-bus" class="h-9 px-4 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm text-sm font-medium">
                     <span class="material-symbols-outlined text-[16px]">refresh</span> Actualiser
                 </button>
             </div>
             <!-- Stats cards -->
-            <div class="grid grid-cols-3 divide-x divide-outline-variant/50 border-b border-outline-variant">
-                <div class="p-md text-center">
-                    <div id="bus-stat-total" class="font-bold text-title-lg text-on-surface">—</div>
-                    <div class="text-xs text-outline">Total bus</div>
+            <div class="grid grid-cols-3 divide-x divide-gray-100 border-b border-gray-100">
+                <div class="p-4 text-center">
+                    <div id="bus-stat-total" class="text-xl font-bold text-gray-900">—</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Total bus</div>
                 </div>
-                <div class="p-md text-center">
-                    <div id="bus-stat-active" class="font-bold text-title-lg text-emerald-600">—</div>
-                    <div class="text-xs text-outline">En service</div>
+                <div class="p-4 text-center">
+                    <div id="bus-stat-active" class="text-xl font-bold text-emerald-600">—</div>
+                    <div class="text-xs text-gray-500 mt-0.5">En service</div>
                 </div>
-                <div class="p-md text-center">
-                    <div id="bus-stat-places" class="font-bold text-title-lg text-primary">—</div>
-                    <div class="text-xs text-outline">Capacité totale</div>
+                <div class="p-4 text-center">
+                    <div id="bus-stat-places" class="text-xl font-bold text-blue-600">—</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Capacité totale</div>
                 </div>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-body-md">
-                    <thead>
-                        <tr class="bg-surface-container border-b border-outline-variant text-on-surface font-semibold text-[13px]">
-                            <th class="p-md">Plaque</th>
-                            <th class="p-md">Marque & Modèle</th>
-                            <th class="p-md">Capacité</th>
-                            <th class="p-md">Couleur / Année</th>
-                            <th class="p-md">Statut</th>
+                <table class="w-full text-sm text-left">
+                    <thead class="text-gray-600 uppercase text-[11px] font-semibold bg-gray-50 border-b border-gray-100">
+                        <tr>
+                            <th class="px-6 py-4">Plaque</th>
+                            <th class="px-6 py-4">Marque &amp; Modèle</th>
+                            <th class="px-6 py-4">Capacité</th>
+                            <th class="px-6 py-4">Couleur / Année</th>
+                            <th class="px-6 py-4">Statut</th>
                         </tr>
                     </thead>
-                    <tbody id="bus-table-body" class="divide-y divide-outline-variant/30">
-                        <tr><td colspan="5" class="p-xl text-center text-outline">Chargement...</td></tr>
+                    <tbody id="bus-table-body" class="divide-y divide-gray-100">
+                        <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400">Chargement...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -95,42 +103,45 @@ $todayIso    = date('Y-m-d');
     </div>
 
     <!-- ═══ SECTION : CHAUFFEURS ═══ -->
-    <div id="section-conducteurs" class="section-content hidden space-y-md">
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-            <div class="flex justify-between items-center p-lg border-b border-outline-variant bg-surface-container-low/30">
-                <div class="flex items-center gap-sm">
-                    <div class="w-9 h-9 bg-emerald-100 rounded-lg flex items-center justify-center">
-                        <span class="material-symbols-outlined text-emerald-700 text-[18px]">badge</span>
+    <div id="section-conducteurs" class="section-content hidden space-y-4">
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-emerald-50 rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-emerald-600 text-[18px]">badge</span>
                     </div>
-                    <h3 class="font-title-md text-title-md text-on-surface">Chauffeurs & Conducteurs</h3>
+                    <div>
+                        <h3 class="text-base font-semibold text-gray-900">Chauffeurs &amp; Conducteurs</h3>
+                        <p class="text-xs text-gray-500">Personnel de conduite enregistré</p>
+                    </div>
                 </div>
-                <button id="btn-refresh-conducteurs" class="inline-flex items-center gap-xs px-md py-xs bg-surface-container border border-outline-variant rounded-lg text-label-sm hover:bg-surface-container-high transition-all">
+                <button id="btn-refresh-conducteurs" class="h-9 px-4 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm text-sm font-medium">
                     <span class="material-symbols-outlined text-[16px]">refresh</span> Actualiser
                 </button>
             </div>
-            <div class="grid grid-cols-2 divide-x divide-outline-variant/50 border-b border-outline-variant">
-                <div class="p-md text-center">
-                    <div id="cond-stat-total" class="font-bold text-title-lg text-on-surface">—</div>
-                    <div class="text-xs text-outline">Total chauffeurs</div>
+            <div class="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
+                <div class="p-4 text-center">
+                    <div id="cond-stat-total" class="text-xl font-bold text-gray-900">—</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Total chauffeurs</div>
                 </div>
-                <div class="p-md text-center">
-                    <div id="cond-stat-actif" class="font-bold text-title-lg text-emerald-600">—</div>
-                    <div class="text-xs text-outline">Actifs</div>
+                <div class="p-4 text-center">
+                    <div id="cond-stat-actif" class="text-xl font-bold text-emerald-600">—</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Actifs</div>
                 </div>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-body-md">
-                    <thead>
-                        <tr class="bg-surface-container border-b border-outline-variant text-on-surface font-semibold text-[13px]">
-                            <th class="p-md">Nom complet</th>
-                            <th class="p-md">Téléphone</th>
-                            <th class="p-md">N° Permis</th>
-                            <th class="p-md">Date d'embauche</th>
-                            <th class="p-md">Statut</th>
+                <table class="w-full text-sm text-left">
+                    <thead class="text-gray-600 uppercase text-[11px] font-semibold bg-gray-50 border-b border-gray-100">
+                        <tr>
+                            <th class="px-6 py-4">Nom complet</th>
+                            <th class="px-6 py-4">Téléphone</th>
+                            <th class="px-6 py-4">N° Permis</th>
+                            <th class="px-6 py-4">Date d'embauche</th>
+                            <th class="px-6 py-4">Statut</th>
                         </tr>
                     </thead>
-                    <tbody id="conducteurs-table-body" class="divide-y divide-outline-variant/30">
-                        <tr><td colspan="5" class="p-xl text-center text-outline">Chargement...</td></tr>
+                    <tbody id="conducteurs-table-body" class="divide-y divide-gray-100">
+                        <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400">Chargement...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -138,32 +149,35 @@ $todayIso    = date('Y-m-d');
     </div>
 
     <!-- ═══ SECTION : TRAJETS ═══ -->
-    <div id="section-trajets" class="section-content hidden space-y-md">
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-            <div class="flex justify-between items-center p-lg border-b border-outline-variant bg-surface-container-low/30">
-                <div class="flex items-center gap-sm">
-                    <div class="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <span class="material-symbols-outlined text-blue-700 text-[18px]">route</span>
+    <div id="section-trajets" class="section-content hidden space-y-4">
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-blue-600 text-[18px]">route</span>
                     </div>
-                    <h3 class="font-title-md text-title-md text-on-surface">Lignes de voyage (Trajets)</h3>
+                    <div>
+                        <h3 class="text-base font-semibold text-gray-900">Lignes de voyage (Trajets)</h3>
+                        <p class="text-xs text-gray-500">Itinéraires configurés dans le système</p>
+                    </div>
                 </div>
-                <button id="btn-refresh-trajets" class="inline-flex items-center gap-xs px-md py-xs bg-surface-container border border-outline-variant rounded-lg text-label-sm hover:bg-surface-container-high transition-all">
+                <button id="btn-refresh-trajets" class="h-9 px-4 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm text-sm font-medium">
                     <span class="material-symbols-outlined text-[16px]">refresh</span> Actualiser
                 </button>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-body-md">
-                    <thead>
-                        <tr class="bg-surface-container border-b border-outline-variant text-on-surface font-semibold text-[13px]">
-                            <th class="p-md">Départ → Arrivée</th>
-                            <th class="p-md">Prix standard</th>
-                            <th class="p-md">Distance</th>
-                            <th class="p-md">Durée estimée</th>
-                            <th class="p-md">Statut</th>
+                <table class="w-full text-sm text-left">
+                    <thead class="text-gray-600 uppercase text-[11px] font-semibold bg-gray-50 border-b border-gray-100">
+                        <tr>
+                            <th class="px-6 py-4">Départ &rarr; Arrivée</th>
+                            <th class="px-6 py-4">Prix standard</th>
+                            <th class="px-6 py-4">Distance</th>
+                            <th class="px-6 py-4">Durée estimée</th>
+                            <th class="px-6 py-4">Statut</th>
                         </tr>
                     </thead>
-                    <tbody id="trajets-table-body" class="divide-y divide-outline-variant/30">
-                        <tr><td colspan="5" class="p-xl text-center text-outline">Chargement...</td></tr>
+                    <tbody id="trajets-table-body" class="divide-y divide-gray-100">
+                        <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400">Chargement...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -171,21 +185,24 @@ $todayIso    = date('Y-m-d');
     </div>
 
     <!-- ═══ SECTION : HORAIRES ═══ -->
-    <div id="section-horaires" class="section-content hidden space-y-md">
-        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-            <div class="flex justify-between items-center p-lg border-b border-outline-variant bg-surface-container-low/30">
-                <div class="flex items-center gap-sm">
-                    <div class="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <span class="material-symbols-outlined text-purple-700 text-[18px]">schedule</span>
+    <div id="section-horaires" class="section-content hidden space-y-4">
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-purple-50 rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined text-purple-600 text-[18px]">schedule</span>
                     </div>
-                    <h3 class="font-title-md text-title-md text-on-surface">Créneaux horaires standards</h3>
+                    <div>
+                        <h3 class="text-base font-semibold text-gray-900">Créneaux horaires standards</h3>
+                        <p class="text-xs text-gray-500">Horaires de départ et d'arrivée</p>
+                    </div>
                 </div>
-                <button id="btn-refresh-horaires" class="inline-flex items-center gap-xs px-md py-xs bg-surface-container border border-outline-variant rounded-lg text-label-sm hover:bg-surface-container-high transition-all">
+                <button id="btn-refresh-horaires" class="h-9 px-4 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm text-sm font-medium">
                     <span class="material-symbols-outlined text-[16px]">refresh</span> Actualiser
                 </button>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-md p-lg" id="horaires-cards-container">
-                <div class="col-span-full text-center text-outline p-xl">Chargement...</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-6" id="horaires-cards-container">
+                <div class="col-span-full text-center text-gray-400 py-12">Chargement...</div>
             </div>
         </div>
     </div>
@@ -197,17 +214,18 @@ $todayIso    = date('Y-m-d');
 <?= $this->section('scripts') ?>
 <style>
 .section-btn {
-    color: var(--color-on-surface-variant);
+    color: #4b5563;
     background: transparent;
 }
 .section-btn.active-section {
-    background-color: var(--color-primary-container);
-    color: var(--color-on-primary-container);
-    border-color: var(--color-primary);
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    border-color: #93c5fd;
     font-weight: 600;
 }
 .section-btn:not(.active-section):hover {
-    background-color: var(--color-surface-container);
+    background-color: #f9fafb;
+    border-color: #e5e7eb;
 }
 </style>
 <script>

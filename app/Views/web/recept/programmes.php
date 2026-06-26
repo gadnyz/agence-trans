@@ -9,32 +9,31 @@ $today       = date('d/m/Y');
 $todayIso    = date('Y-m-d');
 ?>
 
-<div class="px-4 pb-12 max-w-[1600px] mx-auto">
-
+<div class="px-4 pb-12 max-w-[1600px] mx-auto space-y-6">
 
     <!-- ── En-tête ── -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div class="w-full min-h-[60px] py-3 px-6 rounded-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between bg-white border border-gray-200 shadow-sm gap-4">
         <div class="flex items-center gap-3">
             <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
                 <span class="material-symbols-outlined text-[20px]">directions_bus</span>
             </div>
             <div>
                 <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Programmes de Voyage</h2>
-                <p class="text-xs text-gray-500"><?= esc($today) ?> — <?= esc($displayName) ?></p>
+                <p class="text-xs text-gray-500"><?= esc($today) ?> — <?= esc($displayName) ?> (Réceptionniste)</p>
             </div>
         </div>
         <a href="<?= base_url('recept/reservations') ?>"
-           class="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-all shadow-sm">
+           class="h-9 px-4 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm whitespace-nowrap">
             <span class="material-symbols-outlined text-[18px]">confirmation_number</span>
             Créer une réservation
         </a>
     </div>
 
     <!-- ── Flash/Alert ── -->
-    <div id="page-alert" class="hidden rounded-xl p-3 text-sm font-medium border transition-all mb-4"></div>
+    <div id="page-alert" class="hidden rounded-xl p-3 text-sm font-medium border transition-all"></div>
 
     <!-- ── Filtres de recherche ── -->
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 mb-6">
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
         <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <span class="material-symbols-outlined text-blue-500 text-[18px]">travel_explore</span>
             Rechercher des voyages disponibles
@@ -46,18 +45,18 @@ $todayIso    = date('Y-m-d');
                     id="search-programme"
                     type="text"
                     placeholder="Ville de départ, d'arrivée, trajet..."
-                    class="w-full pl-10 pr-3 h-9 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    class="w-full pl-10 pr-3 h-9 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 />
             </div>
             <input
                 type="date"
                 id="filter-date"
                 value="<?= $todayIso ?>"
-                class="h-9 px-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                class="h-9 px-3 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
             <button
                 id="btn-search-programme"
-                class="h-9 px-4 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm"
+                class="h-9 px-4 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
                 <span class="material-symbols-outlined text-[18px]">search</span>
                 Rechercher
@@ -66,7 +65,7 @@ $todayIso    = date('Y-m-d');
     </div>
 
     <!-- ── Statistiques rapides ── -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
             <div class="flex items-center gap-2 mb-3">
                 <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
@@ -106,7 +105,7 @@ $todayIso    = date('Y-m-d');
     </div>
 
     <!-- ── Liste des programmes (cards) ── -->
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-6">
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
             <div>
                 <h3 class="text-base font-semibold text-gray-900">Voyages disponibles</h3>
@@ -227,41 +226,41 @@ async function searchProgrammes() {
             const placesClass = places > 5 ? 'text-emerald-600 bg-emerald-50' : places > 0 ? 'text-yellow-600 bg-yellow-50' : 'text-red-600 bg-red-50';
             const borderClass = places > 5 ? 'border-l-4 border-l-emerald-400' : places > 0 ? 'border-l-4 border-l-yellow-400' : 'border-l-4 border-l-red-400 opacity-70';
             return `
-            <div class="flex items-center justify-between p-lg hover:bg-surface-container-low/70 transition-colors ${borderClass}">
-                <div class="flex items-center gap-md min-w-0">
-                    <div class="w-12 h-12 bg-primary-container text-on-primary-container rounded-xl flex flex-col items-center justify-center shrink-0 shadow-sm">
+            <div class="flex items-center justify-between px-6 py-4 hover:bg-gray-50/50 transition-colors ${borderClass}">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex flex-col items-center justify-center shrink-0 shadow-sm">
                         <span class="material-symbols-outlined text-[20px]">directions_bus</span>
                         <span class="text-[9px] font-semibold">${esc(p.numero_plaque ?? '')}</span>
                     </div>
                     <div class="min-w-0">
-                        <p class="font-label-lg text-on-surface font-semibold truncate">${esc(p.lieu_depart ?? '?')} → ${esc(p.lieu_arrivee ?? '?')}</p>
-                        <div class="flex items-center flex-wrap gap-sm mt-xs">
-                            <span class="inline-flex items-center gap-xs text-xs text-outline">
+                        <p class="text-sm font-semibold text-gray-900 truncate">${esc(p.lieu_depart ?? '?')} → ${esc(p.lieu_arrivee ?? '?')}</p>
+                        <div class="flex items-center flex-wrap gap-2 mt-1">
+                            <span class="inline-flex items-center gap-1 text-xs text-gray-500">
                                 <span class="material-symbols-outlined text-[14px]">calendar_today</span>
                                 ${esc(p.date_programme ?? '?')}
                             </span>
-                            <span class="inline-flex items-center gap-xs text-xs text-outline">
+                            <span class="inline-flex items-center gap-1 text-xs text-gray-500">
                                 <span class="material-symbols-outlined text-[14px]">schedule</span>
                                 ${esc((p.heure_depart ?? '').slice(0, 5))}
                             </span>
-                            <span class="inline-flex items-center gap-xs text-xs text-outline">
+                            <span class="inline-flex items-center gap-1 text-xs text-gray-500">
                                 <span class="material-symbols-outlined text-[14px]">badge</span>
                                 ${esc(p.conducteur_prenom ?? '')} ${esc(p.conducteur_nom ?? '')}
                             </span>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-lg shrink-0 ml-md">
+                <div class="flex items-center gap-6 shrink-0 ml-4">
                     <div class="text-right hidden sm:block">
-                        <div class="text-xs text-outline">Tarif</div>
-                        <div class="font-bold text-on-surface">${esc(p.prix ?? '0')} <span class="text-xs font-normal text-outline">${esc(p.code_currency ?? '')}</span></div>
+                        <div class="text-xs text-gray-500">Tarif</div>
+                        <div class="font-bold text-gray-900">${esc(p.prix ?? '0')} <span class="text-xs font-normal text-gray-500">${esc(p.code_currency ?? '')}</span></div>
                     </div>
                     <div class="text-center">
-                        <span class="px-md py-xs font-bold text-sm rounded-full ${placesClass}">${places} place${places !== 1 ? 's' : ''}</span>
+                        <span class="px-2.5 py-0.5 font-bold text-xs rounded-full ${placesClass}">${places} place${places !== 1 ? 's' : ''}</span>
                     </div>
                     ${places > 0
-                        ? `<a href="${BASE_URL}recept/reservations" class="px-md py-sm bg-primary text-on-primary rounded-lg font-label-sm hover:brightness-110 transition-all whitespace-nowrap text-xs">Réserver</a>`
-                        : `<span class="px-md py-sm bg-error-container text-on-error-container rounded-lg font-label-sm text-xs">Complet</span>`
+                        ? `<a href="${BASE_URL}recept/reservations" class="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center transition-all whitespace-nowrap shadow-sm">Réserver</a>`
+                        : `<span class="h-9 px-4 bg-red-50 text-red-700 border border-red-200 rounded-xl text-xs font-semibold flex items-center justify-center">Complet</span>`
                     }
                 </div>
             </div>`;
@@ -271,20 +270,20 @@ async function searchProgrammes() {
         tbody.innerHTML = items.map(p => {
             const places = parseInt(p.places_disponibles) || 0;
             const placesClass = places > 5 ? 'text-emerald-600 font-semibold' : places > 0 ? 'text-yellow-600 font-semibold' : 'text-red-500 font-semibold';
-            const statutBg = places > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
+            const statutBg = places > 0 ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200';
             return `
-            <tr class="hover:bg-surface-container-low transition-colors">
-                <td class="p-md font-medium">${esc(p.lieu_depart ?? '?')} → ${esc(p.lieu_arrivee ?? '?')}</td>
-                <td class="p-md">${esc(p.date_programme ?? '?')}</td>
-                <td class="p-md text-xs font-semibold">${esc((p.heure_depart ?? '').slice(0, 5))} - ${esc((p.heure_arrivee ?? '').slice(0, 5))}</td>
-                <td class="p-md font-mono text-xs">${esc(p.numero_plaque ?? '—')}</td>
-                <td class="p-md text-xs">${esc(p.conducteur_prenom ?? '')} ${esc(p.conducteur_nom ?? '')}</td>
-                <td class="p-md font-semibold">${esc(p.prix ?? '0')} <span class="text-xs text-outline">${esc(p.code_currency ?? '')}</span></td>
-                <td class="p-md"><span class="${placesClass}">${places}</span></td>
-                <td class="p-md"><span class="px-sm py-xs text-[11px] font-semibold rounded-full ${statutBg}">${places > 0 ? 'Disponible' : 'Complet'}</span></td>
-                <td class="p-md text-right">
+            <tr class="hover:bg-gray-50/50 transition-colors">
+                <td class="px-6 py-4 font-medium text-gray-900">${esc(p.lieu_depart ?? '?')} → ${esc(p.lieu_arrivee ?? '?')}</td>
+                <td class="px-6 py-4 text-gray-600">${esc(p.date_programme ?? '?')}</td>
+                <td class="px-6 py-4 text-xs font-semibold text-gray-900">${esc((p.heure_depart ?? '').slice(0, 5))} - ${esc((p.heure_arrivee ?? '').slice(0, 5))}</td>
+                <td class="px-6 py-4 font-mono text-xs text-gray-600">${esc(p.numero_plaque ?? '—')}</td>
+                <td class="px-6 py-4 text-xs text-gray-600">${esc(p.conducteur_prenom ?? '')} ${esc(p.conducteur_nom ?? '')}</td>
+                <td class="px-6 py-4 font-semibold text-gray-900">${esc(p.prix ?? '0')} <span class="text-xs text-gray-500">${esc(p.code_currency ?? '')}</span></td>
+                <td class="px-6 py-4"><span class="${placesClass}">${places}</span></td>
+                <td class="px-6 py-4"><span class="px-2.5 py-0.5 text-[11px] font-semibold rounded-full border ${statutBg}">${places > 0 ? 'Disponible' : 'Complet'}</span></td>
+                <td class="px-6 py-4 text-right">
                     ${places > 0
-                        ? `<a href="${BASE_URL}recept/reservations" class="inline-flex items-center gap-xs px-sm py-xs bg-primary text-on-primary rounded-lg text-xs font-semibold hover:brightness-110 transition-all">
+                        ? `<a href="${BASE_URL}recept/reservations" class="inline-flex items-center gap-1 h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all">
                                <span class="material-symbols-outlined text-[14px]">add</span> Réserver
                            </a>`
                         : `<span class="text-xs text-red-500 font-medium">Complet</span>`
@@ -294,8 +293,8 @@ async function searchProgrammes() {
         }).join('');
 
     } catch (e) {
-        grid.innerHTML = '<div class="p-lg text-center text-error">Erreur lors du chargement. Veuillez réessayer.</div>';
-        tbody.innerHTML = '<tr><td colspan="9" class="p-xl text-center text-error">Erreur de chargement.</td></tr>';
+        grid.innerHTML = '<div class="px-6 py-8 text-center text-red-600">Erreur lors du chargement. Veuillez réessayer.</div>';
+        tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-8 text-center text-red-600">Erreur de chargement.</td></tr>';
     }
 }
 

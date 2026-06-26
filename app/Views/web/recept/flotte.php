@@ -9,10 +9,10 @@ $today       = date('d/m/Y');
 $todayIso    = date('Y-m-d');
 ?>
 
-<div class="px-4 pb-12 max-w-[1600px] mx-auto">
+<div class="px-4 pb-12 max-w-[1600px] mx-auto space-y-6">
 
     <!-- ── En-tête ── -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div class="w-full min-h-[60px] py-3 px-6 rounded-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between bg-white border border-gray-200 shadow-sm gap-4">
         <div class="flex items-center gap-3">
             <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
                 <span class="material-symbols-outlined text-[20px]">directions_bus</span>
@@ -22,30 +22,30 @@ $todayIso    = date('Y-m-d');
                 <p class="text-xs text-gray-500">Consultation en lecture seule &mdash; <?= esc($today) ?></p>
             </div>
         </div>
-        <span class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-200 rounded-xl text-xs font-semibold text-gray-500">
+        <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-500">
             <span class="material-symbols-outlined text-[16px]">visibility</span>
             Mode consultation uniquement
         </span>
     </div>
 
     <!-- ── Flash/Alert ── -->
-    <div id="page-alert" class="hidden rounded-xl p-3 text-sm font-medium border transition-all mb-4"></div>
+    <div id="page-alert" class="hidden rounded-xl p-3 text-sm font-medium border transition-all"></div>
 
     <!-- ── Navigation sous-sections ── -->
-    <div class="flex flex-wrap gap-2 mb-6">
-        <button data-section="bus" class="section-btn active-section inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border">
+    <div class="flex flex-wrap gap-2">
+        <button data-section="bus" class="section-btn active-section inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
             <span class="material-symbols-outlined text-[18px]">directions_bus</span>
             Bus
         </button>
-        <button data-section="conducteurs" class="section-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border border-transparent">
+        <button data-section="conducteurs" class="section-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
             <span class="material-symbols-outlined text-[18px]">badge</span>
             Chauffeurs
         </button>
-        <button data-section="trajets" class="section-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border border-transparent">
+        <button data-section="trajets" class="section-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
             <span class="material-symbols-outlined text-[18px]">route</span>
             Trajets
         </button>
-        <button data-section="horaires" class="section-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border border-transparent">
+        <button data-section="horaires" class="section-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
             <span class="material-symbols-outlined text-[18px]">schedule</span>
             Horaires
         </button>
@@ -215,17 +215,19 @@ $todayIso    = date('Y-m-d');
 <style>
 .section-btn {
     color: #4b5563;
-    background: transparent;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 .section-btn.active-section {
     background-color: #eff6ff;
-    color: #1d4ed8;
-    border-color: #93c5fd;
+    color: #2563eb;
+    border-color: #bfdbfe;
     font-weight: 600;
 }
 .section-btn:not(.active-section):hover {
     background-color: #f9fafb;
-    border-color: #e5e7eb;
+    border-color: #d1d5db;
 }
 </style>
 <script>
@@ -293,23 +295,23 @@ async function loadBus(force = false) {
         document.getElementById('bus-stat-places').textContent = items.reduce((s, b) => s + (parseInt(b.nombre_places) || 0), 0);
 
         if (!items.length) {
-            body.innerHTML = '<tr><td colspan="5" class="p-xl text-center text-outline font-medium">Aucun bus répertorié.</td></tr>';
+            body.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 font-medium">Aucun bus répertorié.</td></tr>';
             return;
         }
         body.innerHTML = items.map(b => {
             const isActif = (b.statut ?? 'Actif').toLowerCase() !== 'inactif';
-            const statutClass = isActif ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600';
+            const statutClass = isActif ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-600 border-gray-200';
             return `
-            <tr class="hover:bg-surface-container-low transition-colors">
-                <td class="p-md font-semibold font-mono">${esc(b.numero_plaque ?? '—')}</td>
-                <td class="p-md">${esc(b.marque ?? '—')} <span class="text-outline">${esc(b.modele ?? '')}</span></td>
-                <td class="p-md font-medium">${esc(b.nombre_places ?? '0')} <span class="text-xs text-outline">sièges</span></td>
-                <td class="p-md text-xs text-on-surface-variant">${esc(b.couleur ?? '—')} / ${esc(b.annee ?? '—')}</td>
-                <td class="p-md"><span class="px-sm py-xs text-xs font-semibold rounded-full ${statutClass}">${esc(b.statut ?? 'Actif')}</span></td>
+            <tr class="hover:bg-gray-50/50 transition-colors">
+                <td class="px-6 py-4 font-semibold font-mono text-gray-900">${esc(b.numero_plaque ?? '—')}</td>
+                <td class="px-6 py-4 text-gray-900">${esc(b.marque ?? '—')} <span class="text-gray-500">${esc(b.modele ?? '')}</span></td>
+                <td class="px-6 py-4 font-medium text-gray-900">${esc(b.nombre_places ?? '0')} <span class="text-xs text-gray-500">sièges</span></td>
+                <td class="px-6 py-4 text-xs text-gray-600">${esc(b.couleur ?? '—')} / ${esc(b.annee ?? '—')}</td>
+                <td class="px-6 py-4"><span class="px-2.5 py-0.5 text-xs font-semibold rounded-full border ${statutClass}">${esc(b.statut ?? 'Actif')}</span></td>
             </tr>`;
         }).join('');
     } catch {
-        body.innerHTML = '<tr><td colspan="5" class="p-xl text-center text-error">Erreur de chargement.</td></tr>';
+        body.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-red-600">Erreur de chargement.</td></tr>';
     }
 }
 
@@ -318,7 +320,7 @@ document.getElementById('btn-refresh-bus').addEventListener('click', () => { loa
 // ── CHAUFFEURS ──────────────────────────────────────────────────────────────
 async function loadConducteurs() {
     const body = document.getElementById('conducteurs-table-body');
-    body.innerHTML = '<tr><td colspan="5" class="p-xl text-center text-outline"><div class="inline-block animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full"></div></td></tr>';
+    body.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center"><div class="inline-block animate-spin w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full"></div></td></tr>';
     try {
         const res = await apiFetch(`${BASE_URL}api/conducteurs?per_page=200`);
         const json = await res.json();
@@ -328,30 +330,30 @@ async function loadConducteurs() {
         document.getElementById('cond-stat-actif').textContent = items.filter(c => (c.statut ?? '').toLowerCase() !== 'inactif').length;
 
         if (!items.length) {
-            body.innerHTML = '<tr><td colspan="5" class="p-xl text-center text-outline font-medium">Aucun chauffeur.</td></tr>';
+            body.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 font-medium">Aucun chauffeur.</td></tr>';
             return;
         }
         body.innerHTML = items.map(c => {
             const isActif = (c.statut ?? 'Actif').toLowerCase() !== 'inactif';
-            const statutClass = isActif ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600';
+            const statutClass = isActif ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-600 border-gray-200';
             return `
-            <tr class="hover:bg-surface-container-low transition-colors">
-                <td class="p-md">
-                    <div class="flex items-center gap-sm">
-                        <div class="w-8 h-8 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center text-xs font-bold shrink-0">
+            <tr class="hover:bg-gray-50/50 transition-colors">
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold shrink-0">
                             ${esc((c.prenom ?? ' ')[0].toUpperCase())}${esc((c.nom ?? ' ')[0].toUpperCase())}
                         </div>
-                        <span class="font-medium">${esc(c.prenom ?? '')} ${esc(c.nom ?? '')} ${esc(c.postnom ?? '')}</span>
+                        <span class="font-medium text-gray-900">${esc(c.prenom ?? '')} ${esc(c.nom ?? '')} ${esc(c.postnom ?? '')}</span>
                     </div>
                 </td>
-                <td class="p-md text-sm">${esc(c.telephone ?? '—')}</td>
-                <td class="p-md font-mono text-xs">${esc(c.numero_permis ?? '—')}</td>
-                <td class="p-md text-xs text-outline">${esc(c.date_embauche ?? '—')}</td>
-                <td class="p-md"><span class="px-sm py-xs text-xs font-semibold rounded-full ${statutClass}">${esc(c.statut ?? 'Actif')}</span></td>
+                <td class="px-6 py-4 text-sm text-gray-600">${esc(c.telephone ?? '—')}</td>
+                <td class="px-6 py-4 font-mono text-xs text-gray-600">${esc(c.numero_permis ?? '—')}</td>
+                <td class="px-6 py-4 text-xs text-gray-500">${esc(c.date_embauche ?? '—')}</td>
+                <td class="px-6 py-4"><span class="px-2.5 py-0.5 text-xs font-semibold rounded-full border ${statutClass}">${esc(c.statut ?? 'Actif')}</span></td>
             </tr>`;
         }).join('');
     } catch {
-        body.innerHTML = '<tr><td colspan="5" class="p-xl text-center text-error">Erreur de chargement.</td></tr>';
+        body.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-red-600">Erreur de chargement.</td></tr>';
     }
 }
 
@@ -360,14 +362,14 @@ document.getElementById('btn-refresh-conducteurs').addEventListener('click', () 
 // ── TRAJETS ─────────────────────────────────────────────────────────────────
 async function loadTrajets() {
     const body = document.getElementById('trajets-table-body');
-    body.innerHTML = '<tr><td colspan="5" class="p-xl text-center text-outline"><div class="inline-block animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full"></div></td></tr>';
+    body.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center"><div class="inline-block animate-spin w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full"></div></td></tr>';
     try {
         const res = await apiFetch(`${BASE_URL}api/trajets?per_page=200`);
         const json = await res.json();
         const items = json.data?.items ?? [];
 
         if (!items.length) {
-            body.innerHTML = '<tr><td colspan="5" class="p-xl text-center text-outline font-medium">Aucun trajet configuré.</td></tr>';
+            body.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 font-medium">Aucun trajet configuré.</td></tr>';
             return;
         }
         body.innerHTML = items.map(t => {
@@ -375,25 +377,25 @@ async function loadTrajets() {
             const arrivee  = CACHE_LOCATIONS[t.id_lieu_arrivee] ?? `Lieu #${t.id_lieu_arrivee}`;
             const prix     = parseFloat(t.prix ?? 0).toFixed(2);
             return `
-            <tr class="hover:bg-surface-container-low transition-colors">
-                <td class="p-md">
-                    <div class="flex items-center gap-sm">
-                        <span class="text-outline">🚌</span>
-                        <span class="font-medium">${esc(depart)}</span>
-                        <span class="material-symbols-outlined text-outline text-[16px]">arrow_forward</span>
-                        <span class="font-medium">${esc(arrivee)}</span>
+            <tr class="hover:bg-gray-50/50 transition-colors">
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-400">🚌</span>
+                        <span class="font-medium text-gray-900">${esc(depart)}</span>
+                        <span class="material-symbols-outlined text-gray-400 text-[16px]">arrow_forward</span>
+                        <span class="font-medium text-gray-900">${esc(arrivee)}</span>
                     </div>
                 </td>
-                <td class="p-md font-bold text-primary">${esc(prix)}</td>
-                <td class="p-md text-sm text-on-surface-variant">${esc(t.distance_km ?? '—')} km</td>
-                <td class="p-md text-xs text-outline">${esc(t.duree_estimee ?? '—')}</td>
-                <td class="p-md">
-                    <span class="px-sm py-xs text-xs font-semibold rounded-full bg-surface-container text-on-surface-variant">${esc(t.statut ?? 'Actif')}</span>
+                <td class="px-6 py-4 font-bold text-blue-600">${esc(prix)}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${esc(t.distance_km ?? '—')} km</td>
+                <td class="px-6 py-4 text-xs text-gray-500">${esc(t.duree_estimee ?? '—')}</td>
+                <td class="px-6 py-4">
+                    <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-gray-50 text-gray-600 border border-gray-200">${esc(t.statut ?? 'Actif')}</span>
                 </td>
             </tr>`;
         }).join('');
     } catch {
-        body.innerHTML = '<tr><td colspan="5" class="p-xl text-center text-error">Erreur de chargement.</td></tr>';
+        body.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-red-600">Erreur de chargement.</td></tr>';
     }
 }
 
@@ -402,35 +404,35 @@ document.getElementById('btn-refresh-trajets').addEventListener('click', () => {
 // ── HORAIRES ─────────────────────────────────────────────────────────────────
 async function loadHoraires() {
     const container = document.getElementById('horaires-cards-container');
-    container.innerHTML = '<div class="col-span-full text-center text-outline p-xl"><div class="inline-block animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full"></div></div>';
+    container.innerHTML = '<div class="col-span-full text-center py-8"><div class="inline-block animate-spin w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full"></div></div>';
     try {
         const res = await apiFetch(`${BASE_URL}api/horaires?per_page=200`);
         const json = await res.json();
         const items = json.data?.items ?? [];
 
         if (!items.length) {
-            container.innerHTML = '<div class="col-span-full text-center text-outline font-medium p-xl">Aucun horaire programmé.</div>';
+            container.innerHTML = '<div class="col-span-full text-center text-gray-500 font-medium py-8">Aucun horaire programmé.</div>';
             return;
         }
         container.innerHTML = items.map(h => {
             const depart  = (h.heure_depart  ?? '').slice(0, 5);
             const arrivee = (h.heure_arrivee ?? '').slice(0, 5);
             return `
-            <div class="bg-surface-container-low border border-outline-variant rounded-xl p-md flex flex-col items-center gap-sm hover:shadow-md transition-shadow">
-                <span class="material-symbols-outlined text-primary text-[28px]">schedule</span>
+            <div class="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col items-center gap-3 hover:shadow-md transition-shadow">
+                <span class="material-symbols-outlined text-blue-600 text-[28px]">schedule</span>
                 <div class="text-center">
-                    <div class="font-bold text-title-md text-on-surface">${esc(depart)}</div>
-                    <div class="text-xs text-outline">Départ</div>
+                    <div class="font-bold text-base text-gray-900">${esc(depart)}</div>
+                    <div class="text-xs text-gray-500">Départ</div>
                 </div>
-                <span class="material-symbols-outlined text-outline text-[16px]">arrow_downward</span>
+                <span class="material-symbols-outlined text-gray-400 text-[16px]">arrow_downward</span>
                 <div class="text-center">
-                    <div class="font-bold text-title-md text-on-surface">${esc(arrivee)}</div>
-                    <div class="text-xs text-outline">Arrivée</div>
+                    <div class="font-bold text-base text-gray-900">${esc(arrivee)}</div>
+                    <div class="text-xs text-gray-500">Arrivée</div>
                 </div>
             </div>`;
         }).join('');
     } catch {
-        container.innerHTML = '<div class="col-span-full text-center text-error p-xl">Erreur de chargement.</div>';
+        container.innerHTML = '<div class="col-span-full text-center text-red-600 py-8">Erreur de chargement.</div>';
     }
 }
 

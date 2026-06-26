@@ -12,7 +12,7 @@ $todayIso    = date('Y-m-d');
 <div class="px-4 pb-12 max-w-[1600px] mx-auto space-y-6">
 
     <!-- ── En-tête ── -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="w-full min-h-[60px] py-3 px-6 rounded-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between bg-white border border-gray-200 shadow-sm gap-4">
         <div class="flex items-center gap-3">
             <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
                 <span class="material-symbols-outlined text-[20px]">payments</span>
@@ -24,9 +24,9 @@ $todayIso    = date('Y-m-d');
         </div>
         <div class="flex flex-wrap items-center gap-2">
             <input type="date" id="filter-date-debut" value="<?= $todayIso ?>"
-                   class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none">
+                   class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none bg-white">
             <input type="date" id="filter-date-fin" value="<?= $todayIso ?>"
-                   class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none">
+                   class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none bg-white">
             <button id="btn-filter-paiements"
                     class="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all shadow-sm"
                     title="Filtrer">
@@ -88,9 +88,9 @@ $todayIso    = date('Y-m-d');
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">search</span>
                 <input id="search-paiement" type="text"
                        placeholder="Référence réservation, nom client..."
-                       class="w-full pl-10 pr-3 h-9 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                       class="w-full pl-10 pr-3 h-9 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
             </div>
-            <select id="filter-mode" class="h-9 px-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <select id="filter-mode" class="h-9 px-3 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                 <option value="">Tous les modes</option>
                 <?php foreach ($modes_paiement ?? [] as $mp): ?>
                     <option value="<?= esc($mp['id_mode_paiement']) ?>"><?= esc($mp['libelle']) ?></option>

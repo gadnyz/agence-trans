@@ -9,91 +9,96 @@ $today       = date('d/m/Y');
 $todayIso    = date('Y-m-d');
 ?>
 
-<div class="space-y-lg">
+<div class="px-4 pb-12 max-w-[1600px] mx-auto space-y-6">
 
     <!-- ── En-tête ── -->
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-sm">
-        <div>
-            <h2 class="font-headline-lg text-headline-lg text-on-surface">Gestion des Réservations</h2>
-            <p class="text-body-lg text-outline"><?= esc($today) ?> &mdash; <?= esc($displayName) ?> (Réceptionniste)</p>
+    <div class="w-full min-h-[60px] py-3 px-6 rounded-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between bg-white border border-gray-200 shadow-sm gap-4">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
+                <span class="material-symbols-outlined text-[20px]">confirmation_number</span>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Gestion des Réservations</h2>
+                <p class="text-xs text-gray-500"><?= esc($today) ?> — <?= esc($displayName) ?> (Réceptionniste)</p>
+            </div>
         </div>
         <button
             id="btn-nouvelle-reservation"
-            class="inline-flex items-center gap-sm px-lg py-sm bg-primary text-on-primary rounded-lg font-label-lg hover:brightness-110 transition-all shadow-sm"
+            class="h-9 px-4 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm"
         >
-            <span class="material-symbols-outlined text-[20px]">add</span>
+            <span class="material-symbols-outlined text-[18px]">add</span>
             Nouvelle réservation
         </button>
     </div>
 
     <!-- ── Flash/Alert global ── -->
-    <div id="page-alert" class="hidden rounded-xl p-md text-sm font-medium border transition-all"></div>
+    <div id="page-alert" class="hidden rounded-xl p-3 text-sm font-medium border transition-all"></div>
 
     <!-- ── Recherche Voyage / Programme ── -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
-        <h3 class="font-title-sm text-title-sm text-on-surface mb-md flex items-center gap-sm">
-            <span class="material-symbols-outlined text-primary text-[20px]">travel_explore</span>
+    <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined text-blue-500 text-[20px]">travel_explore</span>
             Rechercher un programme de voyage
         </h3>
-        <div class="flex flex-col sm:flex-row gap-md">
+        <div class="flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
-                <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">search</span>
                 <input
                     id="search-programme"
                     type="text"
                     placeholder="Trajet, ville de départ ou d'arrivée..."
-                    class="w-full pl-xl pr-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                    class="w-full pl-10 pr-3 h-9 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 />
             </div>
             <input
                 type="date"
                 id="filter-date"
                 value="<?= $todayIso ?>"
-                class="px-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none"
+                class="h-9 px-3 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
             <button
                 id="btn-search-programme"
-                class="inline-flex items-center gap-sm px-lg py-sm bg-primary text-on-primary rounded-lg font-label-lg hover:brightness-110 transition-all"
+                class="h-9 px-4 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
-                <span class="material-symbols-outlined text-[20px]">search</span>
+                <span class="material-symbols-outlined text-[18px]">search</span>
                 Rechercher
             </button>
         </div>
     </div>
 
     <!-- Liste des voyages programmés -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-        <div class="flex justify-between items-center p-lg border-b border-outline-variant bg-surface-container-low/30">
-            <h3 class="font-title-md text-title-md text-on-surface">Voyages programmés disponibles</h3>
-            <span id="programmes-count" class="text-label-sm text-outline bg-surface-container px-sm py-xs rounded-full">0 voyage(s)</span>
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+            <h3 class="text-base font-semibold text-gray-900">Voyages programmés disponibles</h3>
+            <span id="programmes-count" class="text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full border border-gray-200">0 voyage(s)</span>
         </div>
-        <div id="programmes-list" class="divide-y divide-outline-variant/50">
-            <div class="flex flex-col items-center justify-center py-xl text-outline gap-md">
-                <span class="material-symbols-outlined text-[56px] text-outline-variant">directions_bus</span>
+        <div id="programmes-list" class="divide-y divide-gray-100">
+            <div class="flex flex-col items-center justify-center py-12 text-gray-400 gap-3">
+                <span class="material-symbols-outlined text-[48px] text-gray-300">directions_bus</span>
                 <div class="text-center">
-                    <p class="text-body-md font-medium text-on-surface">Recherchez un programme ci-dessus</p>
+                    <p class="text-sm font-medium text-gray-500">Recherchez un programme ci-dessus</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- ── Recherche réservations ── -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
-        <h3 class="font-title-sm text-title-sm text-on-surface mb-md flex items-center gap-sm">
-            <span class="material-symbols-outlined text-primary text-[20px]">manage_search</span>
+    <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <span class="material-symbols-outlined text-blue-500 text-[20px]">manage_search</span>
             Filtrer les réservations
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-md">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div class="relative md:col-span-2">
-                <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">search</span>
                 <input
                     id="search-res-text"
                     type="text"
                     placeholder="Référence, Nom client, Téléphone..."
-                    class="w-full pl-xl pr-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none"
+                    class="w-full pl-10 pr-3 h-9 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 />
             </div>
-            <select id="filter-res-status" class="px-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none">
+            <select id="filter-res-status" class="h-9 px-3 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                 <option value="">Tous les statuts</option>
                 <option value="EN ATTENTE">En attente</option>
                 <option value="CONFIRME">Confirmé</option>
@@ -101,47 +106,47 @@ $todayIso    = date('Y-m-d');
             </select>
             <button
                 id="btn-search-res"
-                class="inline-flex items-center justify-center gap-sm px-lg py-sm bg-primary text-on-primary rounded-lg font-label-lg hover:brightness-110 transition-all"
+                class="h-9 px-4 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
-                <span class="material-symbols-outlined text-[20px]">filter_list</span>
+                <span class="material-symbols-outlined text-[18px]">filter_list</span>
                 Filtrer
             </button>
         </div>
     </div>
 
     <!-- ── Liste des réservations ── -->
-    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-        <div class="flex justify-between items-center p-lg border-b border-outline-variant bg-surface-container-low/30">
-            <h3 class="font-title-md text-title-md text-on-surface">Liste des réservations</h3>
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+            <h3 class="text-base font-semibold text-gray-900">Liste des réservations</h3>
             <button
                 id="btn-refresh-reservations"
-                class="inline-flex items-center gap-xs px-md py-xs bg-surface-container border border-outline-variant rounded-lg text-label-sm hover:bg-surface-container-high transition-all"
+                class="h-9 px-4 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm text-sm font-medium"
             >
                 <span class="material-symbols-outlined text-[16px]">refresh</span>
                 Actualiser
             </button>
         </div>
         <div id="reservations-table-container" class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-body-md">
-                <thead>
-                    <tr class="bg-surface-container border-b border-outline-variant text-on-surface font-semibold">
-                        <th class="p-md">Référence</th>
-                        <th class="p-md">Client</th>
-                        <th class="p-md">Trajet</th>
-                        <th class="p-md">Date voyage</th>
-                        <th class="p-md">Places</th>
-                        <th class="p-md">Statut</th>
-                        <th class="p-md text-right">Actions</th>
+            <table class="w-full text-left text-sm">
+                <thead class="text-gray-600 uppercase text-[11px] font-semibold bg-gray-50 border-b border-gray-100">
+                    <tr>
+                        <th class="px-6 py-4">Référence</th>
+                        <th class="px-6 py-4">Client</th>
+                        <th class="px-6 py-4">Trajet</th>
+                        <th class="px-6 py-4">Date voyage</th>
+                        <th class="px-6 py-4">Places</th>
+                        <th class="px-6 py-4">Statut</th>
+                        <th class="px-6 py-4 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="reservations-table-body" class="divide-y divide-outline-variant/40">
+                <tbody id="reservations-table-body" class="divide-y divide-gray-100">
                     <tr>
                         <td colspan="7" class="p-xl text-center text-outline">Aucune réservation chargée.</td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <div id="reservations-pagination" class="flex justify-between items-center p-md border-t border-outline-variant bg-surface-container-low/20"></div>
+        <div id="reservations-pagination" class="flex justify-between items-center px-6 py-3 border-t border-gray-100 bg-gray-50/50"></div>
     </div>
 
 </div>
@@ -149,98 +154,98 @@ $todayIso    = date('Y-m-d');
 <!-- ═══════════════════════════════════════════════════════════════
      MODAL 1 — Nouvelle réservation
      ═══════════════════════════════════════════════════════════════ -->
-<div id="modal-reservation" class="fixed inset-0 z-50 hidden bg-on-surface/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modal-res-title">
-    <div class="flex items-center justify-center min-h-screen px-md pt-md pb-xl sm:p-0">
-        <div class="relative bg-surface-container-lowest rounded-2xl text-left overflow-hidden shadow-2xl border border-outline-variant sm:my-lg sm:max-w-2xl w-full">
+<div id="modal-reservation" class="fixed inset-0 z-50 hidden bg-gray-900/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modal-res-title">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 sm:p-0">
+        <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-2xl border border-gray-200 sm:my-8 sm:max-w-2xl w-full">
 
-            <div class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
-                <div class="flex items-center gap-md">
-                    <div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
                         <span class="material-symbols-outlined text-[18px]">confirmation_number</span>
                     </div>
-                    <h3 class="font-title-md text-title-md text-on-surface" id="modal-res-title">Nouvelle réservation</h3>
+                    <h3 class="text-base font-semibold text-gray-900" id="modal-res-title">Nouvelle réservation</h3>
                 </div>
-                <button id="btn-close-modal" class="text-outline hover:text-on-surface hover:bg-surface-container p-xs rounded-lg transition-colors">
+                <button id="btn-close-modal" class="text-gray-400 hover:text-gray-700 hover:bg-gray-100 p-1.5 rounded-xl transition-colors">
                     <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
 
-            <div id="modal-errors" class="hidden mx-lg mt-md p-md bg-error-container border border-error/30 text-on-error-container rounded-xl text-sm font-medium"></div>
+            <div id="modal-errors" class="hidden mx-6 mt-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm font-medium"></div>
 
-            <div class="px-lg py-lg space-y-md">
+            <div class="px-6 py-6 space-y-4">
 
                 <div>
-                    <label class="block text-label-lg text-on-surface mb-xs">Voyage / Programme <span class="text-error">*</span></label>
-                    <select id="modal-id-programme" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none transition-all">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Voyage / Programme <span class="text-red-500">*</span></label>
+                    <select id="modal-id-programme" class="w-full rounded-xl border border-gray-300 h-9 px-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                         <option value="">Sélectionner un programme</option>
                     </select>
                 </div>
 
                 <div class="relative">
-                    <label class="block text-label-lg text-on-surface mb-xs">Client <span class="text-error">*</span></label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Client <span class="text-red-500">*</span></label>
                     <div class="relative">
-                        <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[20px]">person_search</span>
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">person_search</span>
                         <input
                             id="modal-client-search"
                             type="text"
                             placeholder="Chercher par nom ou téléphone..."
-                            class="w-full pl-xl pr-md py-sm bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none transition-all"
+                            class="w-full pl-10 pr-3 h-9 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             autocomplete="off"
                         >
                     </div>
-                    <div id="modal-client-suggestions" class="absolute z-20 mt-xs w-full bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg hidden max-h-48 overflow-y-auto"></div>
+                    <div id="modal-client-suggestions" class="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg hidden max-h-48 overflow-y-auto"></div>
                     <input type="hidden" id="modal-id-client">
-                    <p id="modal-client-selected" class="mt-xs text-xs text-primary font-medium hidden"></p>
+                    <p id="modal-client-selected" class="mt-1 text-xs text-blue-600 font-semibold hidden"></p>
 
                     <button
                         id="btn-nouveau-client"
                         type="button"
-                        class="mt-xs inline-flex items-center gap-xs text-label-sm text-primary hover:underline"
+                        class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
                     >
                         <span class="material-symbols-outlined text-[14px]">person_add</span>
                         Créer un nouveau client
                     </button>
                 </div>
 
-                <div id="nouveau-client-form" class="hidden bg-surface-container-low rounded-xl p-md space-y-sm border border-outline-variant">
-                    <p class="text-label-lg font-semibold text-on-surface">Nouveau client</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                <div id="nouveau-client-form" class="hidden bg-gray-50 rounded-2xl p-4 space-y-3 border border-gray-200">
+                    <p class="text-sm font-semibold text-gray-900">Nouveau client</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-label-sm text-outline mb-xs">Nom complet <span class="text-error">*</span></label>
-                            <input id="nouveau-client-nom" type="text" placeholder="Ex: Kabila Augustin" class="w-full rounded-lg border border-outline-variant px-md py-sm text-body-md focus:ring-2 focus:ring-primary outline-none bg-surface-container-lowest">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Nom complet <span class="text-red-500">*</span></label>
+                            <input id="nouveau-client-nom" type="text" placeholder="Ex: Kabila Augustin" class="w-full rounded-xl border border-gray-300 h-9 px-3 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white">
                         </div>
                         <div>
-                            <label class="block text-label-sm text-outline mb-xs">Téléphone <span class="text-error">*</span></label>
-                            <input id="nouveau-client-telephone" type="tel" placeholder="Ex: +243 81 234 5678" class="w-full rounded-lg border border-outline-variant px-md py-sm text-body-md focus:ring-2 focus:ring-primary outline-none bg-surface-container-lowest">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Téléphone <span class="text-red-500">*</span></label>
+                            <input id="nouveau-client-telephone" type="tel" placeholder="Ex: +243 81 234 5678" class="w-full rounded-xl border border-gray-300 h-9 px-3 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white">
                         </div>
                     </div>
                     <button
                         id="btn-creer-client"
                         type="button"
-                        class="inline-flex items-center gap-xs px-md py-sm bg-primary text-on-primary rounded-lg text-label-sm hover:brightness-110 transition-all"
+                        class="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all inline-flex items-center gap-1"
                     >
                         <span class="material-symbols-outlined text-[16px]">save</span>
                         Créer le client
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-label-lg text-on-surface mb-xs">Nombre de places <span class="text-error">*</span></label>
-                        <input id="modal-nombre-places" type="number" min="1" value="1" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Nombre de places <span class="text-red-500">*</span></label>
+                        <input id="modal-nombre-places" type="number" min="1" value="1" class="w-full rounded-xl border border-gray-300 h-9 px-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-label-lg text-on-surface mb-xs">Lieu de descente / Arrêt</label>
-                        <select id="modal-id-lieu" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Lieu de descente / Arrêt</label>
+                        <select id="modal-id-lieu" class="w-full rounded-xl border border-gray-300 h-9 px-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                             <option value="">Départ principal</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-md border-t border-outline-variant/40 pt-md">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-gray-100 pt-4">
                     <div>
-                        <label class="block text-label-lg text-on-surface mb-xs">Mode de paiement</label>
-                        <select id="modal-id-mode-paiement" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Mode de paiement</label>
+                        <select id="modal-id-mode-paiement" class="w-full rounded-xl border border-gray-300 h-9 px-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                             <option value="">Sans paiement immédiat (Réservé)</option>
                             <?php foreach ($modes_paiement ?? [] as $mp): ?>
                                 <option value="<?= esc($mp['id_mode_paiement']) ?>"><?= esc($mp['libelle']) ?></option>
@@ -248,22 +253,22 @@ $todayIso    = date('Y-m-d');
                         </select>
                     </div>
                     <div>
-                        <label class="block text-label-lg text-on-surface mb-xs">Montant payé</label>
-                        <input id="modal-montant" type="number" min="0" step="0.01" placeholder="0.00" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Montant payé</label>
+                        <input id="modal-montant" type="number" min="0" step="0.01" placeholder="0.00" class="w-full rounded-xl border border-gray-300 h-9 px-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     </div>
                 </div>
 
                 <div id="modal-ref-paiement-container" class="hidden">
-                    <label class="block text-label-lg text-on-surface mb-xs">Référence de transaction / Paiement <span class="text-error">*</span></label>
-                    <input id="modal-ref-paiement" type="text" placeholder="Ex: MP-2309489-CDF ou N° Bordereau..." class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Référence de transaction / Paiement <span class="text-red-500">*</span></label>
+                    <input id="modal-ref-paiement" type="text" placeholder="Ex: MP-2309489-CDF ou N° Bordereau..." class="w-full rounded-xl border border-gray-300 h-9 px-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                 </div>
             </div>
 
-            <div class="px-lg py-md bg-surface-container-low/50 border-t border-outline-variant flex justify-end gap-sm">
-                <button id="btn-annuler-modal" type="button" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">
+            <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-2">
+                <button id="btn-annuler-modal" type="button" class="h-9 px-4 bg-white border border-gray-300 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-all">
                     Annuler
                 </button>
-                <button id="btn-enregistrer-reservation" type="button" class="inline-flex items-center gap-sm px-lg py-sm bg-primary text-on-primary font-label-lg rounded-lg hover:brightness-110 shadow-sm transition-all">
+                <button id="btn-enregistrer-reservation" type="button" class="inline-flex items-center gap-2 h-9 px-4 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all shadow-sm">
                     <span class="material-symbols-outlined text-[18px]">save</span>
                     Enregistrer
                 </button>
@@ -273,21 +278,21 @@ $todayIso    = date('Y-m-d');
 </div>
 
 <!-- MODAL 2 — Détail Réservation -->
-<div id="modal-detail" class="fixed inset-0 z-50 hidden bg-on-surface/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
-    <div class="flex items-center justify-center min-h-screen px-md py-md">
-        <div class="relative bg-surface-container-lowest rounded-2xl text-left overflow-hidden shadow-2xl border border-outline-variant sm:max-w-xl w-full">
-            <div class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
-                <div class="flex items-center gap-md">
-                    <span class="material-symbols-outlined text-primary text-[24px]">info</span>
-                    <h3 class="font-title-md text-title-md text-on-surface">Détails de la réservation</h3>
+<div id="modal-detail" class="fixed inset-0 z-50 hidden bg-gray-900/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen px-4 py-4">
+        <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-2xl border border-gray-200 sm:max-w-xl w-full">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-blue-600 text-[24px]">info</span>
+                    <h3 class="text-base font-semibold text-gray-900">Détails de la réservation</h3>
                 </div>
-                <button onclick="closeDetailModal()" class="text-outline hover:text-on-surface p-xs rounded-lg transition-colors">
+                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-700 p-1.5 rounded-xl transition-colors">
                     <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
-            <div class="px-lg py-lg space-y-md text-body-md" id="detail-modal-body"></div>
-            <div class="px-lg py-md bg-surface-container-low/50 border-t border-outline-variant flex justify-end gap-sm">
-                <button onclick="closeDetailModal()" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">
+            <div class="px-6 py-6 space-y-4 text-sm text-gray-600" id="detail-modal-body"></div>
+            <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-2">
+                <button onclick="closeDetailModal()" class="h-9 px-4 bg-white border border-gray-300 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-all">
                     Fermer
                 </button>
             </div>
@@ -296,121 +301,121 @@ $todayIso    = date('Y-m-d');
 </div>
 
 <!-- MODAL 3 — Modifier Réservation -->
-<div id="modal-edit" class="fixed inset-0 z-50 hidden bg-on-surface/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
-    <div class="flex items-center justify-center min-h-screen px-md py-md">
-        <div class="relative bg-surface-container-lowest rounded-2xl text-left overflow-hidden shadow-2xl border border-outline-variant sm:max-w-md w-full">
-            <div class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
-                <h3 class="font-title-md text-title-md text-on-surface">Modifier la réservation</h3>
-                <button onclick="closeEditModal()" class="text-outline hover:text-on-surface p-xs rounded-lg transition-colors">
+<div id="modal-edit" class="fixed inset-0 z-50 hidden bg-gray-900/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen px-4 py-4">
+        <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-2xl border border-gray-200 sm:max-w-md w-full">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 class="text-base font-semibold text-gray-900">Modifier la réservation</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-700 p-1.5 rounded-xl transition-colors">
                     <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
-            <div id="modal-edit-errors" class="hidden mx-lg mt-md p-md bg-error-container border border-error/30 text-on-error-container rounded-xl text-sm font-medium"></div>
-            <div class="px-lg py-lg space-y-md">
+            <div id="modal-edit-errors" class="hidden mx-6 mt-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm font-medium"></div>
+            <div class="px-6 py-6 space-y-4">
                 <input type="hidden" id="edit-id-reservation">
                 <div>
-                    <label class="block text-label-lg text-on-surface mb-xs">Nombre de places <span class="text-error">*</span></label>
-                    <input id="edit-nombre-places" type="number" min="1" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Nombre de places <span class="text-red-500">*</span></label>
+                    <input id="edit-nombre-places" type="number" min="1" class="w-full rounded-xl border border-gray-300 h-9 px-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-label-lg text-on-surface mb-xs">Lieu de descente / Arrêt</label>
-                    <select id="edit-id-lieu" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Lieu de descente / Arrêt</label>
+                    <select id="edit-id-lieu" class="w-full rounded-xl border border-gray-300 h-9 px-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                         <option value="">Départ principal</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-label-lg text-on-surface mb-xs">Statut de la réservation <span class="text-error">*</span></label>
-                    <select id="edit-id-statut" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none"></select>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Statut de la réservation <span class="text-red-500">*</span></label>
+                    <select id="edit-id-statut" class="w-full rounded-xl border border-gray-300 h-9 px-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"></select>
                 </div>
             </div>
-            <div class="px-lg py-md bg-surface-container-low/50 border-t border-outline-variant flex justify-end gap-sm">
-                <button onclick="closeEditModal()" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">Annuler</button>
-                <button id="btn-save-edit" class="px-lg py-sm bg-primary text-on-primary font-label-lg rounded-lg hover:brightness-110 transition-all">Enregistrer</button>
+            <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-2">
+                <button onclick="closeEditModal()" class="h-9 px-4 bg-white border border-gray-300 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-all">Annuler</button>
+                <button id="btn-save-edit" class="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-all shadow-sm">Enregistrer</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- MODAL 4 — Enregistrer un Paiement -->
-<div id="modal-payment" class="fixed inset-0 z-50 hidden bg-on-surface/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
-    <div class="flex items-center justify-center min-h-screen px-md py-md">
-        <div class="relative bg-surface-container-lowest rounded-2xl text-left overflow-hidden shadow-2xl border border-outline-variant sm:max-w-md w-full">
-            <div class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
-                <h3 class="font-title-md text-title-md text-on-surface">Enregistrer un Paiement</h3>
-                <button onclick="closePaymentModal()" class="text-outline hover:text-on-surface p-xs rounded-lg transition-colors">
+<div id="modal-payment" class="fixed inset-0 z-50 hidden bg-gray-900/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen px-4 py-4">
+        <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-2xl border border-gray-200 sm:max-w-md w-full">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 class="text-base font-semibold text-gray-900">Enregistrer un Paiement</h3>
+                <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-700 p-1.5 rounded-xl transition-colors">
                     <span class="material-symbols-outlined text-[20px]">close</span>
                 </button>
             </div>
-            <div id="modal-payment-errors" class="hidden mx-lg mt-md p-md bg-error-container border border-error/30 text-on-error-container rounded-xl text-sm font-medium"></div>
-            <div class="px-lg py-lg space-y-md">
+            <div id="modal-payment-errors" class="hidden mx-6 mt-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm font-medium"></div>
+            <div class="px-6 py-6 space-y-4">
                 <input type="hidden" id="pay-id-reservation">
-                <div class="p-sm bg-primary-fixed rounded-xl text-on-primary-container text-body-sm font-medium">
+                <div class="p-4 bg-blue-50 rounded-xl text-blue-800 text-sm font-semibold border border-blue-100">
                     Référence : <span id="pay-reservation-ref"></span><br>
                     Montant dû : <span id="pay-reservation-du"></span>
                 </div>
                 <div>
-                    <label class="block text-label-lg text-on-surface mb-xs">Mode de paiement <span class="text-error">*</span></label>
-                    <select id="pay-id-mode-paiement" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Mode de paiement <span class="text-red-500">*</span></label>
+                    <select id="pay-id-mode-paiement" class="w-full rounded-xl border border-gray-300 h-9 px-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                         <?php foreach ($modes_paiement ?? [] as $mp): ?>
                             <option value="<?= esc($mp['id_mode_paiement']) ?>"><?= esc($mp['libelle']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-label-lg text-on-surface mb-xs">Montant payé <span class="text-error">*</span></label>
-                    <input id="pay-montant" type="number" min="0" step="0.01" class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Montant payé <span class="text-red-500">*</span></label>
+                    <input id="pay-montant" type="number" min="0" step="0.01" class="w-full rounded-xl border border-gray-300 h-9 px-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                 </div>
                 <div id="pay-ref-container">
-                    <label class="block text-label-lg text-on-surface mb-xs">Référence de transaction <span id="pay-ref-required-star" class="text-error">*</span></label>
-                    <input id="pay-reference" type="text" placeholder="ID M-Pesa, Airtel Money, N° Bordereau..." class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Référence de transaction <span id="pay-ref-required-star" class="text-red-500">*</span></label>
+                    <input id="pay-reference" type="text" placeholder="ID M-Pesa, Airtel Money, N° Bordereau..." class="w-full rounded-xl border border-gray-300 h-9 px-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                 </div>
             </div>
-            <div class="px-lg py-md bg-surface-container-low/50 border-t border-outline-variant flex justify-end gap-sm">
-                <button onclick="closePaymentModal()" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">Annuler</button>
-                <button id="btn-save-payment" class="px-lg py-sm bg-primary text-on-primary font-label-lg rounded-lg hover:brightness-110 transition-all">Confirmer le paiement</button>
+            <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-2">
+                <button onclick="closePaymentModal()" class="h-9 px-4 bg-white border border-gray-300 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-all">Annuler</button>
+                <button id="btn-save-payment" class="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-all shadow-sm">Confirmer le paiement</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- MODAL 5 — Confirmer Annulation -->
-<div id="modal-cancel" class="fixed inset-0 z-50 hidden bg-on-surface/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
-    <div class="flex items-center justify-center min-h-screen px-md py-md">
-        <div class="relative bg-surface-container-lowest rounded-2xl text-left overflow-hidden shadow-2xl border border-outline-variant sm:max-w-md w-full">
-            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low/50">
-                <h3 class="font-title-md text-title-md text-on-surface">Annuler la réservation</h3>
+<div id="modal-cancel" class="fixed inset-0 z-50 hidden bg-gray-900/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen px-4 py-4">
+        <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-2xl border border-gray-200 sm:max-w-md w-full">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                <h3 class="text-base font-semibold text-gray-900">Annuler la réservation</h3>
             </div>
-            <div class="px-lg py-lg space-y-md">
+            <div class="px-6 py-6 space-y-4">
                 <input type="hidden" id="cancel-id-reservation">
-                <p class="text-body-md text-on-surface-variant">Voulez-vous vraiment annuler la réservation <strong id="cancel-reservation-ref"></strong> ? Cette action libérera les places correspondantes.</p>
+                <p class="text-sm text-gray-600">Voulez-vous vraiment annuler la réservation <strong id="cancel-reservation-ref"></strong> ? Cette action libérera les places correspondantes.</p>
                 <div>
-                    <label class="block text-label-lg text-on-surface mb-xs">Motif d'annulation</label>
-                    <textarea id="cancel-motif" rows="3" placeholder="Indiquez le motif de l'annulation..." class="w-full rounded-lg border border-outline-variant px-md py-sm bg-surface-container-low text-body-md focus:ring-2 focus:ring-primary outline-none"></textarea>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Motif d'annulation</label>
+                    <textarea id="cancel-motif" rows="3" placeholder="Indiquez le motif de l'annulation..." class="w-full rounded-xl border border-gray-300 p-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"></textarea>
                 </div>
             </div>
-            <div class="px-lg py-md bg-surface-container-low/50 border-t border-outline-variant flex justify-end gap-sm">
-                <button onclick="closeCancelModal()" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">Garder</button>
-                <button id="btn-confirm-cancel" class="px-lg py-sm bg-error text-on-error font-label-lg rounded-lg hover:brightness-110 transition-all">Annuler la réservation</button>
+            <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-2">
+                <button onclick="closeCancelModal()" class="h-9 px-4 bg-white border border-gray-300 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-all">Garder</button>
+                <button id="btn-confirm-cancel" class="h-9 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-medium transition-all shadow-sm">Annuler la réservation</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- MODAL 6 — Confirmer Suppression -->
-<div id="modal-delete" class="fixed inset-0 z-50 hidden bg-on-surface/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
-    <div class="flex items-center justify-center min-h-screen px-md py-md">
-        <div class="relative bg-surface-container-lowest rounded-2xl text-left overflow-hidden shadow-2xl border border-outline-variant sm:max-w-md w-full">
-            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low/50">
-                <h3 class="font-title-md text-title-md text-on-surface text-error">Supprimer la réservation</h3>
+<div id="modal-delete" class="fixed inset-0 z-50 hidden bg-gray-900/40 backdrop-blur-sm overflow-y-auto" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen px-4 py-4">
+        <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-2xl border border-gray-200 sm:max-w-md w-full">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                <h3 class="text-base font-semibold text-red-600">Supprimer la réservation</h3>
             </div>
-            <div class="px-lg py-lg space-y-md">
+            <div class="px-6 py-6 space-y-4">
                 <input type="hidden" id="delete-id-reservation">
-                <p class="text-body-md text-on-surface-variant">Êtes-vous absolument sûr de vouloir supprimer définitivement la réservation <strong id="delete-reservation-ref"></strong> de la base de données ?</p>
-                <p class="text-body-sm text-error bg-error-container p-sm rounded-lg">Cette action est irréversible et supprimera également les paiements rattachés.</p>
+                <p class="text-sm text-gray-600">Êtes-vous absolument sûr de vouloir supprimer définitivement la réservation <strong id="delete-reservation-ref"></strong> de la base de données ?</p>
+                <p class="text-xs text-red-700 bg-red-50 p-3 border border-red-200 rounded-xl">Cette action est irréversible et supprimera également les paiements rattachés.</p>
             </div>
-            <div class="px-lg py-md bg-surface-container-low/50 border-t border-outline-variant flex justify-end gap-sm">
-                <button onclick="closeDeleteModal()" class="px-lg py-sm bg-surface-container border border-outline-variant text-on-surface-variant font-label-lg rounded-lg hover:bg-surface-container-high transition-all">Annuler</button>
-                <button id="btn-confirm-delete" class="px-lg py-sm bg-error text-on-error font-label-lg rounded-lg hover:brightness-110 transition-all">Supprimer définitivement</button>
+            <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-2">
+                <button onclick="closeDeleteModal()" class="h-9 px-4 bg-white border border-gray-300 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition-all">Annuler</button>
+                <button id="btn-confirm-delete" class="h-9 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-medium transition-all shadow-sm">Supprimer définitivement</button>
             </div>
         </div>
     </div>
@@ -486,7 +491,7 @@ async function searchProgrammes() {
     const list   = document.getElementById('programmes-list');
     const count  = document.getElementById('programmes-count');
 
-    list.innerHTML = '<div class="flex justify-center items-center py-xl"><div class="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full"></div></div>';
+    list.innerHTML = '<div class="flex justify-center items-center py-8"><div class="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full"></div></div>';
 
     try {
         const params = new URLSearchParams({ per_page: 50, date_debut: date, date_fin: date });
@@ -499,11 +504,11 @@ async function searchProgrammes() {
 
         if (!items.length) {
             list.innerHTML = `
-                <div class="flex flex-col items-center justify-center py-xl text-outline gap-md">
-                    <span class="material-symbols-outlined text-[56px] text-outline-variant">directions_bus</span>
+                <div class="flex flex-col items-center justify-center py-8 text-gray-400 gap-3">
+                    <span class="material-symbols-outlined text-[48px] text-gray-300">directions_bus</span>
                     <div class="text-center">
-                        <p class="text-body-md font-medium text-on-surface">Aucun voyage programmé pour cette date</p>
-                        <p class="text-body-sm text-outline mt-xs">Modifiez vos critères ou consultez la page Programmes.</p>
+                        <p class="text-sm font-medium text-gray-500">Aucun voyage programmé pour cette date</p>
+                        <p class="text-xs text-gray-400 mt-1">Modifiez vos critères ou consultez la page Programmes.</p>
                     </div>
                 </div>`;
             return;
@@ -516,27 +521,27 @@ async function searchProgrammes() {
             const places  = p.places_disponibles ?? 0;
             const placesClass = places > 5 ? 'text-green-600' : places > 0 ? 'text-yellow-600' : 'text-red-600';
             return `
-            <div class="flex items-center justify-between p-lg hover:bg-surface-container-low transition-colors">
-                <div class="flex items-center gap-md">
-                    <div class="w-10 h-10 bg-primary-container text-on-primary-container rounded-lg flex items-center justify-center shrink-0">
+            <div class="flex items-center justify-between px-6 py-4 hover:bg-gray-50/50 transition-colors">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
                         <span class="material-symbols-outlined">directions_bus</span>
                     </div>
                     <div>
-                        <p class="font-label-lg text-on-surface">${esc(depart)} → ${esc(arrivee)}</p>
-                        <p class="text-body-sm text-outline">Départ ${esc(heure)} · Bus ${esc(p.numero_plaque ?? '?')} · Tarif: ${esc(p.prix)} ${esc(p.code_currency)} · <span class="${placesClass} font-medium">${places} place(s) libre(s)</span></p>
+                        <p class="text-sm font-semibold text-gray-900">${esc(depart)} → ${esc(arrivee)}</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Départ ${esc(heure)} · Bus ${esc(p.numero_plaque ?? '?')} · Tarif: ${esc(p.prix)} ${esc(p.code_currency)} · <span class="${placesClass} font-semibold">${places} place(s) libre(s)</span></p>
                     </div>
                 </div>
-                <div class="flex items-center gap-sm shrink-0">
+                <div class="flex items-center gap-2 shrink-0">
                     ${places > 0
-                        ? `<button onclick="openModal(${p.id_programme})" class="px-md py-sm bg-primary text-on-primary rounded-lg font-label-sm hover:brightness-110 transition-all">Réserver</button>`
-                        : `<span class="px-md py-sm bg-error-container text-on-error-container rounded-lg font-label-sm">Complet</span>`
+                        ? `<button onclick="openModal(${p.id_programme})" class="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all">Réserver</button>`
+                        : `<span class="px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 rounded-xl text-xs font-semibold">Complet</span>`
                     }
                 </div>
             </div>`;
         }).join('');
 
     } catch (e) {
-        list.innerHTML = '<div class="p-lg text-center text-error">Erreur lors du chargement. Veuillez réessayer.</div>';
+        list.innerHTML = '<div class="px-6 py-8 text-center text-red-600">Erreur lors du chargement. Veuillez réessayer.</div>';
     }
 }
 
@@ -552,7 +557,7 @@ async function loadReservations(page = 1) {
     const search = document.getElementById('search-res-text').value.trim();
     const status = document.getElementById('filter-res-status').value;
 
-    body.innerHTML = '<tr><td colspan="7" class="p-xl text-center"><div class="inline-block animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div></td></tr>';
+    body.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center"><div class="inline-block animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full"></div></td></tr>';
 
     try {
         const params = new URLSearchParams({ page, per_page: 15 });
@@ -565,51 +570,54 @@ async function loadReservations(page = 1) {
         const meta  = json.data?.meta ?? { page: 1, total_pages: 1, total: 0 };
 
         if (!items.length) {
-            body.innerHTML = '<tr><td colspan="7" class="p-xl text-center text-outline">Aucune réservation trouvée.</td></tr>';
+            body.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500 font-medium">Aucune réservation trouvée.</td></tr>';
             pagin.innerHTML = '';
             return;
         }
 
         body.innerHTML = items.map(r => {
             const statut = (r.statut_reservation ?? '').toUpperCase();
-            const statBg = statut.includes('CONFIRM') ? 'bg-green-100 text-green-700'
-                         : statut.includes('ATTENTE') ? 'bg-yellow-100 text-yellow-700'
-                         : statut.includes('ANNUL')   ? 'bg-red-100 text-red-700'
-                         : 'bg-surface-container text-on-surface-variant';
+            const statBg = statut.includes('CONFIRM') ? 'bg-green-50 text-green-700 border-green-200'
+                         : statut.includes('ATTENTE') ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                         : statut.includes('ANNUL')   ? 'bg-red-50 text-red-700 border-red-200'
+                         : 'bg-gray-50 text-gray-600 border-gray-200';
             const totalPaye = parseFloat(r.montant_paye ?? 0);
             const totalDu   = parseFloat(r.nombre_places ?? 1) * parseFloat(r.prix ?? 0);
             const isPaye    = totalPaye >= totalDu;
 
             return `
-            <tr class="hover:bg-surface-container-low transition-colors">
-                <td class="p-md font-semibold">${esc(r.reference_reservation)}</td>
-                <td class="p-md">${esc(r.client_nom)}<br><span class="text-xs text-outline">${esc(r.client_telephone)}</span></td>
-                <td class="p-md">${esc(r.lieu_depart)} → ${esc(r.lieu_arrivee)}</td>
-                <td class="p-md">${esc(r.date_programme)} · <span class="text-xs text-outline">${esc(r.heure_depart.slice(0, 5))}</span></td>
-                <td class="p-md">${esc(r.nombre_places)}</td>
-                <td class="p-md"><span class="px-sm py-xs text-[11px] font-semibold rounded-full ${statBg}">${esc(statut)}</span></td>
-                <td class="p-md text-right whitespace-nowrap">
-                    <div class="inline-flex gap-xs">
-                        <button onclick="viewDetail(${r.id_reservation})" class="p-xs text-outline hover:text-on-surface hover:bg-surface-container rounded-lg" title="Détails">
+            <tr class="hover:bg-gray-50/50 transition-colors">
+                <td class="px-6 py-4 font-semibold text-gray-900">${esc(r.reference_reservation)}</td>
+                <td class="px-6 py-4">
+                    <div class="font-medium text-gray-900">${esc(r.client_nom)}</div>
+                    <div class="text-xs text-gray-500 mt-0.5">${esc(r.client_telephone)}</div>
+                </td>
+                <td class="px-6 py-4 text-gray-600">${esc(r.lieu_depart)} → ${esc(r.lieu_arrivee)}</td>
+                <td class="px-6 py-4 text-gray-600">${esc(r.date_programme)} · <span class="text-xs text-gray-500">${esc(r.heure_depart.slice(0, 5))}</span></td>
+                <td class="px-6 py-4 text-gray-600">${esc(r.nombre_places)}</td>
+                <td class="px-6 py-4"><span class="px-2.5 py-0.5 text-xs font-semibold rounded-full border ${statBg}">${esc(statut)}</span></td>
+                <td class="px-6 py-4 text-right whitespace-nowrap">
+                    <div class="inline-flex gap-1">
+                        <button onclick="viewDetail(${r.id_reservation})" class="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-xl" title="Détails">
                             <span class="material-symbols-outlined text-[18px]">info</span>
                         </button>
                         ${statut.includes('ANNUL') ? '' : `
-                            <button onclick="openEditModal(${r.id_reservation})" class="p-xs text-outline hover:text-primary hover:bg-primary-fixed rounded-lg" title="Modifier">
+                            <button onclick="openEditModal(${r.id_reservation})" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl" title="Modifier">
                                 <span class="material-symbols-outlined text-[18px]">edit</span>
                             </button>
                             ${!isPaye ? `
-                                <button onclick="openPaymentModal(${r.id_reservation}, '${esc(r.reference_reservation)}', ${totalDu - totalPaye}, '${esc(r.symbole || r.code_currency)}')" class="p-xs text-outline hover:text-emerald-600 hover:bg-emerald-50 rounded-lg" title="Paiement">
+                                <button onclick="openPaymentModal(${r.id_reservation}, '${esc(r.reference_reservation)}', ${totalDu - totalPaye}, '${esc(r.symbole || r.code_currency)}')" class="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl" title="Paiement">
                                     <span class="material-symbols-outlined text-[18px]">payments</span>
                                 </button>
                             ` : ''}
-                            <button onclick="openCancelModal(${r.id_reservation}, '${esc(r.reference_reservation)}')" class="p-xs text-outline hover:text-yellow-600 hover:bg-yellow-50 rounded-lg" title="Annuler">
+                            <button onclick="openCancelModal(${r.id_reservation}, '${esc(r.reference_reservation)}')" class="p-1.5 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-xl" title="Annuler">
                                 <span class="material-symbols-outlined text-[18px]">block</span>
                             </button>
                         `}
-                        <button onclick="openDeleteModal(${r.id_reservation}, '${esc(r.reference_reservation)}')" class="p-xs text-outline hover:text-red-600 hover:bg-red-50 rounded-lg" title="Supprimer">
+                        <button onclick="openDeleteModal(${r.id_reservation}, '${esc(r.reference_reservation)}')" class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl" title="Supprimer">
                             <span class="material-symbols-outlined text-[18px]">delete</span>
                         </button>
-                        <a href="${BASE_URL}recept/reservations/${r.id_reservation}/ticket" target="_blank" class="p-xs text-outline hover:text-primary hover:bg-primary-fixed rounded-lg" title="Imprimer billet">
+                        <a href="${BASE_URL}recept/reservations/${r.id_reservation}/ticket" target="_blank" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl inline-flex items-center justify-center" title="Imprimer billet">
                             <span class="material-symbols-outlined text-[18px]">print</span>
                         </a>
                     </div>
@@ -617,11 +625,12 @@ async function loadReservations(page = 1) {
             </tr>`;
         }).join('');
 
-        let paginHtml = `<span class="text-xs text-outline">Total: ${meta.total} réservation(s)</span><div class="inline-flex gap-xs">`;
-        if (meta.page > 1) paginHtml += `<button onclick="loadReservations(${meta.page - 1})" class="px-sm py-xs border border-outline-variant bg-surface-container rounded hover:bg-surface-container-high text-xs">Précédent</button>`;
-        paginHtml += `<span class="px-md py-xs text-xs font-semibold">Page ${meta.page} / ${meta.total_pages}</span>`;
-        if (meta.page < meta.total_pages) paginHtml += `<button onclick="loadReservations(${meta.page + 1})" class="px-sm py-xs border border-outline-variant bg-surface-container rounded hover:bg-surface-container-high text-xs">Suivant</button>`;
+        let paginHtml = `<span class="text-xs text-gray-500">Total: ${meta.total} réservation(s)</span><div class="inline-flex gap-1">`;
+        if (meta.page > 1) paginHtml += `<button onclick="loadReservations(${meta.page - 1})" class="px-3 py-1.5 border border-gray-300 bg-white rounded-xl hover:bg-gray-50 text-xs font-medium transition-all">Précédent</button>`;
+        paginHtml += `<span class="px-3 py-1.5 text-xs font-semibold text-gray-700">Page ${meta.page} / ${meta.total_pages}</span>`;
+        if (meta.page < meta.total_pages) paginHtml += `<button onclick="loadReservations(${meta.page + 1})" class="px-3 py-1.5 border border-gray-300 bg-white rounded-xl hover:bg-gray-50 text-xs font-medium transition-all">Suivant</button>`;
         paginHtml += `</div>`;
+        pagin.innerHTML = paginHtml;
         pagin.innerHTML = paginHtml;
 
     } catch (e) {

@@ -11,6 +11,20 @@ $timeOfDay   = (int)date('H') < 12 ? 'Bonjour' : ((int)date('H') < 18 ? 'Bon apr
 ?>
 
 <div class="px-4 pb-12 max-w-[1600px] mx-auto space-y-6">
+    <!-- ── En-tête ── -->
+    <div class="w-full min-h-[60px] py-3 px-6 rounded-2xl flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white border border-gray-200 shadow-sm gap-4">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
+                <span class="material-symbols-outlined text-[20px]">dashboard</span>
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900 tracking-tight"><?= esc($pageTitle ?? 'Tableau de bord') ?></h2>
+                <p class="text-xs text-gray-500"><?= esc($timeOfDay) ?>, <?= esc($displayName) ?> — <?= esc($today) ?></p>
+            </div>
+        </div>
+        <div class="text-xs text-gray-400 font-medium">Guichetier connecté</div>
+    </div>
+
     <!-- ── Flash/Alert ── -->
     <div id="page-alert" class="hidden rounded-xl p-3 text-sm font-medium border transition-all"></div>
 

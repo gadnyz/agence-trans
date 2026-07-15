@@ -135,8 +135,8 @@ $roleLabel   = $user['role']['libelle'] ?? '';
             }
 
             /* 2. Style page title headers for mobile */
-            main.overflow-y-auto div[class*="h-[60px]"],
-            main.overflow-y-auto div[class*="min-h-[60px]"] {
+            main.overflow-y-auto .h-\[60px\],
+            main.overflow-y-auto .min-h-\[60px\] {
                 height: auto !important;
                 min-height: unset !important;
                 padding: 12px 14px !important;
@@ -147,18 +147,18 @@ $roleLabel   = $user['role']['libelle'] ?? '';
             }
 
             /* Target nested sub-containers of headers */
-            main.overflow-y-auto div[class*="h-[60px]"] > div,
-            main.overflow-y-auto div[class*="min-h-[60px]"] > div {
+            main.overflow-y-auto .h-\[60px\] > div,
+            main.overflow-y-auto .min-h-\[60px\] > div {
                 width: 100% !important;
                 justify-content: space-between !important;
                 height: auto !important;
             }
 
             /* Force buttons inside headers to be full-width on mobile */
-            main.overflow-y-auto div[class*="h-[60px]"] button,
-            main.overflow-y-auto div[class*="min-h-[60px]"] button,
-            main.overflow-y-auto div[class*="h-[60px]"] a[class*="btn"],
-            main.overflow-y-auto div[class*="min-h-[60px]"] a[class*="btn"] {
+            main.overflow-y-auto .h-\[60px\] button,
+            main.overflow-y-auto .min-h-\[60px\] button,
+            main.overflow-y-auto .h-\[60px\] a[class*="btn"],
+            main.overflow-y-auto .min-h-\[60px\] a[class*="btn"] {
                 width: 100% !important;
                 justify-content: center !important;
                 padding-top: 8px !important;
@@ -200,6 +200,23 @@ $roleLabel   = $user['role']['libelle'] ?? '';
                 padding-top: 12px !important;
                 padding-bottom: 12px !important;
                 white-space: nowrap !important; /* Keep table cells clean and scrollable */
+            }
+
+            /* 5. FullCalendar responsive overrides */
+            .fc .fc-toolbar {
+                flex-direction: column !important;
+                gap: 10px !important;
+                align-items: stretch !important;
+            }
+            .fc .fc-toolbar-chunk {
+                display: flex !important;
+                justify-content: center !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+            .fc .fc-toolbar-title {
+                text-align: center !important;
+                font-size: 1.125rem !important;
             }
         }
     </style>

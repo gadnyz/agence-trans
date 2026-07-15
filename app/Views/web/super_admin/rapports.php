@@ -12,6 +12,15 @@
         .report-table { font-size: 10px; }
         .report-table th, .report-table td { padding: 6px 8px !important; }
     }
+
+    .overflow-x-auto::-webkit-scrollbar {
+        display: none;
+    }
+
+    .overflow-x-auto {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -38,46 +47,111 @@ $pageEnd     = min((int) $pagination['total_pages'], (int) $pagination['page'] +
 
 <main class="px-4 pb-12 max-w-[1600px] mx-auto">
 
-    <div class="no-print w-full min-h-[60px] py-3 mb-6 rounded-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between px-6 bg-white border border-gray-200 shadow-sm gap-4">
+    <div class="no-print w-full rounded-2xl bg-white border border-gray-200 shadow-sm p-4 mb-6">
+
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+        <!-- Titre -->
         <div class="flex items-center gap-3">
-            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
-                <span class="material-symbols-outlined text-[20px]">analytics</span>
+            <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-50 text-blue-600">
+                <span class="material-symbols-outlined text-[20px]">
+                    analytics
+                </span>
             </div>
+
             <div>
-                <h2 class="text-lg font-semibold text-gray-900 tracking-tight"><?= esc($pageTitle) ?></h2>
-                <p class="text-xs text-gray-500 sm:hidden"><?= esc($number($pagination['total'])) ?> ligne(s)</p>
+                <h2 class="text-lg font-semibold text-gray-900 tracking-tight">
+                    <?= esc($pageTitle) ?>
+                </h2>
+
+                <p class="text-xs text-gray-500 sm:hidden">
+                    <?= esc($number($pagination['total'])) ?> ligne(s)
+                </p>
             </div>
+
             <span class="hidden sm:inline-flex items-center text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-md border border-gray-200">
                 <?= esc($number($pagination['total'])) ?> ligne(s)
             </span>
         </div>
 
-        <form class="flex flex-wrap items-center gap-2" method="get" action="<?= esc($reportActionUrl) ?>">
-            <input type="hidden" name="page" value="1">
-            <input type="hidden" name="per_page" value="<?= esc($pagination['per_page']) ?>">
+        <!-- Filtres scrollables -->
+        <div class="w-full lg:w-auto overflow-x-auto">
+            <form
+                method="get"
+                action="<?= esc($reportActionUrl) ?>"
+                class="flex items-center gap-2 min-w-max"
+            >
+                <input type="hidden" name="page" value="1">
 
-            <input class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none" type="date" name="date_debut" value="<?= esc($filters['date_debut']) ?>" aria-label="Date début" title="Date début">
-            <input class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none" type="date" name="date_fin"   value="<?= esc($filters['date_fin']) ?>"   aria-label="Date fin"   title="Date fin">
+                <input
+                    type="hidden"
+                    name="per_page"
+                    value="<?= esc($pagination['per_page']) ?>"
+                >
 
-            <select class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none bg-white max-w-[240px]" name="id_trajet" aria-label="Trajet" title="Trajet">
-                <option value="">Tous les trajets</option>
-                <?php foreach ($options['trajets'] as $route): ?>
-                    <option value="<?= esc($route['id_trajet']) ?>" <?= $selected($filters['id_trajet'], $route['id_trajet']) ?>><?= esc($routeLabel($route)) ?></option>
-                <?php endforeach; ?>
-            </select>
+                <input
+                    type="date"
+                    name="date_debut"
+                    value="<?= esc($filters['date_debut']) ?>"
+                    class="flex-shrink-0 h-9 px-3 rounded-xl border border-gray-300 text-sm shadow-sm focus:border-blue-500 outline-none"
+                >
 
-            <button class="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all shadow-sm" type="submit" title="Appliquer" aria-label="Appliquer">
-                <span class="material-symbols-outlined text-[20px]">filter_alt</span>
-            </button>
-            <a class="h-9 w-9 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center justify-center hover:bg-gray-50 transition-all shadow-sm" href="<?= esc($reportActionUrl) ?>" title="Réinitialiser" aria-label="Réinitialiser">
-                <span class="material-symbols-outlined text-[20px]">restart_alt</span>
-            </a>
-            <button class="h-9 px-4 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm" type="button" onclick="window.print()">
-                <span class="material-symbols-outlined text-[18px]">print</span>
-                <span class="hidden sm:inline text-sm font-medium">Imprimer</span>
-            </button>
-        </form>
+                <input
+                    type="date"
+                    name="date_fin"
+                    value="<?= esc($filters['date_fin']) ?>"
+                    class="flex-shrink-0 h-9 px-3 rounded-xl border border-gray-300 text-sm shadow-sm focus:border-blue-500 outline-none"
+                >
+
+                <select
+                    name="id_trajet"
+                    class="flex-shrink-0 h-9 px-3 rounded-xl border border-gray-300 text-sm shadow-sm focus:border-blue-500 outline-none bg-white min-w-[220px]"
+                >
+                    <option value="">Tous les trajets</option>
+
+                    <?php foreach ($options['trajets'] as $route): ?>
+                        <option
+                            value="<?= esc($route['id_trajet']) ?>"
+                            <?= $selected($filters['id_trajet'], $route['id_trajet']) ?>
+                        >
+                            <?= esc($routeLabel($route)) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+
+                <button
+                    type="submit"
+                    class="flex-shrink-0 h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all shadow-sm"
+                >
+                    <span class="material-symbols-outlined text-[20px]">
+                        filter_alt
+                    </span>
+                </button>
+
+                <a
+                    href="<?= esc($reportActionUrl) ?>"
+                    class="flex-shrink-0 h-9 w-9 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center justify-center hover:bg-gray-50 transition-all shadow-sm"
+                >
+                    <span class="material-symbols-outlined text-[20px]">
+                        restart_alt
+                    </span>
+                </a>
+
+                <button
+                    type="button"
+                    onclick="window.print()"
+                    class="flex-shrink-0 h-9 w-9 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center justify-center hover:bg-gray-50 transition-all shadow-sm"
+                >
+                    <span class="material-symbols-outlined text-[20px]">
+                        print
+                    </span>
+                </button>
+            </form>
+        </div>
+
     </div>
+
+</div>
 
     <div class="mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 px-2">
         <div>
@@ -159,8 +233,8 @@ $pageEnd     = min((int) $pagination['total_pages'], (int) $pagination['page'] +
                         <tr>
                             <td colspan="9" class="px-6 py-12 text-center text-gray-400">
                                 <div class="flex flex-col items-center gap-2">
-                                    <span class="material-symbols-outlined text-[36px]">inbox</span>
-                                    <p class="text-sm font-medium">Aucune réservation pour les filtres sélectionnés.</p>
+                                    <span class="material-symbols-outlined text-[20px] md:text-[36px]">inbox</span>
+                                    <p class="text-[12px] md:text-sm font-medium">Aucune réservation pour les filtres sélectionnés.</p>
                                 </div>
                             </td>
                         </tr>

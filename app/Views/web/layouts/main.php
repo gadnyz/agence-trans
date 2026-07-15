@@ -157,16 +157,24 @@ $roleLabel   = $user['role']['libelle'] ?? '';
                 padding: 12px 16px !important;
                 flex-direction: column !important;
                 align-items: stretch !important;
-                gap: 10px !important;
+                gap: 8px !important;
                 box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-                transition: box-shadow 0.2s ease !important;
             }
 
-            /* Nested div containers inside sub-bar */
-            .min-h-\[60px\] > div,
-            .h-\[60px\] > div {
+            /* Title row inside sub-bar: icon + title must stay together (flex-start) */
+            .min-h-\[60px\] > div:first-child,
+            .h-\[60px\] > div:first-child {
+                display: flex !important;
+                align-items: center !important;
+                gap: 10px !important;
+                justify-content: flex-start !important;
                 width: 100% !important;
-                justify-content: space-between !important;
+                height: auto !important;
+            }
+            /* Other direct div children (like secondary info) */
+            .min-h-\[60px\] > div:not(:first-child),
+            .h-\[60px\] > div:not(:first-child) {
+                width: 100% !important;
                 height: auto !important;
             }
 
@@ -181,7 +189,7 @@ $roleLabel   = $user['role']['libelle'] ?? '';
                 -webkit-overflow-scrolling: touch;
                 gap: 8px !important;
                 width: 100% !important;
-                padding: 6px 0 6px !important;
+                padding: 4px 0 !important;
                 align-items: center !important;
                 -ms-overflow-style: none !important;
                 scrollbar-width: none !important;
@@ -200,16 +208,14 @@ $roleLabel   = $user['role']['libelle'] ?? '';
             .min-h-\[60px\] form select,
             .h-\[60px\] form input,
             .h-\[60px\] form select {
-                min-width: 130px !important;
-                max-width: 170px !important;
+                min-width: 120px !important;
+                max-width: 160px !important;
                 font-size: 13px !important;
             }
 
             /* Direct action buttons (not inside forms) → full-width */
             .min-h-\[60px\] > button,
-            .h-\[60px\] > button,
-            .min-h-\[60px\] > a,
-            .h-\[60px\] > a {
+            .h-\[60px\] > button {
                 width: 100% !important;
                 justify-content: center !important;
                 padding: 8px 16px !important;
@@ -315,6 +321,127 @@ $roleLabel   = $user['role']['libelle'] ?? '';
             }
             .fc .p-6 {
                 padding: 8px !important;
+            }
+
+            /* ── 8. Modals: fullscreen on mobile ── */
+            /* Modal backdrop overlay */
+            div[role="dialog"],
+            div[aria-modal="true"],
+            .fixed.inset-0[class*="z-50"],
+            .fixed.inset-0[class*="z-[100]"] {
+                padding: 0 !important;
+            }
+
+            /* Modal centering wrapper */
+            div[role="dialog"] > div,
+            div[aria-modal="true"] > div,
+            .fixed.inset-0[class*="z-[100]"] > div.fixed {
+                padding: 0 !important;
+                align-items: flex-end !important;
+            }
+            div[role="dialog"] > div > div,
+            div[aria-modal="true"] > div > div {
+                padding: 0 !important;
+                align-items: flex-end !important;
+            }
+
+            /* Modal card: slide-up sheet style */
+            div[role="dialog"] .bg-white.rounded-2xl,
+            div[role="dialog"] .bg-white.rounded-2xl.shadow-xl,
+            div[role="dialog"] section.bg-white,
+            div[aria-modal="true"] .bg-white.rounded-2xl,
+            div[aria-modal="true"] .bg-white.shadow-xl,
+            div[aria-modal="true"] section.relative.bg-white,
+            .fixed.inset-0 section.relative.bg-white {
+                width: 100% !important;
+                max-width: 100% !important;
+                max-height: 92vh !important;
+                margin: 0 !important;
+                border-radius: 20px 20px 0 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
+            }
+
+            /* Modal header: sticky inside the modal */
+            div[role="dialog"] .px-6.py-4.border-b,
+            div[aria-modal="true"] .px-6.py-4.border-b,
+            .fixed.inset-0 .px-6.py-4.border-b {
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 10 !important;
+                padding: 16px !important;
+                background: #fff !important;
+                flex-shrink: 0 !important;
+            }
+
+            /* Modal body: scrollable */
+            div[role="dialog"] .px-6.py-6,
+            div[role="dialog"] .px-6.py-5,
+            div[aria-modal="true"] .px-6.py-6,
+            div[aria-modal="true"] .px-6.py-5,
+            div[role="dialog"] form.px-6,
+            div[aria-modal="true"] form.px-6,
+            .fixed.inset-0 form.px-6 {
+                flex: 1 1 auto !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+                padding: 16px !important;
+            }
+
+            /* Modal footer: sticky at bottom */
+            div[role="dialog"] .px-6.py-4.bg-gray-50,
+            div[aria-modal="true"] .px-6.py-4.bg-gray-50,
+            div[role="dialog"] .px-6.py-4:last-child,
+            div[aria-modal="true"] .px-6.py-4:last-child,
+            .fixed.inset-0 .px-6.py-4.border-t {
+                position: sticky !important;
+                bottom: 0 !important;
+                z-index: 10 !important;
+                padding: 12px 16px !important;
+                background: #fff !important;
+                border-top: 1px solid #f3f4f6 !important;
+                flex-shrink: 0 !important;
+            }
+
+            /* Modal form grids: stack on mobile */
+            div[role="dialog"] .grid.grid-cols-1.sm\:grid-cols-2,
+            div[role="dialog"] .grid.grid-cols-1.md\:grid-cols-2,
+            div[aria-modal="true"] .grid.grid-cols-1.sm\:grid-cols-2,
+            div[aria-modal="true"] .grid.grid-cols-1.md\:grid-cols-2,
+            .fixed.inset-0 .grid.grid-cols-1.sm\:grid-cols-2,
+            .fixed.inset-0 .grid.grid-cols-1.md\:grid-cols-2 {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+
+            /* Modal inputs: full width */
+            div[role="dialog"] input,
+            div[role="dialog"] select,
+            div[role="dialog"] textarea,
+            div[aria-modal="true"] input,
+            div[aria-modal="true"] select,
+            div[aria-modal="true"] textarea {
+                width: 100% !important;
+                max-width: 100% !important;
+                min-width: 0 !important;
+                font-size: 16px !important; /* prevents iOS zoom */
+            }
+
+            /* Modal action buttons: full width and stacked */
+            div[role="dialog"] .flex.justify-end,
+            div[aria-modal="true"] .flex.justify-end,
+            .fixed.inset-0 .flex.justify-end {
+                flex-direction: column-reverse !important;
+                gap: 8px !important;
+            }
+            div[role="dialog"] .flex.justify-end button,
+            div[role="dialog"] .flex.justify-end a,
+            div[aria-modal="true"] .flex.justify-end button,
+            div[aria-modal="true"] .flex.justify-end a {
+                width: 100% !important;
+                justify-content: center !important;
+                min-height: 44px !important;
             }
         }
     </style>

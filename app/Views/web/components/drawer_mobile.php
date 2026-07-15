@@ -109,7 +109,7 @@ $links    = $roleMenu['links'];
     </nav>
 
     <!-- Drawer Footer (Logout) -->
-    <div class="p-3 border-t border-gray-100 shrink-0">
+    <!-- <div class="p-3 border-t border-gray-100 shrink-0">
         <a
             href="<?= base_url('logout') ?>"
             class="flex items-center rounded-xl transition-all duration-200 h-10 px-3 gap-4 text-on-surface-variant hover:bg-error-container hover:text-error"
@@ -120,5 +120,5 @@ $links    = $roleMenu['links'];
             </div>
             <span class="text-sm font-medium">Déconnexion</span>
         </a>
-    </div>
+    </div> -->
 </aside>

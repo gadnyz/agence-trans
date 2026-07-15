@@ -4,57 +4,91 @@
 
 <main class="px-4 pb-12 max-w-[1600px] mx-auto">
     <!-- ── En-tête de page ── -->
-    <div class="w-full h-[60px] mb-6 rounded-2xl flex items-center justify-between px-6 bg-white border border-gray-200 shadow-sm">
-        <div class="flex items-center gap-3 h-full">
-            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
-                <span class="material-symbols-outlined text-[20px]">badge</span>
+<div class="w-full mb-6 rounded-2xl bg-white border border-gray-200 shadow-sm p-4">
+
+    <div class="flex flex-col gap-4">
+
+        <!-- Header principal -->
+        <div class="flex items-center justify-between">
+
+            <div class="flex items-center gap-2 md:gap-3">
+
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
+                    <span class="material-symbols-outlined text-[20px]">
+                        badge
+                    </span>
+                </div>
+
+                <h2 class="text-lg font-semibold text-gray-900 tracking-tight">
+                    Gestion Chauffeurs
+                </h2>
+
             </div>
-            <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Gestion des Chauffeurs</h2>
-        </div>
-        <div class="flex items-center gap-3">
+
             <button
                 id="btn-open-modal"
                 onclick="openCreateModal()"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-all shadow-sm"
+                class="inline-flex items-center gap-2 px-3 md:px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-all shadow-sm"
             >
-                <span class="material-symbols-outlined text-[18px]">add</span>
-                <span>Nouveau Chauffeur</span>
+                <span class="material-symbols-outlined text-[18px]">
+                    add
+                </span>
+
+                <span>Ajouter</span>
             </button>
+
         </div>
+
     </div>
 
-    <!-- ── Zone d'Alerte ── -->
-    <div id="page-alert" class="hidden mb-4 p-4 rounded-xl text-sm font-medium border flex items-center gap-2 transition-all"></div>
+</div>
 
-    <!-- ── Filtres ── -->
-    <section class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+<!-- ── Filtres ── -->
+<section class="mb-6 bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
         <div class="relative">
-            <span class="material-symbols-outlined absolute left-3 top-2.5 text-gray-400 text-[18px]">search</span>
+
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">
+                search
+            </span>
+
             <input
                 id="search-input"
                 type="text"
                 placeholder="Nom, prénom, téléphone, permis..."
-                class="w-full rounded-xl border border-gray-300 pl-10 pr-4 py-2 text-sm shadow-sm focus:border-blue-500 outline-none"
+                class="w-full rounded-xl border-gray-300 border pl-10 pr-4 py-2 text-sm shadow-sm focus:border-blue-500 outline-none"
             >
+
         </div>
-        <div>
+
+        <div class="flex gap-2 md:contents">
+
             <select
                 id="status-filter"
-                class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm shadow-sm focus:border-blue-500 outline-none bg-white"
+                class="w-full rounded-xl border-gray-300 border px-4 py-2 text-sm shadow-sm focus:border-blue-500 outline-none bg-white"
             >
                 <option value="">Tous les statuts</option>
                 <option value="ACTIF">ACTIF</option>
                 <option value="INACTIF">INACTIF</option>
             </select>
+
+            <div></div>
+
+            <button
+                id="btn-clear-filters"
+                onclick="clearFilters()"
+                class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-all"
+            >
+                Réinitialiser
+            </button>
+
         </div>
-        <button
-            id="btn-clear-filters"
-            onclick="clearFilters()"
-            class="px-4 py-2 bg-gray-50 border border-gray-200 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-100 transition-all"
-        >
-            Réinitialiser les filtres
-        </button>
-    </section>
+
+    </div>
+
+</section>
 
     <!-- ── Tableau des chauffeurs ── -->
     <section class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
@@ -83,8 +117,8 @@
                         <tr id="empty-row">
                             <td colspan="7" class="px-6 py-12 text-center">
                                 <div class="flex flex-col items-center gap-3 text-gray-400">
-                                    <span class="material-symbols-outlined text-[48px]">inbox</span>
-                                    <p class="text-sm font-medium">Aucun chauffeur enregistré pour le moment</p>
+                                    <span class="material-symbols-outlined text-[20px] md:text-[48px]">inbox</span>
+                                    <p class="text-[12px] md:text-sm font-medium">Aucun chauffeur enregistré pour le moment</p>
                                 </div>
                             </td>
                         </tr>

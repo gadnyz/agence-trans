@@ -47,12 +47,12 @@ $pageEnd     = min((int) $pagination['total_pages'], (int) $pagination['page'] +
 
 <main class="px-4 pb-12 max-w-[1600px] mx-auto">
 
-    <div class="no-print w-full rounded-2xl bg-white border border-gray-200 shadow-sm p-4 mb-6">
+    <div class="no-print w-full rounded-2xl bg-white border border-gray-200 shadow-sm px-6 py-3 mb-6">
 
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 
-        <!-- Titre -->
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 shrink-0">
+
             <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-50 text-blue-600">
                 <span class="material-symbols-outlined text-[20px]">
                     analytics
@@ -72,15 +72,17 @@ $pageEnd     = min((int) $pagination['total_pages'], (int) $pagination['page'] +
             <span class="hidden sm:inline-flex items-center text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-md border border-gray-200">
                 <?= esc($number($pagination['total'])) ?> ligne(s)
             </span>
+
         </div>
 
-        <!-- Filtres scrollables -->
         <div class="w-full lg:w-auto overflow-x-auto">
+
             <form
                 method="get"
                 action="<?= esc($reportActionUrl) ?>"
                 class="flex items-center gap-2 min-w-max"
             >
+
                 <input type="hidden" name="page" value="1">
 
                 <input
@@ -146,7 +148,9 @@ $pageEnd     = min((int) $pagination['total_pages'], (int) $pagination['page'] +
                         print
                     </span>
                 </button>
+
             </form>
+
         </div>
 
     </div>

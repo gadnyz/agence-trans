@@ -18,7 +18,7 @@
                 class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-all shadow-sm"
             >
                 <span class="material-symbols-outlined text-[18px]">add</span>
-                <span>Nouvelle réservation</span>
+                <span>Ajouter</span>
             </button>
         </div>
     </div>

@@ -34,3 +34,16 @@ JWT_ACCESS_TOKEN_EXPIRATION = 3600
 #--------------------------------------------------------------------
 
 logger.threshold = 4
+
+
+
+CI_ENVIRONMENT = development
+
+app.baseURL = 'http://localhost/agence-trans/public/'
+
+database.default.hostname = localhost
+database.default.database = kashala_trans
+database.default.username = root
+database.default.password =
+database.default.DBDriver = MySQLi
+database.default.port = 3306

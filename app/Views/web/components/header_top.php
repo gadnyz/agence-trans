@@ -12,7 +12,7 @@ if (empty($displayName)) {
 $roleLabel = esc($user['role']['libelle'] ?? 'Fleet Manager');
 ?>
 
-<header class="flex justify-end items-center h-16 px-md lg:px-margin-desktop w-full bg-surface-container-lowest border-b border-gray-100 shrink-0 z-20 sticky top-0">
+<header class="hidden md:flex justify-end items-center h-16 px-md lg:px-margin-desktop w-full bg-surface-container-lowest border-b border-gray-100 shrink-0 z-20 sticky top-0">
     
     <!-- <div class="flex items-center flex-1 max-w-xl">
         <div class="relative w-full max-w-md">

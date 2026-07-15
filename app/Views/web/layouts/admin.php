@@ -11,12 +11,15 @@
         --color-on-primary-fixed-variant: #2563eb;
     }
 </style>
+<?= $this->renderSection('styles') ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="container-fluid">
-    </div>
+<div class="container-fluid px-2 sm:px-4">
+    <?= $this->renderSection('content') ?>
+</div>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
+<?= $this->renderSection('scripts') ?>
 <?= $this->endSection() ?>

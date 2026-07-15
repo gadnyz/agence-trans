@@ -118,6 +118,90 @@ $roleLabel   = $user['role']['libelle'] ?? '';
         .hide-scrollbar::-webkit-scrollbar { width: 4px; }
         .hide-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .hide-scrollbar::-webkit-scrollbar-thumb { background: #c4c5d7; border-radius: 4px; }
+
+        /* 📱 Responsive overrides for Android / Mobile Devices */
+        @media (max-w: 767px) {
+            /* 1. Reduce outer page margins and paddings */
+            main.overflow-y-auto {
+                padding: 10px !important;
+            }
+            
+            /* Remove excessive padding inside subviews to prevent double padding */
+            main.overflow-y-auto > main,
+            main.overflow-y-auto > div {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                padding-bottom: 20px !important;
+            }
+
+            /* 2. Style page title headers for mobile */
+            main.overflow-y-auto div[class*="h-[60px]"],
+            main.overflow-y-auto div[class*="min-h-[60px]"] {
+                height: auto !important;
+                min-height: unset !important;
+                padding: 12px 14px !important;
+                margin-bottom: 12px !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px !important;
+            }
+
+            /* Target nested sub-containers of headers */
+            main.overflow-y-auto div[class*="h-[60px]"] > div,
+            main.overflow-y-auto div[class*="min-h-[60px]"] > div {
+                width: 100% !important;
+                justify-content: space-between !important;
+                height: auto !important;
+            }
+
+            /* Force buttons inside headers to be full-width on mobile */
+            main.overflow-y-auto div[class*="h-[60px]"] button,
+            main.overflow-y-auto div[class*="min-h-[60px]"] button,
+            main.overflow-y-auto div[class*="h-[60px]"] a[class*="btn"],
+            main.overflow-y-auto div[class*="min-h-[60px]"] a[class*="btn"] {
+                width: 100% !important;
+                justify-content: center !important;
+                padding-top: 8px !important;
+                padding-bottom: 8px !important;
+                min-height: 40px !important;
+            }
+
+            /* 3. Optimize cards, filters, and spacing on mobile */
+            .card, 
+            section.bg-white,
+            div.bg-white.border.border-gray-200.rounded-2xl {
+                padding: 12px !important;
+                margin-bottom: 12px !important;
+                border-radius: 12px !important;
+            }
+
+            /* Adjust spacing inside grid filters */
+            section[class*="grid-cols-"],
+            div[class*="grid-cols-"] {
+                gap: 8px !important;
+            }
+
+            /* Remove massive vertical spaces */
+            .mb-6 { margin-bottom: 12px !important; }
+            .mt-6 { margin-top: 12px !important; }
+            .py-6 { padding-top: 12px !important; padding-bottom: 12px !important; }
+            .px-6 { padding-left: 12px !important; padding-right: 12px !important; }
+            .p-6 { padding: 12px !important; }
+            .p-5 { padding: 12px !important; }
+
+            /* 4. Fix table overflows and text cuts */
+            table {
+                font-size: 12px !important;
+            }
+            
+            th, td {
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+                padding-top: 12px !important;
+                padding-bottom: 12px !important;
+                white-space: nowrap !important; /* Keep table cells clean and scrollable */
+            }
+        }
     </style>
 
     <?= $this->renderSection('styles') ?>
@@ -127,10 +211,14 @@ $roleLabel   = $user['role']['libelle'] ?? '';
     <div class="flex min-h-screen">
 
         <?= $this->include('web/components/sidebar') ?>
+        <?= $this->include('web/components/drawer_mobile') ?>
 
         <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-            <!-- Header -->
+            <!-- Header Mobile -->
+            <?= $this->include('web/components/header_mobile') ?>
+
+            <!-- Header Desktop -->
             <?= $this->include('web/components/header_top') ?>
 
             <!-- Flash messages -->
@@ -143,6 +231,97 @@ $roleLabel   = $user['role']['libelle'] ?? '';
 
         </div>
     </div>
+
+    <!-- Scripts for mobile navigation and profile menu toggles -->
+    <script>
+    (function () {
+        // Mobile navigation drawer controls
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileDrawer = document.getElementById('mobile-drawer');
+        const mobileDrawerClose = document.getElementById('mobile-drawer-close');
+        const mobileDrawerBackdrop = document.getElementById('mobile-drawer-backdrop');
+
+        function openDrawer() {
+            if (!mobileDrawer) return;
+            mobileDrawer.classList.remove('-translate-x-full');
+            mobileDrawer.setAttribute('aria-hidden', 'false');
+            mobileMenuBtn?.setAttribute('aria-expanded', 'true');
+            if (mobileDrawerBackdrop) {
+                mobileDrawerBackdrop.classList.remove('hidden');
+                setTimeout(() => {
+                    mobileDrawerBackdrop.classList.remove('opacity-0');
+                    mobileDrawerBackdrop.classList.add('opacity-100');
+                }, 10);
+            }
+        }
+
+        function closeDrawer() {
+            if (!mobileDrawer) return;
+            mobileDrawer.classList.add('-translate-x-full');
+            mobileDrawer.setAttribute('aria-hidden', 'true');
+            mobileMenuBtn?.setAttribute('aria-expanded', 'false');
+            if (mobileDrawerBackdrop) {
+                mobileDrawerBackdrop.classList.remove('opacity-100');
+                mobileDrawerBackdrop.classList.add('opacity-0');
+                mobileDrawerBackdrop.addEventListener('transitionend', function handler() {
+                    mobileDrawerBackdrop.classList.add('hidden');
+                    mobileDrawerBackdrop.removeEventListener('transitionend', handler);
+                }, { once: true });
+            }
+        }
+
+        mobileMenuBtn?.addEventListener('click', openDrawer);
+        mobileDrawerClose?.addEventListener('click', closeDrawer);
+        mobileDrawerBackdrop?.addEventListener('click', closeDrawer);
+
+        // Close drawer on Esc key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && mobileDrawer && !mobileDrawer.classList.contains('-translate-x-full')) {
+                closeDrawer();
+            }
+        });
+
+        // Mobile profile dropdown controls
+        const profileBtn = document.getElementById('mobile-profile-btn');
+        const profileDropdown = document.getElementById('mobile-profile-dropdown');
+
+        if (profileBtn && profileDropdown) {
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isHidden = profileDropdown.classList.contains('hidden');
+                if (isHidden) {
+                    // Open
+                    profileDropdown.classList.remove('hidden');
+                    profileBtn.setAttribute('aria-expanded', 'true');
+                    setTimeout(() => {
+                        profileDropdown.classList.remove('scale-95', 'opacity-0');
+                        profileDropdown.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                } else {
+                    // Close
+                    closeProfileDropdown();
+                }
+            });
+
+            function closeProfileDropdown() {
+                profileDropdown.classList.remove('scale-100', 'opacity-100');
+                profileDropdown.classList.add('scale-95', 'opacity-0');
+                profileBtn.setAttribute('aria-expanded', 'false');
+                profileDropdown.addEventListener('transitionend', function handler() {
+                    profileDropdown.classList.add('hidden');
+                    profileDropdown.removeEventListener('transitionend', handler);
+                }, { once: true });
+            }
+
+            // Close when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!profileDropdown.classList.contains('hidden') && !profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    closeProfileDropdown();
+                }
+            });
+        }
+    })();
+    </script>
 
     <?= $this->renderSection('scripts') ?>
 </body>

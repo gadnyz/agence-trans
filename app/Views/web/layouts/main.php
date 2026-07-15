@@ -120,89 +120,184 @@ $roleLabel   = $user['role']['libelle'] ?? '';
         .hide-scrollbar::-webkit-scrollbar-thumb { background: #c4c5d7; border-radius: 4px; }
 
         /* 📱 Responsive overrides for Android / Mobile Devices */
-        @media (max-w: 767px) {
-            /* 1. Reduce outer page margins and paddings */
+        @media (max-width: 767px) {
+
+            /* ── 1. Global spacing: max 16px (px-4) everywhere ── */
             main.overflow-y-auto {
-                padding: 10px !important;
-            }
-            
-            /* Remove excessive padding inside subviews to prevent double padding */
-            main.overflow-y-auto > main,
-            main.overflow-y-auto > div {
-                padding-left: 0 !important;
-                padding-right: 0 !important;
-                padding-bottom: 20px !important;
+                padding: 0 !important;
             }
 
-            /* 2. Style page title headers for mobile */
-            main.overflow-y-auto .h-\[60px\],
-            main.overflow-y-auto .min-h-\[60px\] {
+            /* Inner page wrappers from views (main.px-4 or div.px-4) */
+            main.overflow-y-auto > main,
+            main.overflow-y-auto > div {
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+                padding-top: 0 !important;
+                padding-bottom: 24px !important;
+            }
+
+            /* ── 2. Sticky sub-bar headers with glassmorphism ── */
+            .min-h-\[60px\],
+            .h-\[60px\] {
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 30 !important;
                 height: auto !important;
                 min-height: unset !important;
-                padding: 12px 14px !important;
-                margin-bottom: 12px !important;
+                background: rgba(255, 255, 255, 0.92) !important;
+                backdrop-filter: saturate(180%) blur(16px) !important;
+                -webkit-backdrop-filter: saturate(180%) blur(16px) !important;
+                border: none !important;
+                border-bottom: 1px solid rgba(229, 231, 235, 0.7) !important;
+                border-radius: 0 !important;
+                margin-left: -16px !important;
+                margin-right: -16px !important;
+                margin-top: 0 !important;
+                margin-bottom: 16px !important;
+                padding: 12px 16px !important;
                 flex-direction: column !important;
                 align-items: stretch !important;
                 gap: 10px !important;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+                transition: box-shadow 0.2s ease !important;
             }
 
-            /* Target nested sub-containers of headers */
-            main.overflow-y-auto .h-\[60px\] > div,
-            main.overflow-y-auto .min-h-\[60px\] > div {
+            /* Nested div containers inside sub-bar */
+            .min-h-\[60px\] > div,
+            .h-\[60px\] > div {
                 width: 100% !important;
                 justify-content: space-between !important;
                 height: auto !important;
             }
 
-            /* Force buttons inside headers to be full-width on mobile */
-            main.overflow-y-auto .h-\[60px\] button,
-            main.overflow-y-auto .min-h-\[60px\] button,
-            main.overflow-y-auto .h-\[60px\] a[class*="btn"],
-            main.overflow-y-auto .min-h-\[60px\] a[class*="btn"] {
+            /* ── 3. Horizontal scroll-x for filter forms ── */
+            .min-h-\[60px\] form,
+            .h-\[60px\] form {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                -webkit-overflow-scrolling: touch;
+                gap: 8px !important;
+                width: 100% !important;
+                padding: 6px 0 6px !important;
+                align-items: center !important;
+                -ms-overflow-style: none !important;
+                scrollbar-width: none !important;
+            }
+            .min-h-\[60px\] form::-webkit-scrollbar,
+            .h-\[60px\] form::-webkit-scrollbar {
+                display: none !important;
+            }
+            /* Prevent form children from shrinking */
+            .min-h-\[60px\] form > *,
+            .h-\[60px\] form > * {
+                flex-shrink: 0 !important;
+            }
+            /* Compact form inputs inside filter bars */
+            .min-h-\[60px\] form input,
+            .min-h-\[60px\] form select,
+            .h-\[60px\] form input,
+            .h-\[60px\] form select {
+                min-width: 130px !important;
+                max-width: 170px !important;
+                font-size: 13px !important;
+            }
+
+            /* Direct action buttons (not inside forms) → full-width */
+            .min-h-\[60px\] > button,
+            .h-\[60px\] > button,
+            .min-h-\[60px\] > a,
+            .h-\[60px\] > a {
                 width: 100% !important;
                 justify-content: center !important;
-                padding-top: 8px !important;
-                padding-bottom: 8px !important;
+                padding: 8px 16px !important;
                 min-height: 40px !important;
             }
 
-            /* 3. Optimize cards, filters, and spacing on mobile */
-            .card, 
-            section.bg-white,
-            div.bg-white.border.border-gray-200.rounded-2xl {
-                padding: 12px !important;
-                margin-bottom: 12px !important;
+            /* ── 4. KPI card grids: horizontal scroll on mobile ── */
+            section.grid[class*="grid-cols-"],
+            section[class*="grid-cols-1"][class*="sm:grid-cols-2"] {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+                gap: 12px !important;
+                padding-bottom: 4px !important;
+                scroll-snap-type: x mandatory;
+                -ms-overflow-style: none !important;
+                scrollbar-width: none !important;
+            }
+            section.grid[class*="grid-cols-"]::-webkit-scrollbar,
+            section[class*="grid-cols-1"][class*="sm:grid-cols-2"]::-webkit-scrollbar {
+                display: none !important;
+            }
+            section.grid[class*="grid-cols-"] > div,
+            section[class*="grid-cols-1"][class*="sm:grid-cols-2"] > div {
+                min-width: 200px !important;
+                max-width: 220px !important;
+                flex-shrink: 0 !important;
+                scroll-snap-align: start;
+            }
+
+            /* ── 5. Cards, sections, spacing ── */
+            .card,
+            .report-card {
+                padding: 16px !important;
+                margin-bottom: 16px !important;
                 border-radius: 12px !important;
             }
 
-            /* Adjust spacing inside grid filters */
-            section[class*="grid-cols-"],
-            div[class*="grid-cols-"] {
-                gap: 8px !important;
+            section.bg-white,
+            div.bg-white.border.rounded-2xl,
+            div.bg-white.border.border-gray-200.rounded-2xl {
+                border-radius: 12px !important;
+                overflow: hidden;
             }
 
-            /* Remove massive vertical spaces */
-            .mb-6 { margin-bottom: 12px !important; }
-            .mt-6 { margin-top: 12px !important; }
-            .py-6 { padding-top: 12px !important; padding-bottom: 12px !important; }
-            .px-6 { padding-left: 12px !important; padding-right: 12px !important; }
-            .p-6 { padding: 12px !important; }
-            .p-5 { padding: 12px !important; }
+            /* Spacing utilities override: clamp to 16px max */
+            .mb-6 { margin-bottom: 16px !important; }
+            .mt-6 { margin-top: 16px !important; }
+            .py-6 { padding-top: 16px !important; padding-bottom: 16px !important; }
+            .px-6 { padding-left: 16px !important; padding-right: 16px !important; }
+            .p-6  { padding: 16px !important; }
+            .p-5  { padding: 16px !important; }
+            .gap-6 { gap: 16px !important; }
+            .space-y-6 > * + * { margin-top: 16px !important; }
 
-            /* 4. Fix table overflows and text cuts */
+            /* ── 6. Table horizontal scroll ── */
+            .overflow-x-auto {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+                width: 100% !important;
+            }
             table {
                 font-size: 12px !important;
             }
-            
             th, td {
-                padding-left: 10px !important;
-                padding-right: 10px !important;
-                padding-top: 12px !important;
-                padding-bottom: 12px !important;
-                white-space: nowrap !important; /* Keep table cells clean and scrollable */
+                padding: 10px !important;
+                white-space: nowrap !important;
             }
 
-            /* 5. FullCalendar responsive overrides */
+            /* Table section headers: compact on mobile */
+            section .px-6.py-4,
+            div .px-6.py-4 {
+                padding: 12px 16px !important;
+            }
+            section .px-6.py-4 h3,
+            div .px-6.py-4 h3 {
+                font-size: 14px !important;
+            }
+
+            /* Pagination: compact */
+            nav[aria-label="Pagination"] {
+                padding: 12px 16px !important;
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+
+            /* ── 7. FullCalendar responsive ── */
             .fc .fc-toolbar {
                 flex-direction: column !important;
                 gap: 10px !important;
@@ -217,6 +312,9 @@ $roleLabel   = $user['role']['libelle'] ?? '';
             .fc .fc-toolbar-title {
                 text-align: center !important;
                 font-size: 1.125rem !important;
+            }
+            .fc .p-6 {
+                padding: 8px !important;
             }
         }
     </style>

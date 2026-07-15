@@ -40,46 +40,40 @@ $maxWeekdayReservations = $maxWeekdayReservations ?: 1;
 <main class="px-4 pb-12 max-w-[1600px] mx-auto">
 
     <!-- ── En-tête + Filtres ── -->
-    <div class="no-print w-full min-h-[60px] py-3 mb-6 rounded-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between px-6 bg-white border border-gray-200 shadow-sm gap-4">
-        <div class="flex items-center gap-3">
-            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
-                <span class="material-symbols-outlined text-[20px]">analytics</span>
+    <div class="no-print w-full mb-6 rounded-2xl bg-white border border-gray-200 shadow-sm p-4">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+            <!-- Titre -->
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
+                    <span class="material-symbols-outlined text-[20px]">analytics</span>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900 tracking-tight"><?= esc($pageTitle) ?></h2>
+                    <p class="text-xs text-gray-500"><?= esc($periodLabel) ?></p>
+                </div>
             </div>
-            <div>
-                <h2 class="text-lg font-semibold text-gray-900 tracking-tight"><?= esc($pageTitle) ?></h2>
-                <p class="text-xs text-gray-500"><?= esc($periodLabel) ?></p>
+
+            <!-- Filtres -->
+            <div class="w-full lg:w-auto overflow-x-auto">
+                <form class="flex items-center gap-2 min-w-max" method="get" action="<?= esc($analyseActionUrl) ?>">
+                    <input class="h-10 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none" type="date" name="date_debut" value="<?= esc($filters['date_debut']) ?>" title="Date début">
+                    <input class="h-10 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none" type="date" name="date_fin" value="<?= esc($filters['date_fin']) ?>" title="Date fin">
+
+                    <button class="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all shadow-sm" type="submit" title="Appliquer">
+                        <span class="material-symbols-outlined text-[20px]">filter_alt</span>
+                    </button>
+                    <a class="h-10 w-10 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center justify-center hover:bg-gray-50 transition-all shadow-sm" href="<?= esc($analyseActionUrl) ?>" title="Réinitialiser">
+                        <span class="material-symbols-outlined text-[20px]">restart_alt</span>
+                    </a>
+                    <button class="h-10 px-4 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm" type="button" onclick="window.print()">
+                        <span class="material-symbols-outlined text-[18px]">print</span>
+                        <span class="hidden sm:inline text-sm font-medium">Imprimer</span>
+                    </button>
+                </form>
             </div>
+
         </div>
-
-        <form class="flex flex-wrap items-center gap-2" method="get" action="<?= esc($analyseActionUrl) ?>">
-            <input class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none" type="date" name="date_debut" value="<?= esc($filters['date_debut']) ?>" title="Date début">
-            <input class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none" type="date" name="date_fin" value="<?= esc($filters['date_fin']) ?>" title="Date fin">
-
-            <!-- <select class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none bg-white max-w-[240px]" name="id_trajet" title="Trajet">
-                <option value="">Tous les trajets</option>
-                <?php foreach ($options['trajets'] as $route): ?>
-                    <option value="<?= esc($route['id_trajet']) ?>" <?= $selected($filters['id_trajet'], $route['id_trajet']) ?>><?= esc($routeLabel($route)) ?></option>
-                <?php endforeach; ?>
-            </select> -->
-
-            <!-- <select class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 outline-none bg-white max-w-[200px]" name="id_agent" title="Agent">
-                <option value="">Tous les agents</option>
-                <?php foreach ($options['agents'] as $agent): ?>
-                    <option value="<?= esc($agent['id_utilisateur']) ?>" <?= $selected($filters['id_agent'], $agent['id_utilisateur']) ?>><?= esc($agent['username']) ?></option>
-                <?php endforeach; ?>
-            </select> -->
-
-            <button class="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all shadow-sm" type="submit" title="Appliquer">
-                <span class="material-symbols-outlined text-[20px]">filter_alt</span>
-            </button>
-            <a class="h-9 w-9 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center justify-center hover:bg-gray-50 transition-all shadow-sm" href="<?= esc($analyseActionUrl) ?>" title="Réinitialiser">
-                <span class="material-symbols-outlined text-[20px]">restart_alt</span>
-            </a>
-            <button class="h-9 px-4 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm" type="button" onclick="window.print()">
-                <span class="material-symbols-outlined text-[18px]">print</span>
-                <span class="hidden sm:inline text-sm font-medium">Imprimer</span>
-            </button>
-        </form>
     </div>
 
     <!-- ── KPI Summary Cards ── -->

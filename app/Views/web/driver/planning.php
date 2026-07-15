@@ -16,16 +16,21 @@ $programmes  = $programmes ?? [];
 
 <!-- ── Top bar (Design System Admin) ── -->
 <div class="max-w-[1600px] mx-auto px-4 mt-4">
-    <div class="w-full h-[60px] rounded-2xl mb-6 flex items-center justify-between px-6 bg-surface-container-lowest border border-gray-100 *border-outline-variant shadow-sm transition-all">
-        <div class="flex items-center gap-3 h-full">
-            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-container text-primary">
-                <span class="material-symbols-outlined text-[20px]">calendar_today</span>
+    <div class="w-full rounded-2xl mb-6 bg-white border border-gray-200 shadow-sm p-4">
+        <div class="flex flex-col gap-4">
+            <!-- Header principal -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
+                        <span class="material-symbols-outlined text-[20px]">calendar_today</span>
+                    </div>
+                    <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Mon Planning</h2>
+                </div>
+                <div class="hidden sm:flex items-center gap-2 text-sm text-primary bg-primary-container/20 px-4 py-1.5 rounded-full border border-primary/20 shadow-sm whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[16px] text-primary">verified</span>
+                    <span class="text-on-primary-container font-semibold">Chauffeur Actif</span>
+                </div>
             </div>
-            <h2 class="text-lg font-semibold text-on-surface tracking-tight">Mon Planning</h2>
-        </div>
-        <div class="hidden sm:flex items-center gap-2 text-sm text-primary bg-primary-container/20 px-4 py-1.5 rounded-full border border-primary/20 shadow-sm">
-            <span class="material-symbols-outlined text-[16px] text-primary">verified</span>
-            <span class="text-on-primary-container font-semibold">Chauffeur Actif</span>
         </div>
     </div>
 </div>

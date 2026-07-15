@@ -12,21 +12,27 @@ $todayIso    = date('Y-m-d');
 <div class="px-4 pb-12 max-w-[1600px] mx-auto space-y-6">
 
     <!-- ── En-tête ── -->
-    <div class="w-full min-h-[60px] py-3 px-6 rounded-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between bg-white border border-gray-200 shadow-sm gap-4">
-        <div class="flex items-center gap-3">
-            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
-                <span class="material-symbols-outlined text-[20px]">directions_bus</span>
-            </div>
-            <div>
-                <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Programmes de Voyage</h2>
-                <p class="text-xs text-gray-500"><?= esc($today) ?> — <?= esc($displayName) ?> (Réceptionniste)</p>
+    <div class="w-full rounded-2xl bg-white border border-gray-200 shadow-sm p-4">
+        <div class="flex flex-col gap-4">
+            <!-- Header principal -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 md:gap-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
+                        <span class="material-symbols-outlined text-[20px]">directions_bus</span>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Programmes de Voyage</h2>
+                        <p class="text-xs text-gray-500"><?= esc($today) ?> — <?= esc($displayName) ?> (Réceptionniste)</p>
+                    </div>
+                </div>
+                <a href="<?= base_url('recept/reservations') ?>"
+                   class="inline-flex h-10 px-3 md:px-4 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all items-center justify-center gap-2 shadow-sm whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[18px]">confirmation_number</span>
+                    <span class="hidden sm:inline">Créer une réservation</span>
+                    <span class="sm:hidden">Réserver</span>
+                </a>
             </div>
         </div>
-        <a href="<?= base_url('recept/reservations') ?>"
-           class="h-9 px-4 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm whitespace-nowrap">
-            <span class="material-symbols-outlined text-[18px]">confirmation_number</span>
-            Créer une réservation
-        </a>
     </div>
 
     <!-- ── Flash/Alert ── -->

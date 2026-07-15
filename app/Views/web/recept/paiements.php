@@ -12,31 +12,35 @@ $todayIso    = date('Y-m-d');
 <div class="px-4 pb-12 max-w-[1600px] mx-auto space-y-6">
 
     <!-- ── En-tête ── -->
-    <div class="w-full min-h-[60px] py-3 px-6 rounded-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between bg-white border border-gray-200 shadow-sm gap-4">
-        <div class="flex items-center gap-3">
-            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
-                <span class="material-symbols-outlined text-[20px]">payments</span>
+    <div class="w-full rounded-2xl bg-white border border-gray-200 shadow-sm p-4">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
+                    <span class="material-symbols-outlined text-[20px]">payments</span>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Paiements</h2>
+                    <p class="text-xs text-gray-500"><?= esc($today) ?> — <?= esc($displayName) ?> (Réceptionniste)</p>
+                </div>
             </div>
-            <div>
-                <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Paiements</h2>
-                <p class="text-xs text-gray-500"><?= esc($today) ?> — <?= esc($displayName) ?> (Réceptionniste)</p>
+            <div class="w-full lg:w-auto overflow-x-auto">
+                <div class="flex items-center gap-2 min-w-max">
+                    <input type="date" id="filter-date-debut" value="<?= $todayIso ?>"
+                           class="h-10 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none bg-white">
+                    <input type="date" id="filter-date-fin" value="<?= $todayIso ?>"
+                           class="h-10 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none bg-white">
+                    <button id="btn-filter-paiements"
+                            class="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all shadow-sm"
+                            title="Filtrer">
+                        <span class="material-symbols-outlined text-[20px]">filter_alt</span>
+                    </button>
+                    <button id="btn-refresh-paiements"
+                            class="h-10 px-4 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm">
+                        <span class="material-symbols-outlined text-[18px]">refresh</span>
+                        <span class="text-sm font-medium">Actualiser</span>
+                    </button>
+                </div>
             </div>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
-            <input type="date" id="filter-date-debut" value="<?= $todayIso ?>"
-                   class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none bg-white">
-            <input type="date" id="filter-date-fin" value="<?= $todayIso ?>"
-                   class="h-9 px-3 rounded-xl border-gray-300 border text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none bg-white">
-            <button id="btn-filter-paiements"
-                    class="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all shadow-sm"
-                    title="Filtrer">
-                <span class="material-symbols-outlined text-[20px]">filter_alt</span>
-            </button>
-            <button id="btn-refresh-paiements"
-                    class="h-9 px-4 rounded-xl bg-white border border-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm">
-                <span class="material-symbols-outlined text-[18px]">refresh</span>
-                <span class="text-sm font-medium">Actualiser</span>
-            </button>
         </div>
     </div>
 

@@ -22,13 +22,12 @@ $timeOfDay   = (int)date('H') < 12 ? 'Bonjour' : ((int)date('H') < 18 ? 'Bon apr
                     </div>
                     <div>
                         <h2 class="text-lg font-semibold text-gray-900 tracking-tight"><?= esc($pageTitle ?? 'Tableau de bord') ?></h2>
-                        <p class="text-xs text-gray-500"><?= esc($timeOfDay) ?>, <?= esc($displayName) ?> — <?= esc($today) ?></p>
                     </div>
                 </div>
-                <div class="text-xs text-gray-400 font-semibold bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-200 shadow-sm whitespace-nowrap">
+                <!-- <div class="text-xs text-gray-400 font-semibold bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-200 shadow-sm whitespace-nowrap">
                     <span class="hidden sm:inline">Guichetier connecté</span>
                     <span class="sm:hidden">Connecté</span>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
@@ -170,8 +169,8 @@ async function loadDashboardVoyages() {
 
         if (!items.length) {
             el.innerHTML = `<div class="flex flex-col items-center justify-center py-12 gap-3 text-gray-400">
-                <span class="material-symbols-outlined text-[48px] text-gray-300">directions_bus</span>
-                <p class="text-sm font-medium">Aucun voyage planifié aujourd'hui</p>
+                <span class="material-symbols-outlined text-[32px] md:text-[48px] text-gray-300">directions_bus</span>
+                <p class="text-[12px] md:text-sm font-medium">Aucun voyage planifié aujourd'hui</p>
             </div>`;
             return;
         }
@@ -214,8 +213,8 @@ async function loadDashboardReservations() {
 
         if (!items.length) {
             el.innerHTML = `<div class="flex flex-col items-center justify-center py-12 gap-3 text-gray-400">
-                <span class="material-symbols-outlined text-[48px] text-gray-300">confirmation_number</span>
-                <p class="text-sm font-medium">Aucune réservation</p>
+                <span class="material-symbols-outlined text-[32px] md:text-[48px] text-gray-300">confirmation_number</span>
+                <p class="text-[12px] md:text-sm font-medium">Aucune réservation</p>
             </div>`;
             return;
         }

@@ -21,8 +21,7 @@ $todayIso    = date('Y-m-d');
                         <span class="material-symbols-outlined text-[20px]">confirmation_number</span>
                     </div>
                     <div>
-                        <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Gestion des Réservations</h2>
-                        <p class="text-xs text-gray-500"><?= esc($today) ?> — <?= esc($displayName) ?> (Réceptionniste)</p>
+                        <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Réservations</h2>
                     </div>
                 </div>
                 <button
@@ -42,7 +41,7 @@ $todayIso    = date('Y-m-d');
 
     <!-- ── Recherche Voyage / Programme ── -->
     <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-        <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+        <h3 class="text-[14px] md:text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
             <span class="material-symbols-outlined text-blue-500 text-[20px]">travel_explore</span>
             Rechercher un programme de voyage
         </h3>
@@ -56,19 +55,21 @@ $todayIso    = date('Y-m-d');
                     class="w-full pl-10 pr-3 h-9 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 />
             </div>
-            <input
+            <div class="flex flex-row gap-2">
+                <input
                 type="date"
                 id="filter-date"
                 value="<?= $todayIso ?>"
-                class="h-9 px-3 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                class="h-9 px-3 bg-white w-[50%] border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
             <button
                 id="btn-search-programme"
-                class="h-9 px-4 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm"
+                class="h-9 px-4 bg-blue-600 w-[50%] text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
                 <span class="material-symbols-outlined text-[18px]">search</span>
                 Rechercher
             </button>
+            </div>
         </div>
     </div>
 
@@ -76,7 +77,7 @@ $todayIso    = date('Y-m-d');
     <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
         <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100 bg-gray-50/50">
             <h3 class="text-base font-semibold text-gray-900">Voyages programmés disponibles</h3>
-            <span id="programmes-count" class="text-xs font-semibold text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full border border-gray-200">0 voyage(s)</span>
+            <span id="programmes-count" class="text-xs font-semibold text-gray-500 bg-gray-100 px-1.5 md:px-2.5 py-1 rounded-full border border-gray-200">0 voyage(s)</span>
         </div>
         <div id="programmes-list" class="divide-y divide-gray-100">
             <div class="flex flex-col items-center justify-center py-12 text-gray-400 gap-3">
@@ -104,7 +105,8 @@ $todayIso    = date('Y-m-d');
                     class="w-full pl-10 pr-3 h-9 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 />
             </div>
-            <select id="filter-res-status" class="h-9 px-3 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
+            <div class="flex items-center gap-2">
+                <select id="filter-res-status" class="h-9 px-3 bg-white w-[50%] border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                 <option value="">Tous les statuts</option>
                 <option value="EN ATTENTE">En attente</option>
                 <option value="CONFIRME">Confirmé</option>
@@ -112,11 +114,12 @@ $todayIso    = date('Y-m-d');
             </select>
             <button
                 id="btn-search-res"
-                class="h-9 px-4 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm"
+                class="h-9 px-4 bg-blue-600 w-[50%] text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
                 <span class="material-symbols-outlined text-[18px]">filter_list</span>
                 Filtrer
             </button>
+            </div>
         </div>
     </div>
 
@@ -511,7 +514,7 @@ async function searchProgrammes() {
         if (!items.length) {
             list.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-8 text-gray-400 gap-3">
-                    <span class="material-symbols-outlined text-[48px] text-gray-300">directions_bus</span>
+                    <span class="material-symbols-outlined text-[32px] md:text-[48px] text-gray-300">directions_bus</span>
                     <div class="text-center">
                         <p class="text-sm font-medium text-gray-500">Aucun voyage programmé pour cette date</p>
                         <p class="text-xs text-gray-400 mt-1">Modifiez vos critères ou consultez la page Programmes.</p>

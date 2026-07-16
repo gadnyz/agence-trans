@@ -21,8 +21,7 @@ $todayIso    = date('Y-m-d');
                         <span class="material-symbols-outlined text-[20px]">directions_bus</span>
                     </div>
                     <div>
-                        <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Programmes de Voyage</h2>
-                        <p class="text-xs text-gray-500"><?= esc($today) ?> — <?= esc($displayName) ?> (Réceptionniste)</p>
+                        <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Programmes Voyage</h2>
                     </div>
                 </div>
                 <a href="<?= base_url('recept/reservations') ?>"
@@ -45,7 +44,7 @@ $todayIso    = date('Y-m-d');
             Rechercher des voyages disponibles
         </h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div class="relative sm:col-span-2">
+            <div class="relative sm:col-span-2 w-full md:w-[60%]">
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">search</span>
                 <input
                     id="search-programme"
@@ -54,19 +53,22 @@ $todayIso    = date('Y-m-d');
                     class="w-full pl-10 pr-3 h-9 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 />
             </div>
-            <input
+            
+            <div class="flex flex-row gap-2 w-full md:w-[40%]">
+                <input
                 type="date"
                 id="filter-date"
                 value="<?= $todayIso ?>"
-                class="h-9 px-3 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                class="h-9 px-3 bg-white border w-full border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
             <button
                 id="btn-search-programme"
-                class="h-9 px-4 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm"
+                class="h-9 px-4 bg-blue-600 w-full text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
                 <span class="material-symbols-outlined text-[18px]">search</span>
                 Rechercher
             </button>
+            </div>
         </div>
     </div>
 
@@ -216,9 +218,9 @@ async function searchProgrammes() {
         if (!items.length) {
             grid.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-xl text-outline gap-md">
-                    <span class="material-symbols-outlined text-[64px] text-outline-variant">directions_bus</span>
+                    <span class="material-symbols-outlined text-[32px] md:text-[64px] text-outline-variant">directions_bus</span>
                     <div class="text-center">
-                        <p class="text-body-md font-medium text-on-surface">Aucun voyage trouvé pour ces critères</p>
+                        <p class="text-body-md font-medium md:text-on-surface">Aucun voyage trouvé pour ces critères</p>
                         <p class="text-body-sm text-outline mt-xs">Essayez une autre date ou un autre trajet.</p>
                     </div>
                 </div>`;

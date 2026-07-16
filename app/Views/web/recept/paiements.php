@@ -2,6 +2,23 @@
 
 <?= $this->section('content') ?>
 
+<?= $this->section('styles') ?>
+
+<style>
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+        display: none;
+    }
+</style>
+
+<?= $this->endSection() ?>
+
 <?php
 $user        = session()->get('user') ?? [];
 $displayName = trim(($user['prenom'] ?? '') . ' ' . ($user['nom'] ?? '')) ?: ($user['username'] ?? 'Guichetier');
@@ -12,7 +29,7 @@ $todayIso    = date('Y-m-d');
 <div class="px-4 pb-12 max-w-[1600px] mx-auto space-y-6">
 
     <!-- ── En-tête ── -->
-    <div class="w-full rounded-2xl bg-white border border-gray-200 shadow-sm p-4">
+    <div class="w-full rounded-2xl bg-white border border-gray-200 shadow-sm p-4 lg:w-auto overflow-x-auto hide-scrollbar">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex items-center gap-3">
                 <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600">
@@ -20,7 +37,6 @@ $todayIso    = date('Y-m-d');
                 </div>
                 <div>
                     <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Paiements</h2>
-                    <p class="text-xs text-gray-500"><?= esc($today) ?> — <?= esc($displayName) ?> (Réceptionniste)</p>
                 </div>
             </div>
             <div class="w-full lg:w-auto overflow-x-auto">
@@ -88,23 +104,26 @@ $todayIso    = date('Y-m-d');
             Rechercher un paiement
         </h3>
         <div class="flex flex-col sm:flex-row gap-3">
-            <div class="relative flex-1">
+            <div class="relative flex-1 w-full md:w-[60%]">
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">search</span>
                 <input id="search-paiement" type="text"
                        placeholder="Référence réservation, nom client..."
                        class="w-full pl-10 pr-3 h-9 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
             </div>
-            <select id="filter-mode" class="h-9 px-3 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
+           
+            <div class="flex flex-row gap-2 w-full md:w-[40%]">
+                 <select id="filter-mode" class="h-9 px-3 w-full bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                 <option value="">Tous les modes</option>
                 <?php foreach ($modes_paiement ?? [] as $mp): ?>
                     <option value="<?= esc($mp['id_mode_paiement']) ?>"><?= esc($mp['libelle']) ?></option>
                 <?php endforeach; ?>
             </select>
             <button id="btn-search-paiement"
-                    class="h-9 px-4 rounded-xl bg-blue-600 text-white flex items-center gap-2 hover:bg-blue-700 transition-all text-sm font-medium shadow-sm">
+                    class="h-9 px-4 rounded-xl bg-blue-600 w-full text-white flex items-center justify-center gap-2 hover:bg-blue-700 transition-all text-sm font-medium shadow-sm">
                 <span class="material-symbols-outlined text-[18px]">filter_list</span>
                 Filtrer
             </button>
+            </div>
         </div>
     </div>
 
@@ -228,8 +247,8 @@ async function loadPaiements(page = 1) {
         if (!items.length) {
             body.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-gray-400">
                 <div class="flex flex-col items-center gap-2">
-                    <span class="material-symbols-outlined text-[36px]">payments</span>
-                    <p class="text-sm font-medium">Aucun paiement trouvé pour ces critères.</p>
+                    <span class="material-symbols-outlined text-[32px] md:text-[36px]">payments</span>
+                    <p class="text-[12px] text-sm font-medium">Aucun paiement trouvé pour ces critères.</p>
                 </div></td></tr>`;
             pagin.innerHTML = '';
             return;

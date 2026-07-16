@@ -15,9 +15,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="container-fluid px-2 sm:px-4">
     <?= $this->renderSection('content') ?>
-</div>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>

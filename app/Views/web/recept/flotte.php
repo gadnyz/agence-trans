@@ -22,7 +22,6 @@ $todayIso    = date('Y-m-d');
                     </div>
                     <div>
                         <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Flotte &amp; Réseau</h2>
-                        <p class="text-xs text-gray-500">Consultation en lecture seule &mdash; <?= esc($today) ?></p>
                     </div>
                 </div>
                 <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-500 whitespace-nowrap">

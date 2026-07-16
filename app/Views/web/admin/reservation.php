@@ -40,34 +40,36 @@
     <?php endif; ?>
 
     <!-- ── Filtres ── -->
-    <section class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+    <section class="mb-6 bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
         <input
-            id="search-input"
             type="text"
-            placeholder="Référence, nom, téléphone..."
-            class="w-full rounded-xl border-gray-300 border px-4 py-2 text-sm shadow-sm focus:border-blue-500 outline-none"
+            placeholder="Recherche (Ref, Nom...)"
+            class="w-full md:order-none order-first rounded-xl border-gray-300 border px-4 py-2 text-sm shadow-sm focus:border-blue-500 outline-none"
         >
-        <input
-            id="date-filter"
+
+        <div class="flex gap-x-2 md:contents">
+            <input
             type="date"
             class="w-full rounded-xl border-gray-300 border px-4 py-2 text-sm shadow-sm focus:border-blue-500 outline-none"
         >
-        <select
-            id="status-filter"
-            class="w-full rounded-xl border-gray-300 border px-4 py-2 text-sm shadow-sm focus:border-blue-500 outline-none bg-white"
-        >
-            <option value="">Tous les statuts</option>
-            <option value="EN ATTENTE">EN ATTENTE</option>
-            <option value="CONFIRME">CONFIRMÉ</option>
-            <option value="ANNULE">ANNULÉ</option>
+
+        <select class="w-full rounded-xl border-gray-300 border px-4 py-2 text-sm shadow-sm focus:border-blue-500 outline-none bg-white">
+            <option>Tous les statuts</option>
+            <option>EN_ATTENTE</option>
+            <option>CONFIRME</option>
         </select>
-        <button
-            id="btn-filter"
-            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transition-all"
-        >
+
+        <button class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-all">
             Filtrer
         </button>
-    </section>
+        </div>
+
+    </div>
+
+</section>
 
     <!-- ── Tableau des réservations ── -->
     <section class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
@@ -97,8 +99,8 @@
                         <tr>
                             <td colspan="7" class="px-6 py-12 text-center">
                                 <div class="flex flex-col items-center gap-3 text-gray-400">
-                                    <span class="material-symbols-outlined text-[48px]">inbox</span>
-                                    <p class="text-sm font-medium">Aucune réservation pour le moment</p>
+                                    <span class="material-symbols-outlined text-[32px] md:text-[48px]">inbox</span>
+                                    <p class="text-[12px] md:text-sm font-medium">Aucune réservation pour le moment</p>
                                 </div>
                             </td>
                         </tr>

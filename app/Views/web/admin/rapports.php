@@ -160,8 +160,8 @@ $pageEnd     = min((int) $pagination['total_pages'], (int) $pagination['page'] +
                         <tr>
                             <td colspan="9" class="px-6 py-12 text-center text-gray-400">
                                 <div class="flex flex-col items-center gap-2">
-                                    <span class="material-symbols-outlined text-[36px]">inbox</span>
-                                    <p class="text-sm font-medium">Aucune réservation pour les filtres sélectionnés.</p>
+                                    <span class="material-symbols-outlined text-[32px] md:text-[36px]">inbox</span>
+                                    <p class="text-[12px] md:text-sm font-medium">Aucune réservation pour les filtres sélectionnés.</p>
                                 </div>
                             </td>
                         </tr>

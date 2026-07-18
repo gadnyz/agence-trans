@@ -560,7 +560,7 @@ async function searchProgrammes() {
             const places  = p.places_disponibles ?? 0;
             const placesClass = places > 5 ? 'text-green-600' : places > 0 ? 'text-yellow-600' : 'text-red-600';
             return `
-            <div class="flex items-center justify-between px-6 py-4 hover:bg-gray-50/50 transition-colors">
+            <div class="flex flex-col md:flex-row items-center justify-between px-6 py-4 hover:bg-gray-50/50 transition-colors">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
                         <span class="material-symbols-outlined">directions_bus</span>
@@ -570,7 +570,7 @@ async function searchProgrammes() {
                         <p class="text-xs text-gray-500 mt-0.5">Départ ${esc(heure)} · Bus ${esc(p.numero_plaque ?? '?')} · Tarif: ${esc(p.prix)} ${esc(p.code_currency)} · <span class="${placesClass} font-semibold">${places} place(s) libre(s)</span></p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 shrink-0">
+                <div class="flex items-center gap-2 mt-2.5 md:mt-0 justify-end w-full sm:w-auto shrink-0">
                     ${places > 0
                         ? `<button onclick="openModal(${p.id_programme})" class="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all">Réserver</button>`
                         : `<span class="px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 rounded-xl text-xs font-semibold">Complet</span>`

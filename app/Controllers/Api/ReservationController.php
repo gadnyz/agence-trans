@@ -137,29 +137,35 @@ class ReservationController extends BaseApiController
             ]);
         }
 
-        $mode = $this->findModePaiement((int) $payload['id_mode_paiement']);
-
-        if ($mode === null) {
-            return $this->failure('Mode de paiement introuvable.', ResponseInterface::HTTP_BAD_REQUEST);
-        }
-
-        $clientPayload = $this->clientPayload($payload);
-        $paymentPayload = is_array($payload['payment'] ?? null) ? $payload['payment'] : [];
+        $idModePaiement = isset($payload['id_mode_paiement']) ? (int) $payload['id_mode_paiement'] : 0;
+        $mode = null;
+        $paymentResult = null;
         $montantFinal = (float) $programme['prix'] * $nombrePlaces;
-        $paymentContext = [
-            'id_programme' => (int) $programme['id_programme'],
-            'id_mode_paiement' => (int) $mode['id_mode_paiement'],
-            'mode_paiement' => $mode['libelle'],
-            'montant' => $montantFinal,
-            'id_currency' => (int) $programme['id_currency'],
-            'code_currency' => $programme['code_currency'],
-        ];
-        $paymentResult = (new PaymentGatewayManager())
-            ->gatewayForMode((string) $mode['libelle'])
-            ->confirm($paymentContext, $paymentPayload);
 
-        if (! $paymentResult->success) {
-            return $this->failure($paymentResult->message, ResponseInterface::HTTP_PAYMENT_REQUIRED);
+        if ($idModePaiement > 0) {
+            $mode = $this->findModePaiement($idModePaiement);
+
+            if ($mode === null) {
+                return $this->failure('Mode de paiement introuvable.', ResponseInterface::HTTP_BAD_REQUEST);
+            }
+
+            $clientPayload = $this->clientPayload($payload);
+            $paymentPayload = is_array($payload['payment'] ?? null) ? $payload['payment'] : [];
+            $paymentContext = [
+                'id_programme' => (int) $programme['id_programme'],
+                'id_mode_paiement' => (int) $mode['id_mode_paiement'],
+                'mode_paiement' => $mode['libelle'],
+                'montant' => $montantFinal,
+                'id_currency' => (int) $programme['id_currency'],
+                'code_currency' => $programme['code_currency'],
+            ];
+            $paymentResult = (new PaymentGatewayManager())
+                ->gatewayForMode((string) $mode['libelle'])
+                ->confirm($paymentContext, $paymentPayload);
+
+            if (! $paymentResult->success) {
+                return $this->failure($paymentResult->message, ResponseInterface::HTTP_PAYMENT_REQUIRED);
+            }
         }
 
         $db = db_connect();
@@ -169,13 +175,14 @@ class ReservationController extends BaseApiController
 
             // $client = $this->ensureClient($clientPayload);
             if (!empty($payload['id_client'])) {
-    // Si JavaScript a envoyé un ID, on l'utilise directement
-    $idClientToUse = (int) $payload['id_client'];
-} else {
-    // Sinon (ex: API appelée par un autre système), on cherche/crée avec le téléphone
-    $client = $this->ensureClient($clientPayload);
-    $idClientToUse = (int) $client['id_client'];
-}
+                // Si JavaScript a envoyé un ID, on l'utilise directement
+                $idClientToUse = (int) $payload['id_client'];
+            } else {
+                // Sinon (ex: API appelée par un autre système), on cherche/crée avec le téléphone
+                $clientPayload = $this->clientPayload($payload);
+                $client = $this->ensureClient($clientPayload);
+                $idClientToUse = (int) $client['id_client'];
+            }
 
             $waitingStatusId = $this->statusId('EN_ATTENTE') ?? $this->firstStatusId();
 
@@ -189,19 +196,25 @@ class ReservationController extends BaseApiController
                 'id_lieu_reservation' => $lieuReservation,
                 'nombre_places' => $nombrePlaces,
                 'id_currency' => (int) $programme['id_currency'],
+                // On met à jour les montants de la réservation pour la compta
+                'montant_initial' => $montantFinal,
+                'montant_reduction' => 0,
+                'montant_final' => $montantFinal,
             ]);
             $reservationId = (int) $db->insertID();
 
-            $db->table('paiement')->insert([
-                'id_reservation' => $reservationId,
-                'id_mode_paiement' => (int) $mode['id_mode_paiement'],
-                'montant_paye' => $montantFinal,
-                'id_currency' => (int) $programme['id_currency'],
-                'taux_conversion' => 1,
-                'reference_paiement' => $paymentResult->reference,
-                'date_paiement' => date('Y-m-d H:i:s'),
-                'statut_paiement' => 'Valide',
-            ]);
+            if ($mode !== null && $paymentResult !== null) {
+                $db->table('paiement')->insert([
+                    'id_reservation' => $reservationId,
+                    'id_mode_paiement' => (int) $mode['id_mode_paiement'],
+                    'montant_paye' => $montantFinal,
+                    'id_currency' => (int) $programme['id_currency'],
+                    'taux_conversion' => 1,
+                    'reference_paiement' => $paymentResult->reference,
+                    'date_paiement' => date('Y-m-d H:i:s'),
+                    'statut_paiement' => 'Valide',
+                ]);
+            }
 
             // NOUVEAU : Mise à jour des places disponibles
             $db->table('programme')
@@ -214,6 +227,7 @@ class ReservationController extends BaseApiController
             if ($db->transStatus() === false) {
                 return $this->failure('Reservation impossible.', ResponseInterface::HTTP_CONFLICT);
             }
+            
         } catch (Throwable $e) {
             $db->transRollback();
 
@@ -612,6 +626,8 @@ class ReservationController extends BaseApiController
                 'pa.reference_paiement',
                 'pa.statut_paiement',
                 'pa.date_paiement',
+                'pa.montant_paye AS montant_paye',
+                't.prix',
                 'u.username AS created_by_username',
                 'u.nom AS created_by_nom',
                 'u.prenom AS created_by_prenom',
@@ -795,7 +811,7 @@ class ReservationController extends BaseApiController
         $validation->setRules([
             'id_programme' => 'required|is_natural_no_zero',
             'nombre_places' => 'required|is_natural_no_zero',
-            'id_mode_paiement' => 'required|is_natural_no_zero',
+            'id_mode_paiement' => 'permit_empty|is_natural_no_zero',
         ]);
 
         $errors = $validation->run($payload) ? [] : $validation->getErrors();

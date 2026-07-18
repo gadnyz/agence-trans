@@ -24,14 +24,6 @@ $todayIso    = date('Y-m-d');
                         <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Réservations</h2>
                     </div>
                 </div>
-                <!-- <button
-                    id="btn-nouvelle-reservation"
-                    class="inline-flex h-10 px-3 md:px-4 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all items-center justify-center gap-2 shadow-sm whitespace-nowrap"
-                >
-                    <span class="material-symbols-outlined text-[18px]">add</span>
-                    <span class="hidden sm:inline">Nouvelle réservation</span>
-                    <span class="sm:hidden">Nouvelle</span>
-                </button> -->
             </div>
         </div>
     </div>
@@ -190,32 +182,57 @@ $todayIso    = date('Y-m-d');
                     </select>
                 </div>
 
-                <div class="relative">
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Client <span class="text-red-500">*</span></label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">person_search</span>
-                        <input
-                            id="modal-client-search"
-                            type="text"
-                            placeholder="Chercher par nom ou téléphone..."
-                            class="w-full pl-10 pr-3 h-9 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                            autocomplete="off"
-                        >
+                <!-- Bloc d'information sur le programme sélectionné -->
+                <div id="programme-info-block" class="hidden bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-2 text-sm text-blue-900">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div><span class="text-xs text-blue-600 block uppercase font-semibold">Trajet</span><strong id="prog-info-trajet">-</strong></div>
+                        <div><span class="text-xs text-blue-600 block uppercase font-semibold">Date &amp; Horaire</span><strong id="prog-info-horaire">-</strong></div>
+                        <div><span class="text-xs text-blue-600 block uppercase font-semibold">Bus</span><strong id="prog-info-bus">-</strong></div>
+                        <div><span class="text-xs text-blue-600 block uppercase font-semibold">Places libres / Tarif</span><strong id="prog-info-tarif">-</strong></div>
                     </div>
-                    <div id="modal-client-suggestions" class="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg hidden max-h-48 overflow-y-auto"></div>
+                </div>
+
+                <!-- Client : Recherche par téléphone -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Client (Téléphone) <span class="text-red-500">*</span></label>
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">phone</span>
+                            <input
+                                id="modal-client-phone-search"
+                                type="text"
+                                placeholder="+243991040032"
+                                class="w-full pl-10 pr-3 h-9 bg-white border border-gray-300 rounded-xl text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                            >
+                        </div>
+                        <button
+                            id="btn-rechercher-client"
+                            type="button"
+                            class="h-9 px-4 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 shadow-sm"
+                        >
+                            <span class="material-symbols-outlined text-[18px]">search</span>
+                            Rechercher
+                        </button>
+                    </div>
                     <input type="hidden" id="modal-id-client">
-                    <p id="modal-client-selected" class="mt-1 text-xs text-blue-600 font-semibold hidden"></p>
+                    
+                    <!-- Affichage résultat de recherche client -->
+                    <div id="client-search-result" class="hidden mt-2 p-3 rounded-xl border">
+                        <div class="text-sm font-semibold text-gray-800" id="client-search-result-name"></div>
+                        <div class="text-xs mt-0.5" id="client-search-result-status"></div>
+                    </div>
 
                     <button
-                        id="btn-nouveau-client"
+                        id="btn-trigger-nouveau-client"
                         type="button"
-                        class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+                        class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
                     >
                         <span class="material-symbols-outlined text-[14px]">person_add</span>
-                        Créer un nouveau client
+                        Ajouter un client
                     </button>
                 </div>
 
+                <!-- Formulaire d'ajout rapide client -->
                 <div id="nouveau-client-form" class="hidden bg-gray-50 rounded-2xl p-4 space-y-3 border border-gray-200">
                     <p class="text-sm font-semibold text-gray-900">Nouveau client</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -225,7 +242,7 @@ $todayIso    = date('Y-m-d');
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-500 mb-1">Téléphone <span class="text-red-500">*</span></label>
-                            <input id="nouveau-client-telephone" type="tel" placeholder="Ex: +243 81 234 5678" class="w-full rounded-xl border border-gray-300 h-9 px-3 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white">
+                            <input id="nouveau-client-telephone" type="tel" placeholder="Ex: +243812345678" class="w-full rounded-xl border border-gray-300 h-9 px-3 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white">
                         </div>
                     </div>
                     <button
@@ -244,11 +261,17 @@ $todayIso    = date('Y-m-d');
                         <input id="modal-nombre-places" type="number" min="1" value="1" class="w-full rounded-xl border border-gray-300 h-9 px-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Lieu de descente / Arrêt</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Lieu de descente</label>
                         <select id="modal-id-lieu" class="w-full rounded-xl border border-gray-300 h-9 px-3 bg-white text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                            <option value="">Départ principal</option>
+                            <option value="">Terminus destination</option>
                         </select>
                     </div>
+                </div>
+
+                <!-- Grand affichage du total à payer -->
+                <div class="p-4 bg-gray-50 border border-gray-200 rounded-2xl flex flex-col justify-center items-center shadow-sm">
+                    <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Total à payer</span>
+                    <span id="modal-grand-total" class="text-3xl font-extrabold text-blue-600 mt-1">0 FC</span>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-gray-100 pt-4">
@@ -545,6 +568,10 @@ async function searchProgrammes() {
                         ? `<button onclick="openModal(${p.id_programme})" class="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all">Réserver</button>`
                         : `<span class="px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 rounded-xl text-xs font-semibold">Complet</span>`
                     }
+                    <a href="${BASE_URL}recept/programmes/${p.id_programme}/manifeste" target="_blank" class="h-9 px-4 bg-white border border-gray-300 text-gray-700 rounded-xl text-xs font-semibold hover:bg-gray-50 transition-all flex items-center justify-center gap-1 shadow-sm">
+                        <span class="material-symbols-outlined text-[16px]">print</span>
+                        Manifeste
+                    </a>
                 </div>
             </div>`;
         }).join('');
@@ -652,21 +679,25 @@ document.getElementById('btn-refresh-reservations').addEventListener('click', ()
 
 // ── MODAL : NOUVELLE RÉSERVATION ───────────────────────────────────────────
 const modal = document.getElementById('modal-reservation');
+let CACHE_PROGRAMMES_MODAL = [];
 
 function openModal(programmeId = null) {
     document.getElementById('modal-errors').classList.add('hidden');
-    document.getElementById('modal-client-selected').classList.add('hidden');
     document.getElementById('modal-id-client').value = '';
-    document.getElementById('modal-client-search').value = '';
+    document.getElementById('modal-client-phone-search').value = '';
     document.getElementById('modal-nombre-places').value = '1';
     document.getElementById('modal-montant').value = '';
     document.getElementById('modal-ref-paiement').value = '';
     document.getElementById('nouveau-client-form').classList.add('hidden');
     document.getElementById('modal-ref-paiement-container').classList.add('hidden');
+    document.getElementById('client-search-result').classList.add('hidden');
+    document.getElementById('programme-info-block').classList.add('hidden');
+    document.getElementById('modal-grand-total').textContent = '0 FC';
 
     if (programmeId) {
         document.getElementById('modal-id-programme').value = programmeId;
-        onProgrammeChange();
+    } else {
+        document.getElementById('modal-id-programme').value = '';
     }
     loadProgrammesModal(programmeId);
     modal.classList.remove('hidden');
@@ -680,12 +711,16 @@ function closeModal() {
 
 document.getElementById('btn-close-modal').addEventListener('click', closeModal);
 document.getElementById('btn-annuler-modal').addEventListener('click', closeModal);
-document.getElementById('btn-nouvelle-reservation').addEventListener('click', () => openModal());
+const btnNouvelleRes = document.getElementById('btn-nouvelle-reservation');
+if (btnNouvelleRes) {
+    btnNouvelleRes.addEventListener('click', () => openModal());
+}
 modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
 document.getElementById('modal-id-mode-paiement').addEventListener('change', function() {
     const refContainer = document.getElementById('modal-ref-paiement-container');
     (this.value === '2' || this.value === '3') ? refContainer.classList.remove('hidden') : refContainer.classList.add('hidden');
+    updateGrandTotal();
 });
 
 async function loadProgrammesModal(selectId = null) {
@@ -695,6 +730,8 @@ async function loadProgrammesModal(selectId = null) {
         const response = await apiFetch(`${BASE_URL}api/planification/search?per_page=100&date_debut=${date}&date_fin=${date}`);
         const json     = await response.json();
         const items    = json.data?.items ?? [];
+        CACHE_PROGRAMMES_MODAL = items;
+        
         select.innerHTML = '<option value="">Sélectionner un programme</option>';
         items.forEach(p => {
             const opt = document.createElement('option');
@@ -708,65 +745,159 @@ async function loadProgrammesModal(selectId = null) {
     } catch {}
 }
 
-function onProgrammeChange() {
+function updateGrandTotal() {
     const select = document.getElementById('modal-id-programme');
-    const opt    = select.options[select.selectedIndex];
-    const lieu   = document.getElementById('modal-id-lieu');
-    lieu.innerHTML = '<option value="">Départ principal</option>';
-    if (!opt || !opt.value) return;
-    try {
-        const arrets = JSON.parse(opt.dataset.arrets || '[]');
-        arrets.forEach(a => {
-            const o = document.createElement('option');
-            o.value = a.id_lieu;
-            o.textContent = a.nom_lieu;
-            lieu.appendChild(o);
-        });
-    } catch {}
+    const programmeId = parseInt(select.value) || 0;
+    const places = parseInt(document.getElementById('modal-nombre-places').value) || 1;
+    const totalEl = document.getElementById('modal-grand-total');
+
+    if (programmeId <= 0) {
+        totalEl.textContent = '0 FC';
+        return;
+    }
+
+    const prog = CACHE_PROGRAMMES_MODAL.find(p => p.id_programme == programmeId);
+    if (!prog) {
+        totalEl.textContent = '0 FC';
+        return;
+    }
+
+    const price = parseFloat(prog.prix) || 0;
+    const total = price * places;
+    
+    const formattedTotal = total.toLocaleString('fr-FR').replace(/\u00a0/g, ' ');
+    const currency = prog.code_currency || 'FC';
+    
+    totalEl.textContent = `${formattedTotal} ${currency}`;
+
+    const paymentMode = document.getElementById('modal-id-mode-paiement').value;
+    if (paymentMode) {
+        document.getElementById('modal-montant').value = total.toFixed(2);
+    } else {
+        document.getElementById('modal-montant').value = '';
+    }
 }
 
-let searchTimeout = null;
-document.getElementById('modal-client-search').addEventListener('input', function() {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(async () => {
-        const q = this.value.trim();
-        const suggestions = document.getElementById('modal-client-suggestions');
-        if (q.length < 2) { suggestions.classList.add('hidden'); return; }
+function onProgrammeChange() {
+    const select = document.getElementById('modal-id-programme');
+    const programmeId = parseInt(select.value) || 0;
+    const lieu = document.getElementById('modal-id-lieu');
+    const infoBlock = document.getElementById('programme-info-block');
+    
+    lieu.innerHTML = '<option value="">Terminus destination</option>';
+    
+    if (programmeId <= 0) {
+        infoBlock.classList.add('hidden');
+        updateGrandTotal();
+        return;
+    }
+    
+    const prog = CACHE_PROGRAMMES_MODAL.find(p => p.id_programme == programmeId);
+    if (prog) {
+        document.getElementById('prog-info-trajet').textContent = `${prog.lieu_depart || '?'} → ${prog.lieu_arrivee || '?'}`;
+        document.getElementById('prog-info-horaire').textContent = `${prog.date_programme} · ${prog.heure_depart ? prog.heure_depart.slice(0, 5) : '?'}`;
+        document.getElementById('prog-info-bus').textContent = `${prog.numero_plaque || '?'} (${prog.marque || ''} ${prog.modele || ''})`;
+        document.getElementById('prog-info-tarif').textContent = `${prog.places_disponibles || 0} place(s) libre(s) · Tarif : ${parseFloat(prog.prix).toLocaleString('fr-FR').replace(/\u00a0/g, ' ')} ${prog.code_currency || 'FC'}`;
+        
+        infoBlock.classList.remove('hidden');
+        
         try {
-            const response = await apiFetch(`${BASE_URL}api/clients?search=${encodeURIComponent(q)}&per_page=10`);
-            const json     = await response.json();
-            const items    = json.data?.items ?? [];
-            if (!items.length) { suggestions.classList.add('hidden'); return; }
-            suggestions.innerHTML = items.map(c =>
-                `<div class="px-md py-sm cursor-pointer hover:bg-primary-fixed text-body-md transition-colors" onclick="selectClient(${c.id_client}, '${(c.nom ?? '').replace(/'/g, "\\'")}', '${(c.telephone ?? '').replace(/'/g, "\\'")}')">
-                    <span class="font-medium">${esc(c.nom)}</span>
-                    <span class="text-outline text-body-sm ml-sm">${esc(c.telephone ?? '')}</span>
-                </div>`
-            ).join('');
-            suggestions.classList.remove('hidden');
-        } catch {}
-    }, 300);
+            const arrets = prog.arrets || [];
+            arrets.forEach(a => {
+                const o = document.createElement('option');
+                o.value = a.id_lieu;
+                o.textContent = a.nom_lieu;
+                lieu.appendChild(o);
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    } else {
+        infoBlock.classList.add('hidden');
+    }
+    
+    updateGrandTotal();
+}
+
+document.getElementById('modal-nombre-places').addEventListener('input', updateGrandTotal);
+document.getElementById('modal-nombre-places').addEventListener('change', updateGrandTotal);
+
+// Action de recherche de client par téléphone au clic
+document.getElementById('btn-rechercher-client').addEventListener('click', async () => {
+    const phone = document.getElementById('modal-client-phone-search').value.trim();
+    const resultDiv = document.getElementById('client-search-result');
+    const resultName = document.getElementById('client-search-result-name');
+    const resultStatus = document.getElementById('client-search-result-status');
+    const idClientInput = document.getElementById('modal-id-client');
+    const nouveauClientForm = document.getElementById('nouveau-client-form');
+    
+    if (!phone) {
+        alert('Veuillez entrer un numéro de téléphone.');
+        return;
+    }
+    
+    resultDiv.classList.add('hidden');
+    idClientInput.value = '';
+    nouveauClientForm.classList.add('hidden');
+    
+    try {
+        const response = await apiFetch(`${BASE_URL}api/clients?search=${encodeURIComponent(phone)}&per_page=5`);
+        const json = await response.json();
+        const items = json.data?.items ?? [];
+        
+        const client = items.find(c => c.telephone.replace(/\s+/g, '') === phone.replace(/\s+/g, '')) || items[0];
+        
+        if (client) {
+            idClientInput.value = client.id_client;
+            resultName.textContent = client.nom;
+            resultStatus.textContent = 'Client existant trouvé.';
+            resultStatus.className = 'text-xs mt-0.5 text-emerald-600 font-semibold';
+            
+            resultDiv.className = 'mt-2 p-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800';
+            resultDiv.classList.remove('hidden');
+        } else {
+            resultName.textContent = 'Aucun client trouvé';
+            resultStatus.textContent = 'Vous pouvez le créer en cliquant sur "Ajouter un client".';
+            resultStatus.className = 'text-xs mt-0.5 text-red-600 font-semibold';
+            
+            resultDiv.className = 'mt-2 p-3 rounded-xl border border-red-200 bg-red-50 text-red-800';
+            resultDiv.classList.remove('hidden');
+            
+            document.getElementById('nouveau-client-telephone').value = phone;
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Erreur lors de la recherche du client.');
+    }
 });
 
-document.addEventListener('click', (e) => {
-    if (!document.getElementById('modal-client-search').contains(e.target)) {
-        document.getElementById('modal-client-suggestions').classList.add('hidden');
+document.getElementById('btn-trigger-nouveau-client').addEventListener('click', () => {
+    const form = document.getElementById('nouveau-client-form');
+    form.classList.toggle('hidden');
+    if (!form.classList.contains('hidden')) {
+        const searchPhone = document.getElementById('modal-client-phone-search').value.trim();
+        if (searchPhone) {
+            document.getElementById('nouveau-client-telephone').value = searchPhone;
+        }
     }
 });
 
 function selectClient(id, nom, tel) {
     document.getElementById('modal-id-client').value = id;
-    document.getElementById('modal-client-search').value = `${nom}${tel ? ' — ' + tel : ''}`;
-    document.getElementById('modal-client-suggestions').classList.add('hidden');
-    const p = document.getElementById('modal-client-selected');
-    p.textContent = `✓ ${nom}`;
-    p.classList.remove('hidden');
+    document.getElementById('modal-client-phone-search').value = tel;
+    
+    const resultDiv = document.getElementById('client-search-result');
+    const resultName = document.getElementById('client-search-result-name');
+    const resultStatus = document.getElementById('client-search-result-status');
+    
+    resultName.textContent = nom;
+    resultStatus.textContent = 'Client existant trouvé.';
+    resultStatus.className = 'text-xs mt-0.5 text-emerald-600 font-semibold';
+    resultDiv.className = 'mt-2 p-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800';
+    resultDiv.classList.remove('hidden');
+    
     document.getElementById('nouveau-client-form').classList.add('hidden');
 }
-
-document.getElementById('btn-nouveau-client').addEventListener('click', () => {
-    document.getElementById('nouveau-client-form').classList.toggle('hidden');
-});
 
 document.getElementById('btn-creer-client').addEventListener('click', async () => {
     const nom       = document.getElementById('nouveau-client-nom').value.trim();
@@ -839,6 +970,7 @@ document.getElementById('btn-enregistrer-reservation').addEventListener('click',
         closeModal();
         showPageAlert('Réservation enregistrée avec succès !');
         loadReservations(1);
+        searchProgrammes(); // Rafraîchissement des places disponibles
         const idReservation = json.data?.reservation?.id_reservation;
         if (idReservation) setTimeout(() => window.open(`${BASE_URL}recept/reservations/${idReservation}/ticket`, '_blank'), 500);
     } catch { showModalError('Erreur réseau. Veuillez réessayer.'); }

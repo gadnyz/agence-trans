@@ -37,6 +37,18 @@ foreach ($methods as $method) {
 
 // Now we can use the database!
 $db = \Config\Database::connect();
+
+$statuses = ['EN_ATTENTE', 'CONFIRME', 'PAYE', 'ANNULE', 'TERMINE'];
+foreach ($statuses as $status) {
+    $exists = $db->table('statut_reservation')->where('libelle', $status)->countAllResults();
+    if (!$exists) {
+        $db->table('statut_reservation')->insert(['libelle' => $status]);
+        echo "Inserted status: $status\n";
+    } else {
+        echo "Status $status already exists\n";
+    }
+}
+
 echo "--- STATUSES ---\n";
 print_r($db->table('statut_reservation')->get()->getResultArray());
 

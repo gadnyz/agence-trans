@@ -469,13 +469,110 @@ async function submitBus() {
 
         closeModal();
         showAlert(isEdit ? 'Bus mis à jour avec succès.' : 'Bus créé avec succès.', 'success');
-        setTimeout(() => window.location.reload(), 1000);
+        
+        const bus = json.data;
+        const statut = (bus.statut || 'ACTIF').toUpperCase();
+        let badgeClass = 'bg-gray-100 text-gray-600 border-gray-200';
+        if (statut === 'ACTIF') {
+            badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        } else if (statut === 'MAINTENANCE') {
+            badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
+        } else if (statut === 'INACTIF') {
+            badgeClass = 'bg-red-50 text-red-700 border-red-200';
+        }
+
+        if (isEdit) {
+            const row = document.querySelector(`.bus-row[data-id="${id}"]`);
+            if (row) {
+                row.dataset.plaque = bus.numero_plaque.toLowerCase();
+                row.dataset.marque = (bus.marque || '').toLowerCase();
+                row.dataset.modele = (bus.modele || '').toLowerCase();
+                row.dataset.statut = statut;
+
+                const cols = row.querySelectorAll('td');
+                cols[0].textContent = bus.numero_plaque;
+                cols[1].innerHTML = `${escapeHtml(bus.marque || '—')} <span class="text-gray-400 font-normal text-xs ml-1">${escapeHtml(bus.modele || '')}</span>`;
+                cols[2].innerHTML = `${escapeHtml(bus.nombre_places || '0')} <span class="text-gray-400 text-xs font-normal ml-0.5">sièges</span>`;
+                cols[3].textContent = `${escapeHtml(bus.couleur || '—')} / ${escapeHtml(bus.annee || '—')}`;
+                cols[4].innerHTML = `
+                    <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full ${badgeClass}">
+                        ${escapeHtml(bus.statut.charAt(0).toUpperCase() + bus.statut.slice(1).toLowerCase())}
+                    </span>
+                `;
+                
+                const editBtn = cols[5].querySelector('button[title="Modifier"]');
+                if (editBtn) {
+                    editBtn.setAttribute('onclick', `openEditModal(${JSON.stringify(bus).replace(/"/g, '&quot;')})`);
+                }
+            }
+        } else {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-50 transition-colors bus-row';
+            tr.dataset.id = bus.id_bus;
+            tr.dataset.plaque = bus.numero_plaque.toLowerCase();
+            tr.dataset.marque = (bus.marque || '').toLowerCase();
+            tr.dataset.modele = (bus.modele || '').toLowerCase();
+            tr.dataset.statut = statut;
+
+            tr.innerHTML = `
+                <td class="px-6 py-4 font-mono font-bold text-gray-900">${escapeHtml(bus.numero_plaque)}</td>
+                <td class="px-6 py-4 text-gray-900 font-medium">
+                    ${escapeHtml(bus.marque || '—')}
+                    <span class="text-gray-400 font-normal text-xs ml-1">${escapeHtml(bus.modele || '')}</span>
+                </td>
+                <td class="px-6 py-4 text-gray-700 font-medium">
+                    ${escapeHtml(bus.nombre_places || '0')}
+                    <span class="text-gray-400 text-xs font-normal ml-0.5">sièges</span>
+                </td>
+                <td class="px-6 py-4 text-gray-500 text-xs">${escapeHtml(bus.couleur || '—')} / ${escapeHtml(bus.annee || '—')}</td>
+                <td class="px-6 py-4 text-center">
+                    <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full ${badgeClass}">
+                        ${escapeHtml(bus.statut.charAt(0).toUpperCase() + bus.statut.slice(1).toLowerCase())}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                        <button
+                            title="Modifier"
+                            onclick="openEditModal(${JSON.stringify(bus).replace(/"/g, '&quot;')})"
+                            class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        >
+                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                        </button>
+                        <button
+                            title="Supprimer"
+                            onclick="deleteBus(${parseInt(bus.id_bus)}, '${escapeHtml(bus.numero_plaque)}')"
+                            class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                    </div>
+                </td>
+            `;
+
+            const tbody = document.getElementById('bus-tbody');
+            const emptyRow = document.getElementById('empty-row');
+            if (emptyRow) emptyRow.remove();
+
+            tbody.prepend(tr);
+        }
+        filterTable();
     } catch (e) {
         showFormErrors(['Une erreur réseau est survenue.']);
     } finally {
         btn.disabled = false;
         btn.classList.remove('opacity-60', 'cursor-wait');
     }
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 // ── Delete logic ───────────────────────────────────────────────────────────
@@ -491,7 +588,26 @@ async function deleteBus(id, plaque) {
         }
         
         showAlert('Bus supprimé avec succès.', 'success');
-        setTimeout(() => window.location.reload(), 1000);
+        const row = document.querySelector(`.bus-row[data-id="${id}"]`);
+        if (row) {
+            row.remove();
+        }
+        
+        const tbody = document.getElementById('bus-tbody');
+        if (tbody && tbody.querySelectorAll('.bus-row').length === 0) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.id = 'empty-row';
+            emptyRow.innerHTML = `
+                <td colspan="6" class="px-6 py-12 text-center">
+                    <div class="flex flex-col items-center gap-3 text-gray-400">
+                        <span class="material-symbols-outlined text-[20px] md:text-[48px]">inbox</span>
+                        <p class="text-[12px] md:text-sm font-medium">Aucun véhicule enregistré pour le moment</p>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(emptyRow);
+        }
+        filterTable();
     } catch {
         showAlert('Erreur réseau.', 'error');
     }

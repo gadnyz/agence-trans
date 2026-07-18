@@ -509,13 +509,160 @@ async function submitTrajet() {
 
         closeModal();
         showAlert(isEdit ? 'Trajet mis à jour avec succès.' : 'Trajet créé avec succès.', 'success');
-        setTimeout(() => window.location.reload(), 1000);
+
+        const selectDepart = document.getElementById('id_lieu_depart');
+        const nameDepart = selectDepart.options[selectDepart.selectedIndex].text.split('(')[0].trim();
+
+        const selectArrivee = document.getElementById('id_lieu_arrivee');
+        const nameArrivee = selectArrivee.options[selectArrivee.selectedIndex].text.split('(')[0].trim();
+
+        const selectHoraire = document.getElementById('id_horaire');
+        const horaireText = selectHoraire.options[selectHoraire.selectedIndex].text;
+        const parts = horaireText.split('-');
+        const heureDepart = parts[0].trim();
+        const heureArrivee = parts[1].trim();
+
+        const selectCurrency = document.getElementById('id_currency');
+        const currencyText = selectCurrency.options[selectCurrency.selectedIndex].text;
+        const symboleMatch = currencyText.match(/\(([^)]+)\)/);
+        const symbole = symboleMatch ? symboleMatch[1] : '';
+
+        const t = json.data;
+        t.lieu_depart = nameDepart;
+        t.lieu_arrivee = nameArrivee;
+        t.heure_depart = heureDepart + ':00';
+        t.heure_arrivee = heureArrivee + ':00';
+        t.symbole = symbole;
+
+        const statut = (t.statut || 'ACTIF').toUpperCase();
+        let badgeClass = 'bg-gray-100 text-gray-600 border-gray-200';
+        if (statut === 'ACTIF') {
+            badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        } else if (statut === 'INACTIF') {
+            badgeClass = 'bg-red-50 text-red-700 border-red-200';
+        }
+
+        const formattedPrix = parseFloat(t.prix || 0).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace(',', '.');
+
+        if (isEdit) {
+            const row = document.querySelector(`.trajet-row[data-id="${id}"]`);
+            if (row) {
+                row.dataset.depart = nameDepart.toLowerCase();
+                row.dataset.arrivee = nameArrivee.toLowerCase();
+                row.dataset.statut = statut;
+
+                const cols = row.querySelectorAll('td');
+                cols[0].innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-gray-900">${escapeHtml(nameDepart)}</span>
+                        <span class="material-symbols-outlined text-gray-400 text-[16px]">arrow_forward</span>
+                        <span class="font-bold text-gray-900">${escapeHtml(nameArrivee)}</span>
+                    </div>
+                `;
+                cols[1].innerHTML = `
+                    <div class="flex items-center gap-1 text-gray-700 text-xs font-semibold">
+                        <span class="material-symbols-outlined text-[14px] text-gray-400">schedule</span>
+                        ${escapeHtml(heureDepart)}
+                        <span class="text-gray-400">→</span>
+                        ${escapeHtml(heureArrivee)}
+                    </div>
+                `;
+                cols[2].innerHTML = `${formattedPrix} <span class="text-gray-500 font-normal text-xs ml-0.5">${escapeHtml(symbole)}</span>`;
+                cols[3].textContent = t.distance_km ? `${escapeHtml(t.distance_km)} km` : '—';
+                cols[4].textContent = t.duree_estimee || '—';
+                cols[5].innerHTML = `
+                    <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full ${badgeClass}">
+                        ${escapeHtml(t.statut.charAt(0).toUpperCase() + t.statut.slice(1).toLowerCase())}
+                    </span>
+                `;
+                
+                const editBtn = cols[6].querySelector('button[title="Modifier"]');
+                if (editBtn) {
+                    editBtn.setAttribute('onclick', `openEditModal(${JSON.stringify(t).replace(/"/g, '&quot;')})`);
+                }
+            }
+        } else {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-50 transition-colors trajet-row';
+            tr.dataset.id = t.id_trajet;
+            tr.dataset.depart = nameDepart.toLowerCase();
+            tr.dataset.arrivee = nameArrivee.toLowerCase();
+            tr.dataset.statut = statut;
+
+            tr.innerHTML = `
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-gray-900">${escapeHtml(nameDepart)}</span>
+                        <span class="material-symbols-outlined text-gray-400 text-[16px]">arrow_forward</span>
+                        <span class="font-bold text-gray-900">${escapeHtml(nameArrivee)}</span>
+                    </div>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-1 text-gray-700 text-xs font-semibold">
+                        <span class="material-symbols-outlined text-[14px] text-gray-400">schedule</span>
+                        ${escapeHtml(heureDepart)}
+                        <span class="text-gray-400">→</span>
+                        ${escapeHtml(heureArrivee)}
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-right font-bold text-blue-600">
+                    ${formattedPrix}
+                    <span class="text-gray-500 font-normal text-xs ml-0.5">${escapeHtml(symbole)}</span>
+                </td>
+                <td class="px-6 py-4 text-center text-gray-700 font-medium">
+                    ${t.distance_km ? escapeHtml(t.distance_km) + ' km' : '—'}
+                </td>
+                <td class="px-6 py-4 text-center text-gray-500 text-xs font-medium">
+                    ${escapeHtml(t.duree_estimee || '—')}
+                </td>
+                <td class="px-6 py-4 text-center">
+                    <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full ${badgeClass}">
+                        ${escapeHtml(t.statut.charAt(0).toUpperCase() + t.statut.slice(1).toLowerCase())}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                        <button
+                            title="Modifier"
+                            onclick="openEditModal(${JSON.stringify(t).replace(/"/g, '&quot;')})"
+                            class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        >
+                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                        </button>
+                        <button
+                            title="Supprimer"
+                            onclick="deleteTrajet(${parseInt(t.id_trajet)}, '${escapeHtml(nameDepart)} → ${escapeHtml(nameArrivee)}')"
+                            class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                    </div>
+                </td>
+            `;
+
+            const tbody = document.getElementById('trajets-tbody');
+            const emptyRow = document.getElementById('empty-row');
+            if (emptyRow) emptyRow.remove();
+
+            tbody.prepend(tr);
+        }
+        filterTable();
     } catch (e) {
         showFormErrors(['Une erreur réseau est survenue.']);
     } finally {
         btn.disabled = false;
         btn.classList.remove('opacity-60', 'cursor-wait');
     }
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 // ── Delete logic ───────────────────────────────────────────────────────────
@@ -531,7 +678,26 @@ async function deleteTrajet(id, description) {
         }
         
         showAlert('Trajet supprimé avec succès.', 'success');
-        setTimeout(() => window.location.reload(), 1000);
+        const row = document.querySelector(`.trajet-row[data-id="${id}"]`);
+        if (row) {
+            row.remove();
+        }
+        
+        const tbody = document.getElementById('trajets-tbody');
+        if (tbody && tbody.querySelectorAll('.trajet-row').length === 0) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.id = 'empty-row';
+            emptyRow.innerHTML = `
+                <td colspan="7" class="px-6 py-12 text-center">
+                    <div class="flex flex-col items-center gap-3 text-gray-400">
+                        <span class="material-symbols-outlined text-[20px] md:text-[48px]">inbox</span>
+                        <p class="text-[12px] md:text-sm font-medium">Aucun trajet enregistré pour le moment</p>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(emptyRow);
+        }
+        filterTable();
     } catch {
         showAlert('Erreur réseau.', 'error');
     }

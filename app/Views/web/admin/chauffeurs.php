@@ -484,13 +484,119 @@ async function submitChauffeur() {
 
         closeModal();
         showAlert(isEdit ? 'Chauffeur mis à jour avec succès.' : 'Chauffeur créé avec succès.', 'success');
-        setTimeout(() => window.location.reload(), 1000);
+        
+        const ch = json.data;
+        const nomComplet = [ch.prenom, ch.nom, ch.postnom].filter(Boolean).join(' ');
+        const firstLetter = ch.nom ? ch.nom.charAt(0).toUpperCase() : '?';
+        const badgeClass = ch.statut.toUpperCase() === 'ACTIF' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200';
+
+        if (isEdit) {
+            const row = document.querySelector(`.chauffeur-row[data-id="${id}"]`);
+            if (row) {
+                row.dataset.nom = nomComplet.toLowerCase();
+                row.dataset.tel = (ch.telephone || '').toLowerCase();
+                row.dataset.permis = (ch.numero_permis || '').toLowerCase();
+                row.dataset.statut = ch.statut.toUpperCase();
+
+                const cols = row.querySelectorAll('td');
+                cols[0].innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
+                            ${firstLetter}
+                        </div>
+                        <div class="text-sm font-semibold text-gray-900">
+                            ${escapeHtml(nomComplet)}
+                        </div>
+                    </div>
+                `;
+                cols[1].textContent = ch.telephone || '—';
+                cols[2].textContent = ch.numero_permis || '—';
+                cols[3].textContent = ch.adresse || '—';
+                cols[3].title = ch.adresse || '';
+                cols[4].textContent = ch.date_embauche || '—';
+                cols[5].innerHTML = `
+                    <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full ${badgeClass}">
+                        ${escapeHtml(ch.statut.charAt(0).toUpperCase() + ch.statut.slice(1).toLowerCase())}
+                    </span>
+                `;
+                
+                const editBtn = cols[6].querySelector('button[title="Modifier"]');
+                if (editBtn) {
+                    editBtn.setAttribute('onclick', `openEditModal(${JSON.stringify(ch).replace(/"/g, '&quot;')})`);
+                }
+            }
+        } else {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-50 transition-colors chauffeur-row';
+            tr.dataset.id = ch.id_conducteur;
+            tr.dataset.nom = nomComplet.toLowerCase();
+            tr.dataset.tel = (ch.telephone || '').toLowerCase();
+            tr.dataset.permis = (ch.numero_permis || '').toLowerCase();
+            tr.dataset.statut = ch.statut.toUpperCase();
+
+            tr.innerHTML = `
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
+                            ${firstLetter}
+                        </div>
+                        <div class="text-sm font-semibold text-gray-900">
+                            ${escapeHtml(nomComplet)}
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-gray-700 font-medium">${escapeHtml(ch.telephone || '—')}</td>
+                <td class="px-6 py-4 font-mono text-xs text-gray-900 font-medium">${escapeHtml(ch.numero_permis || '—')}</td>
+                <td class="px-6 py-4 text-gray-500 text-xs max-w-[200px] truncate" title="${escapeHtml(ch.adresse || '')}">${escapeHtml(ch.adresse || '—')}</td>
+                <td class="px-6 py-4 text-gray-500 text-xs">${escapeHtml(ch.date_embauche || '—')}</td>
+                <td class="px-6 py-4 text-center">
+                    <span class="px-2.5 py-1 text-[11px] font-semibold rounded-full ${badgeClass}">
+                        ${escapeHtml(ch.statut.charAt(0).toUpperCase() + ch.statut.slice(1).toLowerCase())}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                        <button
+                            title="Modifier"
+                            onclick="openEditModal(${JSON.stringify(ch).replace(/"/g, '&quot;')})"
+                            class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        >
+                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                        </button>
+                        <button
+                            title="Supprimer"
+                            onclick="deleteChauffeur(${parseInt(ch.id_conducteur)}, '${escapeHtml(nomComplet)}')"
+                            class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                    </div>
+                </td>
+            `;
+
+            const tbody = document.getElementById('chauffeurs-tbody');
+            const emptyRow = document.getElementById('empty-row');
+            if (emptyRow) emptyRow.remove();
+
+            tbody.prepend(tr);
+        }
+        filterTable();
     } catch (e) {
         showFormErrors(['Une erreur réseau est survenue.']);
     } finally {
         btn.disabled = false;
         btn.classList.remove('opacity-60', 'cursor-wait');
     }
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 // ── Delete logic ───────────────────────────────────────────────────────────
@@ -506,7 +612,26 @@ async function deleteChauffeur(id, nomComplet) {
         }
         
         showAlert('Chauffeur supprimé avec succès.', 'success');
-        setTimeout(() => window.location.reload(), 1000);
+        const row = document.querySelector(`.chauffeur-row[data-id="${id}"]`);
+        if (row) {
+            row.remove();
+        }
+        
+        const tbody = document.getElementById('chauffeurs-tbody');
+        if (tbody && tbody.querySelectorAll('.chauffeur-row').length === 0) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.id = 'empty-row';
+            emptyRow.innerHTML = `
+                <td colspan="7" class="px-6 py-12 text-center">
+                    <div class="flex flex-col items-center gap-3 text-gray-400">
+                        <span class="material-symbols-outlined text-[20px] md:text-[48px]">inbox</span>
+                        <p class="text-[12px] md:text-sm font-medium">Aucun chauffeur enregistré pour le moment</p>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(emptyRow);
+        }
+        filterTable();
     } catch {
         showAlert('Erreur réseau.', 'error');
     }

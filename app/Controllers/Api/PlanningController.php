@@ -656,8 +656,12 @@ class PlanningController extends BaseApiController
         $builder = $this->programmeBuilder()
             ->orderBy('h.heure_depart', 'ASC');
 
-        // Filtrer par date
-        if ($dateDebut !== '') {
+        // Filtrer par date (supporte plage avec date_fin)
+        $dateFin = trim((string) $this->request->getGet('date_fin'));
+        if ($dateDebut !== '' && $dateFin !== '') {
+            $builder->where('p.date_programme >=', $dateDebut);
+            $builder->where('p.date_programme <=', $dateFin);
+        } elseif ($dateDebut !== '') {
             $builder->where('p.date_programme', $dateDebut);
         }
 

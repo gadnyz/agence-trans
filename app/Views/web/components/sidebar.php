@@ -43,8 +43,8 @@ $menus = [
         'links' => [
             ['path' => 'recept/dashboard',      'icon' => 'dashboard',        'label' => 'Tableau de bord'],
             ['path' => 'recept/reservations',   'icon' => 'confirmation_number', 'label' => 'Réservations'],
-            ['path' => 'recept/paiements',      'icon' => 'payments',         'label' => 'Paiements'],
             ['path' => 'recept/programmes',     'icon' => 'directions_bus',   'label' => 'Programmes'],
+            ['path' => 'recept/paiements',      'icon' => 'payments',         'label' => 'Paiements'],
             ['path' => 'recept/flotte',         'icon' => 'manage_search',    'label' => 'Flotte & Réseau'],
         ],
     ],

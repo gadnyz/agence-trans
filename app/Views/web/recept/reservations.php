@@ -24,14 +24,14 @@ $todayIso    = date('Y-m-d');
                         <h2 class="text-lg font-semibold text-gray-900 tracking-tight">Réservations</h2>
                     </div>
                 </div>
-                <button
+                <!-- <button
                     id="btn-nouvelle-reservation"
                     class="inline-flex h-10 px-3 md:px-4 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all items-center justify-center gap-2 shadow-sm whitespace-nowrap"
                 >
                     <span class="material-symbols-outlined text-[18px]">add</span>
                     <span class="hidden sm:inline">Nouvelle réservation</span>
                     <span class="sm:hidden">Nouvelle</span>
-                </button>
+                </button> -->
             </div>
         </div>
     </div>

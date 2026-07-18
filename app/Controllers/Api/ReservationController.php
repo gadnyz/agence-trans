@@ -216,12 +216,6 @@ class ReservationController extends BaseApiController
                 ]);
             }
 
-            // NOUVEAU : Mise à jour des places disponibles
-            $db->table('programme')
-               ->where('id_programme', (int) $programme['id_programme'])
-               ->set('places_disponibles', 'places_disponibles - ' . $nombrePlaces, false) // false empêche CI d'échapper la soustraction
-               ->update();
-
             $db->transComplete();
 
             if ($db->transStatus() === false) {
@@ -330,34 +324,7 @@ class ReservationController extends BaseApiController
 
         // Nouveau nombre de places
         if (!empty($payload['nombre_places'])) {
-            $nouveauNb = (int) $payload['nombre_places'];
-            $ancienNb  = (int) $row['nombre_places'];
-            $diff      = $nouveauNb - $ancienNb;
-
-            if ($diff !== 0) {
-                // Vérifier les places disponibles si on augmente
-                if ($diff > 0) {
-                    $programme = db_connect()->table('programme')
-                        ->where('id_programme', (int) $row['id_programme'])
-                        ->get()->getRowArray();
-                    $dispo = (int) ($programme['places_disponibles'] ?? 0);
-                    if ($dispo < $diff) {
-                        return $this->failure('Places insuffisantes (' . $dispo . ' disponible(s)).', ResponseInterface::HTTP_CONFLICT);
-                    }
-                    // Réduire les places dispo
-                    $db->table('programme')
-                        ->where('id_programme', (int) $row['id_programme'])
-                        ->set('places_disponibles', 'places_disponibles - ' . $diff, false)
-                        ->update();
-                } else {
-                    // Libérer les places
-                    $db->table('programme')
-                        ->where('id_programme', (int) $row['id_programme'])
-                        ->set('places_disponibles', 'places_disponibles + ' . abs($diff), false)
-                        ->update();
-                }
-            }
-            $updates['nombre_places'] = $nouveauNb;
+            $updates['nombre_places'] = (int) $payload['nombre_places'];
         }
 
         // Nouveau lieu de réservation
@@ -420,13 +387,6 @@ class ReservationController extends BaseApiController
                     'updated_at'             => date('Y-m-d H:i:s'),
                 ]);
 
-            // Restaurer les places disponibles
-            $nbPlaces = (int) ($row['nombre_places'] ?? 1);
-            $db->table('programme')
-                ->where('id_programme', (int) $row['id_programme'])
-                ->set('places_disponibles', 'places_disponibles + ' . $nbPlaces, false)
-                ->update();
-
             $db->transComplete();
 
             if ($db->transStatus() === false) {
@@ -460,16 +420,6 @@ class ReservationController extends BaseApiController
                 ->update([
                     'deleted_at' => date('Y-m-d H:i:s'),
                 ]);
-
-            // Si elle n'était pas déjà annulée, restaurer les places disponibles
-            $statutActuel = strtolower((string) ($row['statut_reservation'] ?? ''));
-            if (!in_array($statutActuel, ['annule', 'annulee', 'annulé', 'annulée'], true)) {
-                $nbPlaces = (int) ($row['nombre_places'] ?? 1);
-                $db->table('programme')
-                    ->where('id_programme', (int) $row['id_programme'])
-                    ->set('places_disponibles', 'places_disponibles + ' . $nbPlaces, false)
-                    ->update();
-            }
 
             // Supprimer aussi le paiement associé
             $db->table('paiement')

@@ -515,6 +515,13 @@ async function initializeApp() {
 }
 
 window.addEventListener('load', initializeApp);
+window.addEventListener('pageshow', function (event) {
+    document.body.style.overflow = '';
+    ['modal-reservation', 'modal-detail', 'modal-edit', 'modal-payment', 'modal-cancel', 'modal-delete'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+});
 
 // ── RECHERCHE PROGRAMMES ────────────────────────────────────────────────────
 async function searchProgrammes() {

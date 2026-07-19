@@ -6,13 +6,37 @@ use App\Models\UserModel;
 
 class AuthController extends BaseWebController
 {
+    // public function index()
+    // {
+    //     // Si deja connecte, ouvrir directement les reservations.
+    //     if (session()->get('access_token')) {
+    //         return redirect()->to('/reservations');
+    //     }
+
+    //     return view('web/auth/connexion');
+    // }
+
     public function index()
     {
         if (session()->get('access_token')) {
             return redirect()->to('/reservations');
         }
 
-        return view('web/pages/connexion');
+        // 2. Rediriger selon le rôle (Si déjà connecté, on l'envoie sur sa page d'accueil)
+        $role = $user['role']['code'] ?? ''; // Accès au code selon ta structure JWT
+
+        switch ($role) {
+            case 'super_admin':
+                return redirect()->to('/super-admin/dashboard');
+            case 'admin':
+                return redirect()->to('/admin/rapports');
+            case 'recept':
+                return redirect()->to('/recept/reservations');
+            case 'driver':
+                return redirect()->to('/driver/planning');
+            default:
+                return redirect()->to('/logout')->with('error', 'Rôle inconnu.');
+        }
     }
 
     public function login()

@@ -626,4 +626,72 @@ class PlanningController extends BaseApiController
     {
         return new DateTimeImmutable(date('Y-m-d'));
     }
+
+    public function getAvailableTrips()
+    {
+        $id_trajet = $this->request->getGet('id_trajet');
+        $date = $this->request->getGet('date'); // Format Y-m-d
+
+        $programmeModel = new \App\Models\ProgrammeModel();
+
+        // On cherche les programmes pour ce trajet, cette date, actifs et avec des places
+        $trips = $programmeModel->select('programme.*, bus.numero_plaque, bus.nombre_places')
+            ->join('bus', 'bus.id_bus = programme.id_bus')
+            ->where('programme.id_trajet', $id_trajet)
+            ->like('programme.date_programme', $date, 'after') // Filtre sur le jour même
+            ->where('programme.places_disponibles >', 0)
+            ->where('programme.statut', 'planifie')
+            ->findAll();
+
+        return $this->respond($trips);
+    }
+
+    // Liste les programmes de voyage pour le modal du Réceptionniste
+    public function search(): ResponseInterface
+    {
+        $dateDebut = trim((string) $this->request->getGet('date_debut'));
+        $search    = trim((string) $this->request->getGet('search'));
+
+        // On utilise ton programmeBuilder() existant qui est parfait !
+        $builder = $this->programmeBuilder()
+            ->orderBy('h.heure_depart', 'ASC');
+
+        // Filtrer par date (supporte plage avec date_fin)
+        $dateFin = trim((string) $this->request->getGet('date_fin'));
+        if ($dateDebut !== '' && $dateFin !== '') {
+            $builder->where('p.date_programme >=', $dateDebut);
+            $builder->where('p.date_programme <=', $dateFin);
+        } elseif ($dateDebut !== '') {
+            $builder->where('p.date_programme', $dateDebut);
+        }
+
+        // Filtrer par la barre de recherche (ex: taper le nom d'une ville)
+        if ($search !== '') {
+            $builder->groupStart()
+                ->like('td.nom_lieu', $search) // td est l'alias de lieu_depart dans ton builder
+                ->orLike('ta.nom_lieu', $search) // ta est l'alias de lieu_arrivee dans ton builder
+                ->groupEnd();
+        }
+
+        $items = $builder->get()->getResultArray();
+
+        // On ajoute la gestion des arrêts pour chaque programme
+        foreach ($items as &$item) {
+            $arrets = db_connect()->table('arret a')
+                ->select('a.id_lieu, l.nom_lieu')
+                ->join('lieu l', 'l.id_lieu = a.id_lieu')
+                ->where('a.id_trajet', $item['id_trajet'])
+                ->where('a.deleted_at', null)
+                ->orderBy('a.ordre_arret', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            $item['arrets'] = $arrets;
+        }
+        unset($item);
+
+        return $this->success([
+            'items' => $items,
+        ]);
+    }
 }

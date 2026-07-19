@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      REMOTE_SUBDOMAIN_DIR: ./kashala-trans.ashurahouse.com/
+      # Dossier FTP LWS du sous-domaine (relatif à la racine FTP du compte)
+      REMOTE_SUBDOMAIN_DIR: ./kishala-trans.cadriciel.com/
 
     steps:
       - name: Checkout repository
@@ -30,10 +31,15 @@ jobs:
 
       - name: Prepare deployment package
         run: |
+          set -euo pipefail
+
           rm -rf .deploy
           mkdir -p .deploy/public .deploy/home
 
+          # Document root du sous-domaine = contenu de public/
           rsync -a public/ .deploy/public/
+
+          # Sur LWS, le code applicatif est hors document root (dossier home/)
           sed -i "s#require FCPATH . '../app/Config/Paths.php';#require FCPATH . 'home/app/Config/Paths.php';#" .deploy/public/index.php
 
           rsync -a app/ .deploy/home/app/
@@ -42,12 +48,22 @@ jobs:
 
           cp composer.json composer.lock spark preload.php .deploy/home/
 
+          # Interdit l'accès HTTP direct au dossier home/ (si exposé)
+          printf '%s\n' \
+            '<IfModule mod_authz_core.c>' \
+            '  Require all denied' \
+            '</IfModule>' \
+            '<IfModule !mod_authz_core.c>' \
+            '  Deny from all' \
+            '</IfModule>' > .deploy/home/.htaccess
+
           mkdir -p .deploy/home/writable/cache \
             .deploy/home/writable/debugbar \
             .deploy/home/writable/logs \
             .deploy/home/writable/session \
             .deploy/home/writable/uploads
 
+          # Ne pas écraser le contenu runtime déjà présent côté serveur
           find .deploy/home/writable/cache -type f ! -name index.html -delete
           find .deploy/home/writable/debugbar -type f ! -name index.html -delete
           find .deploy/home/writable/logs -type f ! -name index.html -delete
@@ -69,6 +85,7 @@ jobs:
             **/.git*
             **/.github/**
             **/.env
+            **/home/**
 
       - name: Deploy subdomain backend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5

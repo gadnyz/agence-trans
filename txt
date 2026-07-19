@@ -1,0 +1,172 @@
+Le Super Admin (super_admin) : C'est toi (Freddy) ou le propriétaire absolu. Il a le privilège ["*"], c'est-à-dire un accès total à l'application (suppression, configuration globale, ajout d'autres admins).
+
+L'Administrateur (admin) : Le gérant de l'agence. Il a une gestion métier complète (créer des trajets, ajouter des bus, planifier des programmes, voir les finances) mais ne peut probablement pas toucher aux configurations critiques du système.
+
+Le Réceptionniste / Guichetier (recept) : L'employé au guichet. Il a des droits limités. Il peut seulement lire les programmes/trajets et créer des réservations et des paiements.
+
+Le Chauffeur (driver) : Le document mentionne ce rôle dans le seeder. Bien qu'il y ait une table conducteur séparée pour la RH, ce rôle indique que les chauffeurs auront probablement un accès au système (peut-être plus tard sur une application mobile pour voir leur planning de la journée).
+
+
+
+app/
+├── Config/
+│   ├── Filters.php          # Déclaration de tes filtres d'accès
+│   └── Routes.php           # Groupement des routes (/admin, /api/admin, etc.)
+├── Controllers/
+│   ├── BaseController.php   # Contrôleur parent (méthodes communes)
+│   ├── AuthController.php   # Logique de login (vérification + génération JWT)
+│   │
+│   ├── Web/                 # 🌐 CONTRÔLEURS POUR L'AFFICHAGE DES VUES
+│   │   ├── SuperAdmin/      # Privilège absolu ["*"]
+│   │   │   ├── Dashboard.php
+│   │   │   └── SystemConfig.php
+│   │   ├── Admin/           # Gérant de l'agence
+│   │   │   ├── Dashboard.php
+│   │   │   ├── Bus.php      # Pages pour la flotte
+│   │   │   └── Trajet.php   # Pages pour le réseau
+│   │   ├── Recept/          # Guichetier
+│   │   │   ├── Dashboard.php
+│   │   │   └── Reservation.php # La page de ta capture d'écran
+│   │   └── Driver/          # Chauffeur
+│   │       └── Planning.php
+│   │
+│   └── Api/                 # ⚙️ CONTRÔLEURS POUR LES REQUÊTES FETCH (JSON)
+│       ├── SuperAdminApi.php
+│       ├── AdminApi.php     # Ex: POST /api/admin/bus (Création de bus)
+│       ├── ReceptApi.php    # Ex: POST /api/recept/reservations
+│       └── DriverApi.php
+│
+├── Filters/
+│   ├── JwtAuthFilter.php    # Vérifie la présence et la validité du Token JWT
+│   ├── SuperAdminFilter.php # Bloque si != 'super_admin'
+│   ├── AdminFilter.php      # Autorise 'admin' ET 'super_admin'
+│   ├── ReceptFilter.php     # Autorise 'recept', 'admin' ET 'super_admin'
+│   └── DriverFilter.php     # Autorise 'driver'
+│
+├── Models/
+│   ├── UserModel.php        # Gestion des rôles et authentification
+│   ├── BusModel.php         # Données de la flotte
+│   ├── TrajetModel.php      # Données des parcours
+│   └── ReservationModel.php # Données des réservations
+│
+└── Views/
+    ├── auth/
+    │   └── login.php
+    ├── layouts/
+    │   └── app.php          # Ton layout principal (la sidebar s'adaptera au rôle)
+    ├── super_admin/
+    ├── admin/               # Vues pour la création des référentiels
+    ├── recept/              # Vues des réservations et paiements
+    └── driver/              # Vues simplifiées (mobile-first)
+
+
+
+
+
+    app/Views/
+├── errors/                  # (Laisser tel quel, géré par CodeIgniter)
+└── web/
+    ├── layouts/
+    │   └── app.php          # Ton layout global reste ici (ne le bouge pas)
+    │
+    ├── auth/                # Pour tes pages de connexion
+    │   └── login.php
+    │
+    ├── super_admin/         # Vues exclusives au Super Admin
+    │   ├── dashboard.php
+    │   └── system_logs.php
+    │
+    ├── admin/               # Vues pour le Gérant
+    │   ├── bus/
+    │   │   └── index.php    # La future page de gestion de la flotte
+    │   └── trajets/
+    │       └── index.php
+    │
+    ├── recept/              # Vues pour le Guichetier
+    │   └── reservations.php # 👈 DÉPLACE TON FICHIER ACTUEL ICI
+    │
+    └── driver/              # Vues pour le Chauffeur
+        └── planning.php
+
+
+
+
+
+
+
+
+Sur la base de la documentation technique que vous avez extraite de votre Trello, voici la définition des rôles dans votre application **Kashala Trans**.
+
+Votre système utilise une approche de **RBAC (Role-Based Access Control)** gérée via une table de rôles (`role`) et des permissions définies côté backend.
+
+### Matrice des Rôles et Responsabilités
+
+| Rôle | Accès aux Données | Actions Opérationnelles |
+| --- | --- | --- |
+| **Super Admin** | Total (Tout le système) | Configuration globale, gestion des accès, reportings BI, suppression/audit. |
+| **Admin** | Système complet | Gestion des bus, conducteurs, trajets, programmes et finances (Paiements). |
+| **Recept** (Réceptionniste) | Limité (Front-Office) | Création de réservations, saisie des paiements, lecture des horaires/trajets. |
+| **Driver** (Conducteur) | Très limité | Consultation de ses propres programmes (trajets assignés). |
+
+---
+
+### Analyse détaillée par rôle
+
+#### 1. Super Admin (`super_admin`)
+
+C'est le rôle "propriétaire" du système.
+
+* **Rôle :** Il a un accès `["*"]` (toutes les permissions).
+* **Responsabilités :**
+* Configurer les devises, les modes de paiement et les paramètres de l'agence.
+* Créer et gérer les comptes des administrateurs et des réceptionnistes.
+* Accéder aux vues de Business Intelligence (BI) pour piloter la rentabilité de la flotte.
+* Gestion des "Soft Deletes" (audit et restauration des données supprimées).
+
+
+
+#### 2. Admin (`admin`)
+
+Le gestionnaire opérationnel quotidien.
+
+* **Rôle :** Il gère toute la logique métier sans toucher à la configuration critique du système.
+* **Responsabilités :**
+* **Flotte & RH :** Ajouter des bus, assigner des conducteurs.
+* **Planification :** Créer les programmes de voyage (assigner bus + conducteur à un trajet).
+* **Tarification :** Définir les prix des trajets (historisation automatique par trigger).
+* **Supervision :** Valider les réservations complexes ou gérer les annulations.
+
+
+
+#### 3. Réceptionniste (`recept`)
+
+C'est l'utilisateur "guichet".
+
+* **Rôle :** Opérations transactionnelles uniquement.
+* **Responsabilités :**
+* **Vente :** Créer des réservations (le système enregistre automatiquement leur identifiant dans le champ `created_by` de la table `reservation`).
+* **Paiement :** Enregistrer les encaissements, gérer le solde restant et générer les reçus.
+* **Lecture :** Accéder au calendrier pour informer les clients sur la disponibilité des places.
+* *Il n'a pas le droit de modifier la structure des bus, de changer les prix, ou de créer des nouveaux trajets.*
+
+
+
+#### 4. Conducteur (`driver`)
+
+C'est un utilisateur mobile.
+
+* **Rôle :** Consultation.
+* **Responsabilités :**
+* Le système est conçu pour que ses données soient gérées par l'Admin. Il consulte ses programmes pour savoir quel trajet il doit effectuer.
+
+
+
+---
+
+### Points clés de votre architecture métier
+
+* **Traçabilité (`created_by`) :** Grâce à l'ajout du champ `created_by` dans la table `reservation`, chaque vente est liée à un réceptionniste ou un admin spécifique. Cela permet une **auditabilité totale** : si une caisse manque d'argent, vous savez exactement quel utilisateur a généré les tickets.
+* **Sécurité API :** L'accès est contrôlé par un `PermissionMiddleware` qui vérifie le rôle encodé dans le token JWT. Si un `recept` tente d'appeler `DELETE /api/admin/bus/{id}`, le système renverra une erreur `ERR_PERMISSION_REFUSEE`.
+* **Centralisation :** La logique est dans les `Services` (ex: `ReservationService`, `PaiementService`), garantissant que peu importe qui (Admin ou Réceptionniste) utilise l'interface, les règles métier (pas de surbooking, calcul des prix, conversion des devises) restent identiques.
+
+Souhaitez-vous que nous passions à la partie **implémentation**, par exemple en créant le `PermissionService` qui gère ces accès basés sur votre fichier `permissions.json` ?

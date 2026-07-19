@@ -171,6 +171,24 @@ class ReferenceDataController extends BaseApiController
                 'statut' => 'permit_empty|max_length[50]',
             ],
         ],
+        'utilisateurs' => [
+            'table' => 'utilisateur',
+            'primaryKey' => 'id_utilisateur',
+            'allowedFields' => ['nom', 'postnom', 'prenom', 'username', 'mot_de_passe', 'telephone', 'email', 'id_role', 'statut'],
+            'searchable' => ['nom', 'postnom', 'prenom', 'username', 'telephone', 'email', 'statut'],
+            'orderBy' => 'nom',
+            'rules' => [
+                'nom' => 'required|max_length[100]',
+                'postnom' => 'permit_empty|max_length[100]',
+                'prenom' => 'permit_empty|max_length[100]',
+                'username' => 'required|max_length[100]',
+                'mot_de_passe' => 'permit_empty|max_length[255]',
+                'telephone' => 'permit_empty|max_length[30]',
+                'email' => 'permit_empty|valid_email|max_length[150]',
+                'id_role' => 'required|is_natural_no_zero',
+                'statut' => 'permit_empty|max_length[50]',
+            ],
+        ],
     ];
 
     public function list(string $resource): ResponseInterface
@@ -246,6 +264,13 @@ class ReferenceDataController extends BaseApiController
             return $this->failure('Validation echouee.', ResponseInterface::HTTP_BAD_REQUEST, $errors);
         }
 
+        if ($resource === 'utilisateurs') {
+            if (!isset($payload['mot_de_passe']) || trim($payload['mot_de_passe']) === '') {
+                return $this->failure('Le mot de passe est requis pour un nouvel utilisateur.', ResponseInterface::HTTP_BAD_REQUEST);
+            }
+            $payload['mot_de_passe'] = password_hash($payload['mot_de_passe'], PASSWORD_DEFAULT);
+        }
+
         try {
             $db = db_connect();
             $db->table($config['table'])->insert($payload);
@@ -279,6 +304,16 @@ class ReferenceDataController extends BaseApiController
 
         if ($errors !== []) {
             return $this->failure('Validation echouee.', ResponseInterface::HTTP_BAD_REQUEST, $errors);
+        }
+
+        if ($resource === 'utilisateurs') {
+            if (isset($payload['mot_de_passe'])) {
+                if (trim($payload['mot_de_passe']) === '') {
+                    unset($payload['mot_de_passe']);
+                } else {
+                    $payload['mot_de_passe'] = password_hash($payload['mot_de_passe'], PASSWORD_DEFAULT);
+                }
+            }
         }
 
         try {

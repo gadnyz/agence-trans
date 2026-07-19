@@ -6,11 +6,18 @@ class PlanningController extends BaseWebController
 {
     public function index()
     {
-        $meResponse = $this->authenticatedUser();
+        $user = $this->requireAuthApi();
 
-        if (! is_array($meResponse)) {
-            return $meResponse;
+        if ($user instanceof \CodeIgniter\HTTP\ResponseInterface) {
+            return $user;
         }
+
+        $userRole = $this->userRole();
+        $layout = match($userRole) {
+            'super_admin' => 'web/layouts/super_admin',
+            'admin'       => 'web/layouts/admin',
+            default       => 'web/layouts/super_admin',
+        };
 
         $today = date('Y-m-d');
         $dateDebut = (string) ($this->request->getGet('date_debut') ?? $today);
@@ -18,9 +25,10 @@ class PlanningController extends BaseWebController
         $lieux = $this->items('lieux', ['per_page' => 200]);
         $horaires = $this->items('horaires', ['per_page' => 200]);
 
-        return view('web/pages/planification', [
+        return view($userRole === 'admin' ? 'web/admin/planification' : 'web/super_admin/planification', [
+            'layout' => $layout,
             'title' => 'Planification',
-            'user' => $meResponse['data'],
+            'user' => $user,
             'api_token' => session()->get('access_token'),
             'bus' => $this->items('bus', ['per_page' => 100, 'sort' => 'numero_plaque']),
             'conducteurs' => $this->items('conducteurs', ['per_page' => 100, 'sort' => 'nom']),

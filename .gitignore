@@ -87,6 +87,11 @@ php_errors.log
 vendor/
 
 #-------------------------
+# CI/CD local package
+#-------------------------
+.deploy/
+
+#-------------------------
 # IDE / Development Files
 #-------------------------
 

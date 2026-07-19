@@ -38,6 +38,8 @@ class Filters extends BaseFilters
         'performance'   => PerformanceMetrics::class,
         'jwt'           => JwtAuthFilter::class,
         'permission'    => PermissionFilter::class,
+        'role'          => \App\Filters\RoleFilter::class,
+        'auth'          => \App\Filters\AuthFilter::class,
     ];
 
     /**

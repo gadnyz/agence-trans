@@ -6,20 +6,47 @@ class ReservationController extends BaseWebController
 {
     public function index()
     {
-        $meResponse = $this->authenticatedUser();
+        $user = $this->requireAuthApi();
 
-        if (! is_array($meResponse)) {
-            return $meResponse;
+        if ($user instanceof \CodeIgniter\HTTP\ResponseInterface) {
+            return $user;
         }
 
-        return view('web/pages/reservation', [
-            'title' => 'Reservations',
-            'user' => $meResponse['data'],
-            'api_token' => session()->get('access_token'),
+        // Choisir la vue selon le rôle de l'utilisateur
+        $userRole = $this->userRole();
+
+        $viewMap = [
+            'super_admin' => 'web/super_admin/reservation',
+            'admin'       => 'web/admin/reservation',
+            'recept'      => 'web/recept/reservations',
+        ];
+
+        $viewName = $viewMap[$userRole] ?? 'web/super_admin/reservation';
+
+        $layout = match($userRole) {
+            'super_admin' => 'web/layouts/super_admin',
+            'admin'       => 'web/layouts/admin',
+            'recept'      => 'web/layouts/recept',
+            default       => 'web/layouts/super_admin',
+        };
+
+        // RÉCUPÉRATION DES RÉSERVATIONS ICI (Triées par date de création descendante)
+        $reservations = $this->reservationBuilder()
+            ->orderBy('r.created_at', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        return view($viewName, [
+            'layout'         => $layout,
+            'title'          => 'Réservations',
+            'user'           => $user,
+            'api_token'      => session()->get('access_token'),
             'modes_paiement' => $this->modesPaiement(),
-            'today' => date('Y-m-d'),
+            'today'          => date('Y-m-d'),
+            'reservations'   => $reservations, // AJOUT DE LA VARIABLE POUR LA VUE
         ]);
     }
+
 
     public function ticket(int $idReservation)
     {
@@ -32,7 +59,7 @@ class ReservationController extends BaseWebController
         $reservation = $this->reservationDetail($idReservation);
 
         if ($reservation === null) {
-            return redirect()->to('/reservations')->with('error', 'Reservation introuvable.');
+            return redirect()->to('/super-admin/reservation')->with('error', 'Reservation introuvable.');
         }
 
         return view('web/print/ticket', [
@@ -197,6 +224,7 @@ class ReservationController extends BaseWebController
                 'pa.reference_paiement',
                 'pa.statut_paiement',
                 'pa.date_paiement',
+                'statut_reservation.libelle AS statut_reservation',
             ])
             ->join('client cl', 'cl.id_client = r.id_client')
             ->join('programme p', 'p.id_programme = r.id_programme')
@@ -211,6 +239,7 @@ class ReservationController extends BaseWebController
             ->join('currency cur', 'cur.id_currency = r.id_currency')
             ->join('paiement pa', 'pa.id_reservation = r.id_reservation AND pa.deleted_at IS NULL', 'left')
             ->join('mode_paiement mp', 'mp.id_mode_paiement = pa.id_mode_paiement', 'left')
+            ->join('statut_reservation', 'statut_reservation.id_statut_reservation = r.id_statut_reservation', 'left')
             ->where('r.deleted_at', null);
     }
 

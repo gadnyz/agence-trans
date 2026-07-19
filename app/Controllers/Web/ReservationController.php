@@ -91,6 +91,22 @@ class ReservationController extends BaseWebController
         ]);
     }
 
+    private function authenticatedUser()
+    {
+        if (! session()->get('access_token')) {
+            return redirect()->to('/');
+        }
+
+        $user = $this->currentWebUser();
+
+        if ($user === null) {
+            session()->destroy();
+
+            return redirect()->to('/')->with('error', 'Session expiree, veuillez vous reconnecter.');
+        }
+
+        return ['data' => $user];
+    }
 
     private function printSessionGuard()
     {

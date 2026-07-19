@@ -105,15 +105,13 @@ class ApiClient
             }
 
             $body = $response->getBody();
-            log_message('error', 'API Response for ' . $uri . ': ' . $body);
             
             if (empty($body)) {
                 return null;
             }
             
             return json_decode($body, true);
-        } catch (\Exception $e) {
-            // Log the error
+        } catch (\Throwable $e) {
             log_message('error', '[ApiClient] Request failed: ' . $e->getMessage());
             return null;
         }
@@ -168,7 +166,7 @@ class ApiClient
             }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             log_message('error', '[ApiClient] Refresh failed: ' . $e->getMessage());
 
             return false;

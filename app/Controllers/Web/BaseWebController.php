@@ -8,7 +8,6 @@ use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
-use App\Libraries\ApiClient;
 
 abstract class BaseWebController extends Controller
 {
@@ -19,13 +18,23 @@ abstract class BaseWebController extends Controller
 
     protected $helpers = ['url', 'form'];
 
-    protected ApiClient $api;
-
+    /**
+     * Constructor.
+     */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
         parent::initController($request, $response, $logger);
         \Config\Services::session();
-        $this->api = new ApiClient();
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    protected function currentWebUser(): ?array
+    {
+        $user = session()->get('user');
+
+        return is_array($user) ? $user : null;
     }
 
     // -------------------------------------------------------------------------

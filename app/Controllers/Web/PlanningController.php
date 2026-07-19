@@ -40,14 +40,52 @@ class PlanningController extends BaseWebController
         ]);
     }
 
+    private function authenticatedUser()
+    {
+        if (! session()->get('access_token')) {
+            return redirect()->to('/');
+        }
+
+        $user = $this->currentWebUser();
+
+        if ($user === null) {
+            session()->destroy();
+
+            return redirect()->to('/')->with('error', 'Session expiree, veuillez vous reconnecter.');
+        }
+
+        return ['data' => $user];
+    }
+
     /**
      * @return list<array<string, mixed>>
      */
     private function items(string $resource, array $query = []): array
     {
-        $response = $this->api->get($resource, $query);
+        $db = db_connect();
+        $perPage = max(1, min(200, (int) ($query['per_page'] ?? 100)));
+        $sort = (string) ($query['sort'] ?? '');
 
-        return $response['data']['items'] ?? [];
+        $resources = [
+            'lieux' => ['table' => 'lieu', 'allowedSorts' => ['id_lieu', 'nom_lieu']],
+            'horaires' => ['table' => 'horaire', 'allowedSorts' => ['id_horaire', 'heure_depart']],
+            'bus' => ['table' => 'bus', 'allowedSorts' => ['id_bus', 'numero_plaque']],
+            'conducteurs' => ['table' => 'conducteur', 'allowedSorts' => ['id_conducteur', 'nom']],
+            'trajets' => ['table' => 'trajet', 'allowedSorts' => ['id_trajet']],
+        ];
+
+        if (! isset($resources[$resource])) {
+            return [];
+        }
+
+        $config = $resources[$resource];
+        $builder = $db->table($config['table'])->where('deleted_at', null)->limit($perPage);
+
+        if ($sort !== '' && in_array($sort, $config['allowedSorts'], true)) {
+            $builder->orderBy($sort, 'asc');
+        }
+
+        return $builder->get()->getResultArray();
     }
 
     /**

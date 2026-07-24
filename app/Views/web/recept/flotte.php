@@ -244,9 +244,10 @@ let CACHE_LOCATIONS = {};
 let loaded = {};
 
 async function apiFetch(url, options = {}) {
-    let token = (typeof API_TOKEN !== 'undefined' && API_TOKEN) ? API_TOKEN : localStorage.getItem('access_token');
-    const headers = { 'Accept': 'application/json', 'Authorization': `Bearer ${token}`, ...(options.headers || {}) };
-    const response = await fetch(url, { ...options, headers });
+    let token = (typeof API_TOKEN !== 'undefined' && API_TOKEN) ? API_TOKEN : (localStorage.getItem('access_token') || '');
+    const headers = { 'Accept': 'application/json', ...(options.headers || {}) };
+    if (token) headers.Authorization = `Bearer ${token}`;
+    const response = await fetch(url, { ...options, credentials: 'same-origin', headers });
     if (response.status === 401) window.location.href = BASE_URL;
     return response;
 }

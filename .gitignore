@@ -91,6 +91,10 @@ vendor/
 #-------------------------
 .deploy/
 
+# Database dumps (local/export)
+*.sql
+!app/Database/**/*.sql
+
 #-------------------------
 # IDE / Development Files
 #-------------------------

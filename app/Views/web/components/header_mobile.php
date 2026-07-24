@@ -22,7 +22,7 @@ $roleLabel = esc($user['role']['libelle'] ?? 'Fleet Manager');
                 <span class="material-symbols-outlined text-on-primary text-[18px]">directions_bus</span>
             </div>
             <div>
-                <h2 class="font-bold text-sm text-gray-900 leading-tight">Kashala Trans</h2>
+                <h2 class="font-bold text-sm text-gray-900 leading-tight">KishalaTrans</h2>
                 <?php if (!empty($roleMenu['label'])): ?>
                     <p class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider"><?= esc($roleMenu['label']) ?></p>
                 <?php endif; ?>

@@ -349,8 +349,9 @@ const BASE_URL  = '<?= base_url() ?>';
 
 // ── Helpers fetch ──────────────────────────────────────────────────────────
 async function apiFetch(url, options = {}) {
-    const headers = { Accept: 'application/json', Authorization: `Bearer ${API_TOKEN}`, ...(options.headers || {}) };
-    const response = await fetch(url, { ...options, headers });
+    const headers = { Accept: 'application/json', ...(options.headers || {}) };
+    if (API_TOKEN) headers.Authorization = `Bearer ${API_TOKEN}`;
+    const response = await fetch(url, { ...options, credentials: 'same-origin', headers });
     return response;
 }
 

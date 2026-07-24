@@ -3,6 +3,10 @@
 namespace App\Controllers\Web;
 
 use App\Models\UserModel;
+<<<<<<< HEAD
+use CodeIgniter\HTTP\ResponseInterface;
+=======
+>>>>>>> a08a4bcda4f048d683fa9b341e24c30a9ddf6ec6
 
 class AuthController extends BaseWebController
 {
@@ -41,11 +45,54 @@ class AuthController extends BaseWebController
 
     public function login()
     {
+<<<<<<< HEAD
+        try {
+            $username = trim((string) $this->request->getPost('username'));
+            $password = (string) $this->request->getPost('password');
+
+            if ($username === '' || $password === '') {
+                return redirect()->to('/')->with('error', 'Identifiants requis.');
+            }
+
+            $user = (new UserModel())->findActiveByUsername($username);
+
+            if ($user === null || ! password_verify($password, (string) $user['mot_de_passe'])) {
+                return redirect()->to('/')->with('error', 'Identifiants invalides.');
+            }
+
+            (new UserModel())->touchLastConnected((int) $user['id_utilisateur']);
+
+            $jwt = service('jwtService');
+            $tokenPair = $jwt->createTokenPair(
+                $user,
+                $this->request->getUserAgent()->getAgentString(),
+                $this->request->getIPAddress()
+            );
+            $publicUser = $jwt->publicUser($user);
+
+            session()->set('access_token', $tokenPair['access_token']);
+            session()->set('refresh_token', $tokenPair['refresh_token']);
+            session()->set('user', $publicUser);
+
+            $role = $publicUser['role']['code'] ?? '';
+
+            return redirect()->to($this->roleHomePath($role));
+        } catch (\Throwable $e) {
+            log_message('error', '[WebAuth] Login failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+
+            return redirect()->to('/')->with(
+                'error',
+                ENVIRONMENT === 'development'
+                    ? 'Erreur connexion: ' . $e->getMessage()
+                    : 'Erreur de connexion. Veuillez reessayer.'
+            );
+=======
         $username = trim((string) $this->request->getPost('username'));
         $password = (string) $this->request->getPost('password');
 
         if ($username === '' || $password === '') {
             return redirect()->back()->with('error', 'Identifiants requis.');
+>>>>>>> a08a4bcda4f048d683fa9b341e24c30a9ddf6ec6
         }
 
         $userModel = new UserModel();
@@ -73,10 +120,26 @@ class AuthController extends BaseWebController
 
     public function logout()
     {
+        $jwt = service('jwtService');
         $refreshToken = session()->get('refresh_token');
 
+<<<<<<< HEAD
+        if (is_string($refreshToken) && $refreshToken !== '') {
+            $jwt->revokeRefreshToken($refreshToken);
+        }
+
+        $accessToken = (string) session()->get('access_token');
+        if ($accessToken !== '') {
+            try {
+                $claims = $jwt->decodeAccessToken($accessToken);
+                $jwt->revokeAccessTokenClaims($claims);
+            } catch (\Throwable $e) {
+                log_message('error', '[WebAuth] Logout token revoke failed: ' . $e->getMessage());
+            }
+=======
         if ($refreshToken) {
             service('jwtService')->revokeRefreshToken((string) $refreshToken);
+>>>>>>> a08a4bcda4f048d683fa9b341e24c30a9ddf6ec6
         }
 
         session()->destroy();
@@ -84,7 +147,7 @@ class AuthController extends BaseWebController
         return redirect()->to('/');
     }
 
-    public function refresh()
+    public function refresh(): ResponseInterface
     {
         $refreshToken = session()->get('refresh_token');
 

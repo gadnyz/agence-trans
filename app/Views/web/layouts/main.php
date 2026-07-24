@@ -18,17 +18,18 @@ $roleLabel   = $user['role']['libelle'] ?? '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= esc($title ?? 'Kashala Trans') ?></title>
+    <title><?= esc($title ?? 'KishalaTrans') ?></title>
 
     <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('img/favicon-32x32.png') ?>">
     <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('img/favicon-16x16.png') ?>">
     <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('img/apple-icon-180x180.png') ?>">
 
-    <!-- Fonts -->
+    <!-- Fonts : Inter (CDN léger) + Material Symbols local (plus de webfont variable Google) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="<?= base_url('fonts/material-symbols-outlined.ttf') ?>" as="font" type="font/ttf" crossorigin>
+    <link rel="stylesheet" href="<?= base_url('css/material-symbols.css') ?>">
 
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -566,5 +567,10 @@ $roleLabel   = $user['role']['libelle'] ?? '';
     </script>
 
     <?= $this->renderSection('scripts') ?>
+    <script>
+        window.KISHALA_BASE_URL = <?= json_encode(base_url()) ?>;
+        window.KISHALA_API_TOKEN = <?= json_encode((string) (session()->get('access_token') ?? '')) ?>;
+    </script>
+    <script src="<?= base_url('js/kishala-api.js') ?>" defer></script>
 </body>
 </html>

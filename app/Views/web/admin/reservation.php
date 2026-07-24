@@ -354,8 +354,9 @@ const BASE_URL  = '<?= base_url() ?>';
 
 // ── Helpers fetch ──────────────────────────────────────────────────────────
 async function apiFetch(url, options = {}) {
-    const headers = { Accept: 'application/json', Authorization: `Bearer ${API_TOKEN}`, ...(options.headers || {}) };
-    const response = await fetch(url, { ...options, headers });
+    const headers = { Accept: 'application/json', ...(options.headers || {}) };
+    if (API_TOKEN) headers.Authorization = `Bearer ${API_TOKEN}`;
+    const response = await fetch(url, { ...options, credentials: 'same-origin', headers });
     return response;
 }
 
@@ -516,7 +517,7 @@ async function submitReservation() {
 async function annulerReservation(id, ref) {
     if (!confirm(`Annuler la réservation ${ref} ?\nCette action est irréversible.`)) return;
     try {
-        const response = await apiFetch(`${BASE_URL}api/reservations/${id}/annuler`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const response = await apiFetch(`${BASE_URL}api/reservations/${id}/cancel`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
         const json = await response.json();
         if (!response.ok || json.success === false) { alert(json.message || 'Impossible d\'annuler.'); return; }
         window.location.reload();

@@ -31,6 +31,46 @@ class App extends BaseConfig
      */
     public array $allowedHostnames = [];
 
+    public function __construct()
+    {
+        parent::__construct();
+
+        if ($this->shouldUseRequestBaseUrl()) {
+            $scheme = $this->detectScheme();
+            $host = $_SERVER['HTTP_HOST'] ?? '';
+
+            if ($host !== '') {
+                $this->baseURL = $scheme . '://' . $host . '/';
+            }
+        }
+    }
+
+    private function shouldUseRequestBaseUrl(): bool
+    {
+        if (PHP_SAPI === 'cli' || PHP_SAPI === 'phpdbg') {
+            return false;
+        }
+
+        if (! isset($_SERVER['HTTP_HOST'])) {
+            return false;
+        }
+
+        return str_contains($this->baseURL, 'localhost')
+            || str_contains($this->baseURL, '127.0.0.1');
+    }
+
+    private function detectScheme(): string
+    {
+        $https = $_SERVER['HTTPS'] ?? '';
+        $forwardedProto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '';
+
+        if ($https === 'on' || $https === '1' || strtolower((string) $forwardedProto) === 'https') {
+            return 'https';
+        }
+
+        return 'http';
+    }
+
     /**
      * --------------------------------------------------------------------------
      * Index File

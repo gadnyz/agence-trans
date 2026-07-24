@@ -312,9 +312,9 @@
             const headers = {
                 Accept: 'application/json',
                 ...(options.headers || {}),
-                Authorization: `Bearer ${token}`
             };
-            let response = await fetch(url, { ...options, headers });
+            if (token) headers.Authorization = `Bearer ${token}`;
+            let response = await fetch(url, { ...options, credentials: 'same-origin', headers });
             if (response.status === 401 && retry) {
                 await refreshSession();
                 response = await apiFetch(url, options, false);

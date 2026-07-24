@@ -25,7 +25,7 @@ class ReceptController extends BaseWebController
 
         return array_merge([
             'layout'          => $layout,
-            'title'           => 'Kashala Trans — Guichet',
+            'title'           => 'KishalaTrans — Guichet',
             'pageTitle'       => $pageTitle,
             'user'            => $user,
             'api_token'       => session()->get('access_token'),

@@ -82,7 +82,7 @@
         <div class="brand">
             <img class="logo" src="<?= esc($configuration['logo_url'] ?? base_url('img/bus.png')) ?>" alt="">
             <div>
-                <h1><?= esc($configuration['nom_agence'] ?? 'KASHALA Trans') ?></h1>
+                <h1><?= esc($configuration['nom_agence'] ?? 'KishalaTrans') ?></h1>
                 <?php if (! empty($configuration['telephone'])): ?>
                     <div><?= esc($configuration['telephone']) ?></div>
                 <?php endif; ?>

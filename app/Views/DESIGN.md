@@ -1,5 +1,5 @@
 ---
-name: KASHALA Trans Management
+name: KishalaTrans Management
 colors:
   background: '#f6f7f9'
   surface: '#ffffff'
@@ -75,7 +75,7 @@ spacing:
 
 ## Direction
 
-KASHALA Trans utilise un design de gestion métier : sobre, dense, lisible et conçu pour une utilisation prolongée au guichet ou sur desktop. L’interface doit aider l’agent à trouver rapidement l’information utile sans décor inutile.
+KishalaTrans utilise un design de gestion métier : sobre, dense, lisible et conçu pour une utilisation prolongée au guichet ou sur desktop. L’interface doit aider l’agent à trouver rapidement l’information utile sans décor inutile.
 
 Le style s’inspire davantage d’un outil d’exploitation que d’une page marketing : navigation compacte, tableaux lisibles, formulaires structurés, actions visibles et états d’erreur explicites.
 

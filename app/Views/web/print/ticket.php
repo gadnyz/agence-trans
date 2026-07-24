@@ -63,7 +63,7 @@
 <body>
     <header class="center">
         <img class="logo" src="<?= esc($configuration['logo_url'] ?? base_url('img/bus.png')) ?>" alt="">
-        <h1 style="font-size: 16px; margin: 0;"><?= esc($configuration['nom_agence'] ?? 'KASHALA Trans') ?></h1>
+        <h1 style="font-size: 16px; margin: 0;"><?= esc($configuration['nom_agence'] ?? 'KishalaTrans') ?></h1>
         <?php if (! empty($configuration['telephone'])): ?>
             <div><?= esc($configuration['telephone']) ?></div>
         <?php endif; ?>

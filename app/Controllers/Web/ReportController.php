@@ -8,10 +8,15 @@ class ReportController extends BaseWebController
 {
     public function index()
     {
-        $meResponse = $this->authenticatedUser();
+        $user = $this->requireAuthApi();
 
-        if (! is_array($meResponse)) {
-            return $meResponse;
+        if ($user instanceof \CodeIgniter\HTTP\ResponseInterface) {
+            return $user;
+        }
+
+        $permissions = $user['permissions'] ?? [];
+        if (! in_array('*', $permissions, true) && ! in_array('reports.read', $permissions, true)) {
+            return redirect()->to($this->roleHomePath())->with('error', 'Accès aux rapports non autorisé.');
         }
 
         $filters = $this->filters();
@@ -21,11 +26,21 @@ class ReportController extends BaseWebController
         $totalPages = max(1, (int) ceil($totalReservations / $perPage));
         $page = min($page, $totalPages);
 
-        return view('web/pages/rapports', [
+        $userRole = $this->userRole();
+        $layout = match($userRole) {
+            'super_admin' => 'web/layouts/super_admin',
+            'admin'       => 'web/layouts/admin',
+            default       => 'web/layouts/super_admin',
+        };
+
+        $viewName = $userRole === 'admin' ? 'web/admin/rapports' : 'web/super_admin/rapports';
+
+        return view($viewName, [
+            'layout' => $layout,
             'title' => 'Rapports',
             'pageTitle' => 'Rapports',
-            'reportActionUrl' => base_url('rapports'),
-            'user' => $meResponse['data'],
+            'reportActionUrl' => base_url($userRole === 'super_admin' ? 'super-admin/rapports' : 'admin/rapports'),
+            'user' => $user,
             'filters' => $filters,
             'options' => $this->filterOptions(),
             'summary' => $this->summary($filters),
@@ -43,27 +58,25 @@ class ReportController extends BaseWebController
         ]);
     }
 
-    private function authenticatedUser()
+    public function analyse()
     {
-        if (! session()->get('access_token')) {
-            return redirect()->to('/');
-        }
+        $user = $this->requireAuthApi();
 
-        $meResponse = $this->api->get('auth/me');
+        $user = $this->currentWebUser();
 
-        if (! $meResponse || ($meResponse['success'] ?? false) === false) {
+        if ($user === null) {
             session()->destroy();
 
             return redirect()->to('/')->with('error', 'Session expirée, veuillez vous reconnecter.');
         }
 
-        $permissions = $meResponse['data']['permissions'] ?? [];
+        $permissions = $user['permissions'] ?? [];
 
         if (! in_array('*', $permissions, true) && ! in_array('reports.read', $permissions, true)) {
-            return redirect()->to('/reservations')->with('error', 'Accès aux rapports non autorisé.');
+            return redirect()->to($this->roleHomePath())->with('error', 'Accès aux analyses non autorisé.');
         }
 
-        return $meResponse;
+        return ['data' => $user];
     }
 
     /**

@@ -153,18 +153,7 @@ class PlanningController extends BaseApiController
             return $this->failure('Aucune date selectionnee dans la plage.', ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        $conflicts = $this->conflictsForDates(
-            $dates,
-            (int) $payload['id_bus'],
-            (int) $payload['id_conducteur'],
-            (int) $payload['id_trajet']
-        );
-
-        if ($conflicts !== []) {
-            return $this->failure('Conflit de planification.', ResponseInterface::HTTP_CONFLICT, [
-                'conflicts' => $conflicts,
-            ]);
-        }
+        // V1 : les doubles affectations bus/conducteur sont autorisées (pas de contrôle de conflit).
 
         $placesDisponibles = (int) ($payload['places_disponibles'] ?? $bus['nombre_places'] ?? 0);
         $statut = trim((string) ($payload['statut'] ?? 'Planifie'));
@@ -258,19 +247,7 @@ class PlanningController extends BaseApiController
             return $this->failure('Reference introuvable.', ResponseInterface::HTTP_BAD_REQUEST, $missing);
         }
 
-        $conflicts = $this->conflictsForDates(
-            [$dateProgramme->format('Y-m-d')],
-            (int) $payload['id_bus'],
-            (int) $payload['id_conducteur'],
-            (int) $payload['id_trajet'],
-            $id
-        );
-
-        if ($conflicts !== []) {
-            return $this->failure('Conflit de planification.', ResponseInterface::HTTP_CONFLICT, [
-                'conflicts' => $conflicts,
-            ]);
-        }
+        // V1 : les doubles affectations bus/conducteur sont autorisées (pas de contrôle de conflit).
 
         $placesDisponibles = (int) ($payload['places_disponibles'] ?? $bus['nombre_places'] ?? 0);
         $statut = trim((string) ($payload['statut'] ?? 'Planifie'));
@@ -513,117 +490,76 @@ class PlanningController extends BaseApiController
         return $dates;
     }
 
-    /**
-     * @param list<string> $dates
-     *
-     * @return list<array<string, mixed>>
-     */
-    private function conflictsForDates(array $dates, int $busId, int $conducteurId, int $trajetId, ?int $excludeProgrammeId = null): array
-    {
-        if ($dates === []) {
-            return [];
-        }
-
-        $searchDates = [];
-
-        foreach ($dates as $date) {
-            $baseDate = new DateTimeImmutable($date);
-            $searchDates[] = $baseDate->modify('-1 day')->format('Y-m-d');
-            $searchDates[] = $baseDate->format('Y-m-d');
-            $searchDates[] = $baseDate->modify('+1 day')->format('Y-m-d');
-        }
-
-        $searchDates = array_values(array_unique($searchDates));
-        $builder = db_connect()
-            ->table('programme p')
-            ->select('p.id_programme, p.date_programme, p.id_bus, p.id_conducteur, b.numero_plaque, c.nom AS conducteur_nom, c.postnom AS conducteur_postnom, c.prenom AS conducteur_prenom')
-            ->join('bus b', 'b.id_bus = p.id_bus')
-            ->join('conducteur c', 'c.id_conducteur = p.id_conducteur')
-            ->join('trajet t', 't.id_trajet = p.id_trajet')
-            ->join('horaire h', 'h.id_horaire = t.id_horaire')
-            ->select('h.heure_depart, h.heure_arrivee')
-            ->where('p.deleted_at', null)
-            ->whereIn('p.date_programme', $searchDates)
-            ->groupStart()
-                ->where('p.id_bus', $busId)
-                ->orWhere('p.id_conducteur', $conducteurId)
-            ->groupEnd()
-            ->orderBy('p.date_programme', 'asc');
-
-        if ($excludeProgrammeId !== null) {
-            $builder->where('p.id_programme !=', $excludeProgrammeId);
-        }
-
-        $candidates = $builder
-            ->get()
-            ->getResultArray();
-
-        $conflicts = [];
-
-        foreach ($candidates as $candidate) {
-            $newWindow = $this->trajetWindowForDate($trajetId, (string) $candidate['date_programme']);
-            $existingWindow = $this->timeWindow(
-                (string) $candidate['date_programme'],
-                (string) $candidate['heure_depart'],
-                (string) $candidate['heure_arrivee']
-            );
-
-            if ($newWindow !== null && $this->windowsOverlap($newWindow, $existingWindow)) {
-                $conflicts[] = $candidate;
-            }
-        }
-
-        return $conflicts;
-    }
-
-    /**
-     * @return array{0: DateTimeImmutable, 1: DateTimeImmutable}|null
-     */
-    private function trajetWindowForDate(int $trajetId, string $date): ?array
-    {
-        $row = db_connect()
-            ->table('trajet t')
-            ->select('h.heure_depart, h.heure_arrivee')
-            ->join('horaire h', 'h.id_horaire = t.id_horaire')
-            ->where('t.id_trajet', $trajetId)
-            ->where('t.deleted_at', null)
-            ->where('h.deleted_at', null)
-            ->get()
-            ->getRowArray();
-
-        if (! is_array($row)) {
-            return null;
-        }
-
-        return $this->timeWindow($date, (string) $row['heure_depart'], (string) $row['heure_arrivee']);
-    }
-
-    /**
-     * @return array{0: DateTimeImmutable, 1: DateTimeImmutable}
-     */
-    private function timeWindow(string $date, string $heureDepart, string $heureArrivee): array
-    {
-        $start = new DateTimeImmutable($date . ' ' . $heureDepart);
-        $end = new DateTimeImmutable($date . ' ' . $heureArrivee);
-
-        if ($end <= $start) {
-            $end = $end->modify('+1 day');
-        }
-
-        return [$start, $end];
-    }
-
-    /**
-     * @param array{0: DateTimeImmutable, 1: DateTimeImmutable} $left
-     * @param array{0: DateTimeImmutable, 1: DateTimeImmutable} $right
-     */
-    private function windowsOverlap(array $left, array $right): bool
-    {
-        return $left[0] < $right[1] && $left[1] > $right[0];
-    }
-
     private function today(): DateTimeImmutable
     {
         return new DateTimeImmutable(date('Y-m-d'));
+    }
+
+    public function getAvailableTrips()
+    {
+        $id_trajet = $this->request->getGet('id_trajet');
+        $date = $this->request->getGet('date'); // Format Y-m-d
+
+        $programmeModel = new \App\Models\ProgrammeModel();
+
+        // On cherche les programmes pour ce trajet, cette date, actifs et avec des places
+        $trips = $programmeModel->select('programme.*, bus.numero_plaque, bus.nombre_places')
+            ->join('bus', 'bus.id_bus = programme.id_bus')
+            ->where('programme.id_trajet', $id_trajet)
+            ->like('programme.date_programme', $date, 'after') // Filtre sur le jour même
+            ->where('programme.places_disponibles >', 0)
+            ->where('programme.statut', 'planifie')
+            ->findAll();
+
+        return $this->respond($trips);
+    }
+
+    // Liste les programmes de voyage pour le modal du Réceptionniste
+    public function search(): ResponseInterface
+    {
+        $dateDebut = trim((string) $this->request->getGet('date_debut'));
+        $search    = trim((string) $this->request->getGet('search'));
+
+        // On utilise ton programmeBuilder() existant qui est parfait !
+        $builder = $this->programmeBuilder()
+            ->orderBy('h.heure_depart', 'ASC');
+
+        // Filtrer par date (supporte plage avec date_fin)
+        $dateFin = trim((string) $this->request->getGet('date_fin'));
+        if ($dateDebut !== '' && $dateFin !== '') {
+            $builder->where('p.date_programme >=', $dateDebut);
+            $builder->where('p.date_programme <=', $dateFin);
+        } elseif ($dateDebut !== '') {
+            $builder->where('p.date_programme', $dateDebut);
+        }
+
+        // Filtrer par la barre de recherche (ex: taper le nom d'une ville)
+        if ($search !== '') {
+            $builder->groupStart()
+                ->like('td.nom_lieu', $search) // td est l'alias de lieu_depart dans ton builder
+                ->orLike('ta.nom_lieu', $search) // ta est l'alias de lieu_arrivee dans ton builder
+                ->groupEnd();
+        }
+
+        $items = $builder->get()->getResultArray();
+
+        // On ajoute la gestion des arrêts pour chaque programme
+        foreach ($items as &$item) {
+            $arrets = db_connect()->table('arret a')
+                ->select('a.id_lieu, l.nom_lieu')
+                ->join('lieu l', 'l.id_lieu = a.id_lieu')
+                ->where('a.id_trajet', $item['id_trajet'])
+                ->where('a.deleted_at', null)
+                ->orderBy('a.ordre_arret', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            $item['arrets'] = $arrets;
+        }
+        unset($item);
+
+        return $this->success([
+            'items' => $items,
+        ]);
     }
 }

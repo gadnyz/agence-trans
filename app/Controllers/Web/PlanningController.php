@@ -6,11 +6,18 @@ class PlanningController extends BaseWebController
 {
     public function index()
     {
-        $meResponse = $this->authenticatedUser();
+        $user = $this->requireAuthApi();
 
-        if (! is_array($meResponse)) {
-            return $meResponse;
+        if ($user instanceof \CodeIgniter\HTTP\ResponseInterface) {
+            return $user;
         }
+
+        $userRole = $this->userRole();
+        $layout = match($userRole) {
+            'super_admin' => 'web/layouts/super_admin',
+            'admin'       => 'web/layouts/admin',
+            default       => 'web/layouts/super_admin',
+        };
 
         $today = date('Y-m-d');
         $dateDebut = (string) ($this->request->getGet('date_debut') ?? $today);
@@ -18,9 +25,10 @@ class PlanningController extends BaseWebController
         $lieux = $this->items('lieux', ['per_page' => 200]);
         $horaires = $this->items('horaires', ['per_page' => 200]);
 
-        return view('web/pages/planification', [
+        return view($userRole === 'admin' ? 'web/admin/planification' : 'web/super_admin/planification', [
+            'layout' => $layout,
             'title' => 'Planification',
-            'user' => $meResponse['data'],
+            'user' => $user,
             'api_token' => session()->get('access_token'),
             'bus' => $this->items('bus', ['per_page' => 100, 'sort' => 'numero_plaque']),
             'conducteurs' => $this->items('conducteurs', ['per_page' => 100, 'sort' => 'nom']),
@@ -38,15 +46,15 @@ class PlanningController extends BaseWebController
             return redirect()->to('/');
         }
 
-        $meResponse = $this->api->get('auth/me');
+        $user = $this->currentWebUser();
 
-        if (! $meResponse || ($meResponse['success'] ?? false) === false) {
+        if ($user === null) {
             session()->destroy();
 
             return redirect()->to('/')->with('error', 'Session expiree, veuillez vous reconnecter.');
         }
 
-        return $meResponse;
+        return ['data' => $user];
     }
 
     /**
@@ -54,9 +62,88 @@ class PlanningController extends BaseWebController
      */
     private function items(string $resource, array $query = []): array
     {
-        $response = $this->api->get($resource, $query);
+<<<<<<< HEAD
+        $resources = [
+            'bus' => [
+                'table' => 'bus',
+                'orderBy' => 'numero_plaque',
+            ],
+            'conducteurs' => [
+                'table' => 'conducteur',
+                'orderBy' => 'nom',
+            ],
+            'trajets' => [
+                'table' => 'trajet',
+                'orderBy' => 'id_trajet',
+            ],
+            'lieux' => [
+                'table' => 'lieu',
+                'orderBy' => 'nom_lieu',
+            ],
+            'horaires' => [
+                'table' => 'horaire',
+                'orderBy' => 'heure_depart',
+            ],
+        ];
 
-        return $response['data']['items'] ?? [];
+        $config = $resources[$resource] ?? null;
+
+        if ($config === null) {
+            return [];
+        }
+
+        $perPage = max(1, min(200, (int) ($query['per_page'] ?? 100)));
+        $sort = (string) ($query['sort'] ?? $config['orderBy']);
+        $allowedSorts = array_merge([$config['orderBy']], $this->listColumns($config['table']));
+
+        if (! in_array($sort, $allowedSorts, true)) {
+            $sort = $config['orderBy'];
+        }
+
+        return \Config\Database::connect()
+            ->table($config['table'])
+            ->where('deleted_at', null)
+            ->orderBy($sort, 'asc')
+            ->limit($perPage)
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function listColumns(string $table): array
+    {
+        return array_map(
+            static fn (object $field): string => (string) $field->name,
+            \Config\Database::connect()->getFieldData($table)
+        );
+=======
+        $db = db_connect();
+        $perPage = max(1, min(200, (int) ($query['per_page'] ?? 100)));
+        $sort = (string) ($query['sort'] ?? '');
+
+        $resources = [
+            'lieux' => ['table' => 'lieu', 'allowedSorts' => ['id_lieu', 'nom_lieu']],
+            'horaires' => ['table' => 'horaire', 'allowedSorts' => ['id_horaire', 'heure_depart']],
+            'bus' => ['table' => 'bus', 'allowedSorts' => ['id_bus', 'numero_plaque']],
+            'conducteurs' => ['table' => 'conducteur', 'allowedSorts' => ['id_conducteur', 'nom']],
+            'trajets' => ['table' => 'trajet', 'allowedSorts' => ['id_trajet']],
+        ];
+
+        if (! isset($resources[$resource])) {
+            return [];
+        }
+
+        $config = $resources[$resource];
+        $builder = $db->table($config['table'])->where('deleted_at', null)->limit($perPage);
+
+        if ($sort !== '' && in_array($sort, $config['allowedSorts'], true)) {
+            $builder->orderBy($sort, 'asc');
+        }
+
+        return $builder->get()->getResultArray();
+>>>>>>> a08a4bcda4f048d683fa9b341e24c30a9ddf6ec6
     }
 
     /**

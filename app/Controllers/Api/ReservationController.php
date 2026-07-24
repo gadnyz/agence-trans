@@ -137,29 +137,35 @@ class ReservationController extends BaseApiController
             ]);
         }
 
-        $mode = $this->findModePaiement((int) $payload['id_mode_paiement']);
-
-        if ($mode === null) {
-            return $this->failure('Mode de paiement introuvable.', ResponseInterface::HTTP_BAD_REQUEST);
-        }
-
-        $clientPayload = $this->clientPayload($payload);
-        $paymentPayload = is_array($payload['payment'] ?? null) ? $payload['payment'] : [];
+        $idModePaiement = isset($payload['id_mode_paiement']) ? (int) $payload['id_mode_paiement'] : 0;
+        $mode = null;
+        $paymentResult = null;
         $montantFinal = (float) $programme['prix'] * $nombrePlaces;
-        $paymentContext = [
-            'id_programme' => (int) $programme['id_programme'],
-            'id_mode_paiement' => (int) $mode['id_mode_paiement'],
-            'mode_paiement' => $mode['libelle'],
-            'montant' => $montantFinal,
-            'id_currency' => (int) $programme['id_currency'],
-            'code_currency' => $programme['code_currency'],
-        ];
-        $paymentResult = (new PaymentGatewayManager())
-            ->gatewayForMode((string) $mode['libelle'])
-            ->confirm($paymentContext, $paymentPayload);
 
-        if (! $paymentResult->success) {
-            return $this->failure($paymentResult->message, ResponseInterface::HTTP_PAYMENT_REQUIRED);
+        if ($idModePaiement > 0) {
+            $mode = $this->findModePaiement($idModePaiement);
+
+            if ($mode === null) {
+                return $this->failure('Mode de paiement introuvable.', ResponseInterface::HTTP_BAD_REQUEST);
+            }
+
+            $clientPayload = $this->clientPayload($payload);
+            $paymentPayload = is_array($payload['payment'] ?? null) ? $payload['payment'] : [];
+            $paymentContext = [
+                'id_programme' => (int) $programme['id_programme'],
+                'id_mode_paiement' => (int) $mode['id_mode_paiement'],
+                'mode_paiement' => $mode['libelle'],
+                'montant' => $montantFinal,
+                'id_currency' => (int) $programme['id_currency'],
+                'code_currency' => $programme['code_currency'],
+            ];
+            $paymentResult = (new PaymentGatewayManager())
+                ->gatewayForMode((string) $mode['libelle'])
+                ->confirm($paymentContext, $paymentPayload);
+
+            if (! $paymentResult->success) {
+                return $this->failure($paymentResult->message, ResponseInterface::HTTP_PAYMENT_REQUIRED);
+            }
         }
 
         $db = db_connect();
@@ -167,37 +173,55 @@ class ReservationController extends BaseApiController
         try {
             $db->transStart();
 
-            $client = $this->ensureClient($clientPayload);
+            // $client = $this->ensureClient($clientPayload);
+            if (!empty($payload['id_client'])) {
+                // Si JavaScript a envoyé un ID, on l'utilise directement
+                $idClientToUse = (int) $payload['id_client'];
+            } else {
+                // Sinon (ex: API appelée par un autre système), on cherche/crée avec le téléphone
+                $clientPayload = $this->clientPayload($payload);
+                $client = $this->ensureClient($clientPayload);
+                $idClientToUse = (int) $client['id_client'];
+            }
+
             $waitingStatusId = $this->statusId('EN_ATTENTE') ?? $this->firstStatusId();
 
             $db->table('reservation')->insert([
                 'id_programme' => (int) $programme['id_programme'],
-                'id_client' => (int) $client['id_client'],
+                // 'id_client' => (int) $client['id_client'],
+                'id_client' => $idClientToUse,
                 'created_by' => $this->currentUserId(),
                 'id_statut_reservation' => $waitingStatusId,
                 'date_reservation' => date('Y-m-d H:i:s'),
                 'id_lieu_reservation' => $lieuReservation,
                 'nombre_places' => $nombrePlaces,
                 'id_currency' => (int) $programme['id_currency'],
+                // On met à jour les montants de la réservation pour la compta
+                'montant_initial' => $montantFinal,
+                'montant_reduction' => 0,
+                'montant_final' => $montantFinal,
             ]);
             $reservationId = (int) $db->insertID();
 
-            $db->table('paiement')->insert([
-                'id_reservation' => $reservationId,
-                'id_mode_paiement' => (int) $mode['id_mode_paiement'],
-                'montant_paye' => $montantFinal,
-                'id_currency' => (int) $programme['id_currency'],
-                'taux_conversion' => 1,
-                'reference_paiement' => $paymentResult->reference,
-                'date_paiement' => date('Y-m-d H:i:s'),
-                'statut_paiement' => 'Valide',
-            ]);
+            if ($mode !== null && $paymentResult !== null) {
+                $db->table('paiement')->insert([
+                    'id_reservation' => $reservationId,
+                    'id_mode_paiement' => (int) $mode['id_mode_paiement'],
+                    'montant_paye' => $montantFinal,
+                    'id_currency' => (int) $programme['id_currency'],
+                    'taux_conversion' => 1,
+                    'reference_paiement' => $paymentResult->reference,
+                    'date_paiement' => date('Y-m-d H:i:s'),
+                    'statut_paiement' => 'Valide',
+                ]);
+            }
 
             $db->transComplete();
 
             if ($db->transStatus() === false) {
                 return $this->failure('Reservation impossible.', ResponseInterface::HTTP_CONFLICT);
             }
+            
         } catch (Throwable $e) {
             $db->transRollback();
 
@@ -224,13 +248,35 @@ class ReservationController extends BaseApiController
 
     public function list(): ResponseInterface
     {
-        $page = max(1, (int) ($this->request->getGet('page') ?? 1));
+        $page    = max(1, (int) ($this->request->getGet('page') ?? 1));
         $perPage = max(1, min(100, (int) ($this->request->getGet('per_page') ?? 25)));
         $builder = $this->reservationBuilder();
-        $date = trim((string) ($this->request->getGet('date') ?? ''));
 
-        if ($this->isDate($date)) {
-            $builder->where('p.date_programme', $date);
+        // Filtre par date programme
+        $dateDebut = trim((string) ($this->request->getGet('date_debut') ?? $this->request->getGet('date') ?? ''));
+        $dateFin   = trim((string) ($this->request->getGet('date_fin')   ?? $this->request->getGet('date') ?? ''));
+
+        if ($this->isDate($dateDebut)) {
+            $builder->where('p.date_programme >=', $dateDebut);
+        }
+        if ($this->isDate($dateFin)) {
+            $builder->where('p.date_programme <=', $dateFin);
+        }
+
+        // Recherche texte (nom client, téléphone, référence)
+        $search = trim((string) ($this->request->getGet('search') ?? ''));
+        if ($search !== '') {
+            $builder->groupStart()
+                ->like('cl.nom', $search)
+                ->orLike('cl.telephone', $search)
+                ->orLike('r.reference_reservation', $search)
+                ->groupEnd();
+        }
+
+        // Filtre par statut
+        $statut = trim((string) ($this->request->getGet('statut') ?? ''));
+        if ($statut !== '') {
+            $builder->where('statut_reservation.libelle', $statut);
         }
 
         $countBuilder = clone $builder;
@@ -244,12 +290,218 @@ class ReservationController extends BaseApiController
         return $this->success([
             'items' => $items,
             'meta' => [
-                'page' => $page,
-                'per_page' => $perPage,
-                'total' => $total,
+                'page'        => $page,
+                'per_page'    => $perPage,
+                'total'       => $total,
                 'total_pages' => (int) ceil($total / $perPage),
             ],
         ]);
+    }
+
+    public function update($id = null): ResponseInterface
+    {
+        $row = $this->reservationDetail((int) $id);
+        if ($row === null) {
+            return $this->failure('Réservation introuvable.', ResponseInterface::HTTP_NOT_FOUND);
+        }
+
+        // On ne peut pas modifier une réservation annulée
+        $statutActuel = strtolower((string) ($row['statut_reservation'] ?? ''));
+        if (in_array($statutActuel, ['annule', 'annulee', 'annulé', 'annulée'], true)) {
+            return $this->failure('Impossible de modifier une réservation annulée.', ResponseInterface::HTTP_CONFLICT);
+        }
+
+        $payload = $this->payload();
+        $db      = db_connect();
+
+        // Champs modifiables
+        $updates = [];
+
+        // Nouveau statut
+        if (!empty($payload['id_statut_reservation'])) {
+            $updates['id_statut_reservation'] = (int) $payload['id_statut_reservation'];
+        }
+
+        // Nouveau nombre de places
+        if (!empty($payload['nombre_places'])) {
+            $updates['nombre_places'] = (int) $payload['nombre_places'];
+        }
+
+        // Nouveau lieu de réservation
+        if (array_key_exists('id_lieu_reservation', $payload)) {
+            $idLieu = (int) ($payload['id_lieu_reservation'] ?? 0);
+            $updates['id_lieu_reservation'] = $idLieu > 0 ? $idLieu : null;
+        }
+
+        if (empty($updates)) {
+            return $this->failure('Aucune modification fournie.', ResponseInterface::HTTP_BAD_REQUEST);
+        }
+
+        $updates['updated_at'] = date('Y-m-d H:i:s');
+
+        try {
+            $db->table('reservation')
+                ->where('id_reservation', (int) $id)
+                ->update($updates);
+        } catch (Throwable $e) {
+            return $this->databaseFailure($e);
+        }
+
+        return $this->success([
+            'reservation' => $this->reservationDetail((int) $id),
+        ], 'Réservation mise à jour.');
+    }
+
+    public function cancel($id = null): ResponseInterface
+    {
+        $row = $this->reservationDetail((int) $id);
+        if ($row === null) {
+            return $this->failure('Réservation introuvable.', ResponseInterface::HTTP_NOT_FOUND);
+        }
+
+        $statutActuel = strtolower((string) ($row['statut_reservation'] ?? ''));
+        if (in_array($statutActuel, ['annule', 'annulee', 'annulé', 'annulée'], true)) {
+            return $this->failure('Cette réservation est déjà annulée.', ResponseInterface::HTTP_CONFLICT);
+        }
+
+        $db      = db_connect();
+        $payload = $this->payload();
+        $motif   = trim((string) ($payload['motif'] ?? ''));
+
+        // Trouver le statut "annulé"
+        $cancelStatusId = $this->statusId('ANNULE')
+            ?? $this->statusId('ANNULEE')
+            ?? $this->statusId('Annule')
+            ?? $this->statusId('Annulé')
+            ?? $this->statusId('Annulée');
+
+        try {
+            $db->transStart();
+
+            // Marquer la réservation comme annulée
+            $db->table('reservation')
+                ->where('id_reservation', (int) $id)
+                ->update([
+                    'id_statut_reservation' => $cancelStatusId,
+                    'motif_annulation'       => $motif ?: null,
+                    'updated_at'             => date('Y-m-d H:i:s'),
+                ]);
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                return $this->failure('Annulation impossible.', ResponseInterface::HTTP_CONFLICT);
+            }
+        } catch (Throwable $e) {
+            $db->transRollback();
+            return $this->databaseFailure($e);
+        }
+
+        return $this->success([
+            'reservation' => $this->reservationDetail((int) $id),
+        ], 'Réservation annulée.');
+    }
+
+    public function delete($id = null): ResponseInterface
+    {
+        $row = $this->reservationDetail((int) $id);
+        if ($row === null) {
+            return $this->failure('Réservation introuvable.', ResponseInterface::HTTP_NOT_FOUND);
+        }
+
+        $db = db_connect();
+
+        try {
+            $db->transStart();
+
+            // Marquer la réservation comme supprimée (deleted_at)
+            $db->table('reservation')
+                ->where('id_reservation', (int) $id)
+                ->update([
+                    'deleted_at' => date('Y-m-d H:i:s'),
+                ]);
+
+            // Supprimer aussi le paiement associé
+            $db->table('paiement')
+                ->where('id_reservation', (int) $id)
+                ->update([
+                    'deleted_at' => date('Y-m-d H:i:s'),
+                ]);
+
+            $db->transComplete();
+
+            if ($db->transStatus() === false) {
+                return $this->failure('Suppression impossible.', ResponseInterface::HTTP_CONFLICT);
+            }
+        } catch (Throwable $e) {
+            $db->transRollback();
+            return $this->databaseFailure($e);
+        }
+
+        return $this->success(null, 'Réservation supprimée.');
+    }
+
+    public function addPayment($id = null): ResponseInterface
+    {
+        $row = $this->reservationDetail((int) $id);
+        if ($row === null) {
+            return $this->failure('Réservation introuvable.', ResponseInterface::HTTP_NOT_FOUND);
+        }
+
+        $payload = $this->payload();
+        $montant = (float) ($payload['montant_paye'] ?? 0);
+        $idMode  = (int) ($payload['id_mode_paiement'] ?? 0);
+
+        if ($montant <= 0) {
+            return $this->failure('Le montant doit être supérieur à 0.', ResponseInterface::HTTP_BAD_REQUEST);
+        }
+        if ($idMode <= 0) {
+            return $this->failure('Mode de paiement requis.', ResponseInterface::HTTP_BAD_REQUEST);
+        }
+
+        $mode = $this->findModePaiement($idMode);
+        if ($mode === null) {
+            return $this->failure('Mode de paiement introuvable.', ResponseInterface::HTTP_BAD_REQUEST);
+        }
+
+        $db = db_connect();
+        try {
+            // Supprimer l'ancien paiement si existe
+            $db->table('paiement')
+                ->where('id_reservation', (int) $id)
+                ->set('deleted_at', date('Y-m-d H:i:s'))
+                ->update();
+
+            // Insérer le nouveau paiement
+            $db->table('paiement')->insert([
+                'id_reservation'    => (int) $id,
+                'id_mode_paiement'  => $idMode,
+                'montant_paye'      => $montant,
+                'id_currency'       => (int) $row['id_currency'],
+                'taux_conversion'   => 1,
+                'reference_paiement'=> trim((string) ($payload['reference_paiement'] ?? '')),
+                'date_paiement'     => date('Y-m-d H:i:s'),
+                'statut_paiement'   => 'Valide',
+            ]);
+        } catch (Throwable $e) {
+            return $this->databaseFailure($e);
+        }
+
+        return $this->success([
+            'reservation' => $this->reservationDetail((int) $id),
+        ], 'Paiement enregistré.');
+    }
+
+    public function statutsList(): ResponseInterface
+    {
+        $rows = db_connect()
+            ->table('statut_reservation')
+            ->where('deleted_at', null)
+            ->orderBy('id_statut_reservation', 'asc')
+            ->get()
+            ->getResultArray();
+
+        return $this->success(['items' => $rows]);
     }
 
     private function programmeBuilder(): BaseBuilder
@@ -302,7 +554,7 @@ class ReservationController extends BaseApiController
             ->table('reservation r')
             ->select([
                 'r.*',
-                'sr.libelle AS statut_reservation',
+                'statut_reservation.libelle AS statut_reservation',
                 'cl.nom AS client_nom',
                 'cl.telephone AS client_telephone',
                 'cl.email AS client_email',
@@ -324,11 +576,13 @@ class ReservationController extends BaseApiController
                 'pa.reference_paiement',
                 'pa.statut_paiement',
                 'pa.date_paiement',
+                'pa.montant_paye AS montant_paye',
+                't.prix',
                 'u.username AS created_by_username',
                 'u.nom AS created_by_nom',
                 'u.prenom AS created_by_prenom',
             ])
-            ->join('statut_reservation sr', 'sr.id_statut_reservation = r.id_statut_reservation')
+            ->join('statut_reservation', 'statut_reservation.id_statut_reservation = r.id_statut_reservation')
             ->join('client cl', 'cl.id_client = r.id_client')
             ->join('programme p', 'p.id_programme = r.id_programme')
             ->join('bus b', 'b.id_bus = p.id_bus')
@@ -507,11 +761,15 @@ class ReservationController extends BaseApiController
         $validation->setRules([
             'id_programme' => 'required|is_natural_no_zero',
             'nombre_places' => 'required|is_natural_no_zero',
-            'id_mode_paiement' => 'required|is_natural_no_zero',
+            'id_mode_paiement' => 'permit_empty|is_natural_no_zero',
         ]);
 
         $errors = $validation->run($payload) ? [] : $validation->getErrors();
         $client = $this->clientPayload($payload);
+
+        if (!empty($payload['id_client'])) {
+            return $errors;
+        }
 
         if ($client['telephone'] === '') {
             $errors['telephone'] = 'Le telephone du client est obligatoire.';

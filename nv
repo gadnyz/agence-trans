@@ -1,0 +1,49 @@
+#--------------------------------------------------------------------
+# ENVIRONMENT
+#--------------------------------------------------------------------
+
+CI_ENVIRONMENT = development
+
+#--------------------------------------------------------------------
+# APP
+#--------------------------------------------------------------------
+
+app.baseURL = 'http://localhost:8080/'
+app.appTimezone = 'Africa/Lubumbashi'
+
+#--------------------------------------------------------------------
+# DATABASE
+#--------------------------------------------------------------------
+
+database.default.hostname = localhost
+database.default.database = kashala_trans
+database.default.username = root
+database.default.password =
+database.default.DBDriver = MySQLi
+database.default.port = 3306
+
+#--------------------------------------------------------------------
+# JWT
+#--------------------------------------------------------------------
+
+JWT_SECRET = kashala_trans_secret_key_2026
+JWT_ACCESS_TOKEN_EXPIRATION = 3600
+
+#--------------------------------------------------------------------
+# LOGS
+#--------------------------------------------------------------------
+
+logger.threshold = 4
+
+
+
+CI_ENVIRONMENT = development
+
+app.baseURL = 'http://localhost/agence-trans/public/'
+
+database.default.hostname = localhost
+database.default.database = kashala_trans
+database.default.username = root
+database.default.password =
+database.default.DBDriver = MySQLi
+database.default.port = 3306

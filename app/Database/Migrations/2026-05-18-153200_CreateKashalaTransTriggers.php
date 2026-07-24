@@ -8,6 +8,16 @@ class CreateKashalaTransTriggers extends Migration
 {
     public function up(): void
     {
+        // Nettoyage V1 : supprimer d'éventuels triggers de conflit encore présents
+        foreach ([
+            'tg_prevent_bus_double_program',
+            'tg_prevent_bus_double_program_update',
+            'tg_prevent_driver_double_program',
+            'tg_prevent_driver_double_program_update',
+        ] as $legacyConflictTrigger) {
+            $this->db->query(sprintf('DROP TRIGGER IF EXISTS `%s`', $legacyConflictTrigger));
+        }
+
         foreach ($this->triggerNames() as $trigger) {
             $this->db->query(sprintf('DROP TRIGGER IF EXISTS `%s`', $trigger));
         }
@@ -34,8 +44,9 @@ class CreateKashalaTransTriggers extends Migration
             'tg_generate_reference_payment',
             'tg_update_reservation_status_paid',
             'tg_init_places_programme',
-            'tg_prevent_bus_double_program',
-            'tg_prevent_driver_double_program',
+            // V1 : pas de blocage des doubles affectations bus/conducteur
+            // 'tg_prevent_bus_double_program',
+            // 'tg_prevent_driver_double_program',
             'tg_calcul_montant_reservation',
             'tg_check_places_before_reservation',
             'tg_generate_reference_reservation',
@@ -43,10 +54,9 @@ class CreateKashalaTransTriggers extends Migration
             'tg_reservation_reduce_places',
             'tg_reservation_update_places',
             'tg_restore_places_after_delete',
-            'tg_restore_places_on_status_cancelled',
             'tg_trajet_prix_historique',
-            'tg_prevent_bus_double_program_update',
-            'tg_prevent_driver_double_program_update',
+            // 'tg_prevent_bus_double_program_update',
+            // 'tg_prevent_driver_double_program_update',
         ];
     }
 
@@ -157,72 +167,6 @@ BEGIN
     AND deleted_at IS NULL;
 
   SET NEW.places_disponibles = COALESCE(NEW.places_disponibles, capacite_bus);
-END
-SQL,
-            <<<'SQL'
-CREATE TRIGGER `tg_prevent_bus_double_program`
-BEFORE INSERT ON `programme`
-FOR EACH ROW
-BEGIN
-  DECLARE total_conflits INT DEFAULT 0;
-  DECLARE new_heure_dep TIME;
-  DECLARE new_heure_arr TIME;
-
-  SELECT h.heure_depart, h.heure_arrivee
-  INTO new_heure_dep, new_heure_arr
-  FROM trajet t
-  INNER JOIN horaire h ON t.id_horaire = h.id_horaire
-  WHERE t.id_trajet = NEW.id_trajet;
-
-  SELECT COUNT(*)
-  INTO total_conflits
-  FROM programme p
-  INNER JOIN trajet t ON p.id_trajet = t.id_trajet
-  INNER JOIN horaire h ON t.id_horaire = h.id_horaire
-  WHERE p.id_bus = NEW.id_bus
-    AND p.date_programme = NEW.date_programme
-    AND p.deleted_at IS NULL
-    AND NEW.deleted_at IS NULL
-    AND new_heure_dep < h.heure_arrivee
-    AND new_heure_arr > h.heure_depart;
-
-  IF total_conflits > 0 THEN
-    SIGNAL SQLSTATE '45000'
-    SET MESSAGE_TEXT = 'ERR_BUS_DEJA_PLANIFIE';
-  END IF;
-END
-SQL,
-            <<<'SQL'
-CREATE TRIGGER `tg_prevent_driver_double_program`
-BEFORE INSERT ON `programme`
-FOR EACH ROW
-BEGIN
-  DECLARE total_conflits INT DEFAULT 0;
-  DECLARE new_heure_dep TIME;
-  DECLARE new_heure_arr TIME;
-
-  SELECT h.heure_depart, h.heure_arrivee
-  INTO new_heure_dep, new_heure_arr
-  FROM trajet t
-  INNER JOIN horaire h ON t.id_horaire = h.id_horaire
-  WHERE t.id_trajet = NEW.id_trajet;
-
-  SELECT COUNT(*)
-  INTO total_conflits
-  FROM programme p
-  INNER JOIN trajet t ON p.id_trajet = t.id_trajet
-  INNER JOIN horaire h ON t.id_horaire = h.id_horaire
-  WHERE p.id_conducteur = NEW.id_conducteur
-    AND p.date_programme = NEW.date_programme
-    AND p.deleted_at IS NULL
-    AND NEW.deleted_at IS NULL
-    AND new_heure_dep < h.heure_arrivee
-    AND new_heure_arr > h.heure_depart;
-
-  IF total_conflits > 0 THEN
-    SIGNAL SQLSTATE '45000'
-    SET MESSAGE_TEXT = 'ERR_CONDUCTEUR_DEJA_PLANIFIE';
-  END IF;
 END
 SQL,
             <<<'SQL'
@@ -453,74 +397,6 @@ BEGIN
       audit_user_id,
       NOW()
     );
-  END IF;
-END
-SQL,
-            <<<'SQL'
-CREATE TRIGGER `tg_prevent_bus_double_program_update`
-BEFORE UPDATE ON `programme`
-FOR EACH ROW
-BEGIN
-  DECLARE total_conflits INT DEFAULT 0;
-  DECLARE new_heure_dep TIME;
-  DECLARE new_heure_arr TIME;
-
-  SELECT h.heure_depart, h.heure_arrivee
-  INTO new_heure_dep, new_heure_arr
-  FROM trajet t
-  INNER JOIN horaire h ON t.id_horaire = h.id_horaire
-  WHERE t.id_trajet = NEW.id_trajet;
-
-  SELECT COUNT(*)
-  INTO total_conflits
-  FROM programme p
-  INNER JOIN trajet t ON p.id_trajet = t.id_trajet
-  INNER JOIN horaire h ON t.id_horaire = h.id_horaire
-  WHERE p.id_programme <> OLD.id_programme
-    AND p.id_bus = NEW.id_bus
-    AND p.date_programme = NEW.date_programme
-    AND p.deleted_at IS NULL
-    AND NEW.deleted_at IS NULL
-    AND new_heure_dep < h.heure_arrivee
-    AND new_heure_arr > h.heure_depart;
-
-  IF total_conflits > 0 THEN
-    SIGNAL SQLSTATE '45000'
-    SET MESSAGE_TEXT = 'ERR_BUS_DEJA_PLANIFIE';
-  END IF;
-END
-SQL,
-            <<<'SQL'
-CREATE TRIGGER `tg_prevent_driver_double_program_update`
-BEFORE UPDATE ON `programme`
-FOR EACH ROW
-BEGIN
-  DECLARE total_conflits INT DEFAULT 0;
-  DECLARE new_heure_dep TIME;
-  DECLARE new_heure_arr TIME;
-
-  SELECT h.heure_depart, h.heure_arrivee
-  INTO new_heure_dep, new_heure_arr
-  FROM trajet t
-  INNER JOIN horaire h ON t.id_horaire = h.id_horaire
-  WHERE t.id_trajet = NEW.id_trajet;
-
-  SELECT COUNT(*)
-  INTO total_conflits
-  FROM programme p
-  INNER JOIN trajet t ON p.id_trajet = t.id_trajet
-  INNER JOIN horaire h ON t.id_horaire = h.id_horaire
-  WHERE p.id_programme <> OLD.id_programme
-    AND p.id_conducteur = NEW.id_conducteur
-    AND p.date_programme = NEW.date_programme
-    AND p.deleted_at IS NULL
-    AND NEW.deleted_at IS NULL
-    AND new_heure_dep < h.heure_arrivee
-    AND new_heure_arr > h.heure_depart;
-
-  IF total_conflits > 0 THEN
-    SIGNAL SQLSTATE '45000'
-    SET MESSAGE_TEXT = 'ERR_CONDUCTEUR_DEJA_PLANIFIE';
   END IF;
 END
 SQL,

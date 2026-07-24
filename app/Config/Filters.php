@@ -38,6 +38,8 @@ class Filters extends BaseFilters
         'performance'   => PerformanceMetrics::class,
         'jwt'           => JwtAuthFilter::class,
         'permission'    => PermissionFilter::class,
+        'role'          => \App\Filters\RoleFilter::class,
+        'auth'          => \App\Filters\AuthFilter::class,
     ];
 
     /**
@@ -55,13 +57,10 @@ class Filters extends BaseFilters
      */
     public array $required = [
         'before' => [
-            'forcehttps', // Force Global Secure Requests
-            'pagecache',  // Web Page Caching
+            'forcehttps',
         ],
         'after' => [
-            'pagecache',   // Web Page Caching
-            'performance', // Performance Metrics
-            'toolbar',     // Debug Toolbar
+            'performance',
         ],
     ];
 

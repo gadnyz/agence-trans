@@ -1,4 +1,4 @@
-name: Deploy Kashala Trans to LWS subdomain
+name: Deploy KishalaTrans to LWS subdomain
 
 on:
   push:
@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      REMOTE_SUBDOMAIN_DIR: ./kashala-trans.ashurahouse.com/
+      # Dossier FTP LWS du sous-domaine (relatif à la racine FTP du compte)
+      REMOTE_SUBDOMAIN_DIR: ./kishala-trans.cadriciel.com/
 
     steps:
       - name: Checkout repository
@@ -30,17 +31,24 @@ jobs:
 
       - name: Prepare deployment package
         run: |
+          set -euo pipefail
+
           rm -rf .deploy
           mkdir -p .deploy/public .deploy/home
 
+          # Assets statiques (css, img, robots.txt, …)
           rsync -a public/ .deploy/public/
-          sed -i "s#require FCPATH . '../app/Config/Paths.php';#require FCPATH . 'home/app/Config/Paths.php';#" .deploy/public/index.php
+
+          # Front controller et réécritures LWS (index.php uniquement, jamais app.php)
+          cp deploy/lws/public/index.php .deploy/public/index.php
+          cp deploy/lws/public/.htaccess .deploy/public/.htaccess
 
           rsync -a app/ .deploy/home/app/
           rsync -a vendor/ .deploy/home/vendor/
           rsync -a writable/ .deploy/home/writable/
 
           cp composer.json composer.lock spark preload.php .deploy/home/
+          cp deploy/lws/home/.htaccess .deploy/home/.htaccess
 
           mkdir -p .deploy/home/writable/cache \
             .deploy/home/writable/debugbar \
@@ -48,11 +56,15 @@ jobs:
             .deploy/home/writable/session \
             .deploy/home/writable/uploads
 
+          # Ne pas écraser le contenu runtime déjà présent côté serveur
           find .deploy/home/writable/cache -type f ! -name index.html -delete
           find .deploy/home/writable/debugbar -type f ! -name index.html -delete
           find .deploy/home/writable/logs -type f ! -name index.html -delete
           find .deploy/home/writable/session -type f ! -name index.html -delete
           find .deploy/home/writable/uploads -type f ! -name index.html -delete
+
+          # Sécurité : ne jamais déployer un front controller alternatif
+          rm -f .deploy/public/app.php
 
       - name: Deploy subdomain web root
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -69,6 +81,7 @@ jobs:
             **/.git*
             **/.github/**
             **/.env
+            **/home/**
 
       - name: Deploy subdomain backend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5

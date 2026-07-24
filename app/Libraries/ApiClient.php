@@ -5,6 +5,11 @@ namespace App\Libraries;
 use CodeIgniter\HTTP\CURLRequest;
 use Config\Services;
 
+/**
+ * @deprecated V1 monolithique : ne plus utiliser de loopback HTTP vers /api.
+ * Les controllers Web doivent appeler les modèles / services directement.
+ * Conservé temporairement pour scripts Temp/ uniquement.
+ */
 class ApiClient
 {
     protected CURLRequest $client;
@@ -12,14 +17,12 @@ class ApiClient
 
     public function __construct()
     {
-        // Use the base URL of the application, appending /api if needed
-        // Assuming API routes are prefixed with /api
         $this->baseUrl = rtrim(base_url(), '/') . '/api/';
 
         $options = [
             'baseURI' => $this->baseUrl,
             'timeout' => 10,
-            'http_errors' => false, // Do not throw exception on 4xx/5xx errors
+            'http_errors' => false,
             'headers' => [
                 'Accept' => 'application/json',
             ],
@@ -28,13 +31,6 @@ class ApiClient
         $this->client = Services::curlrequest($options, null, null, false);
     }
 
-    /**
-     * Performs a GET request
-     * 
-     * @param string $uri The URI to append to the base URI
-     * @param array $query Query parameters
-     * @return array|null Returns decoded JSON or null on failure
-     */
     public function get(string $uri, array $query = []): ?array
     {
         $options = [];
@@ -45,13 +41,6 @@ class ApiClient
         return $this->request('GET', $uri, $options);
     }
 
-    /**
-     * Performs a POST request
-     *
-     * @param string $uri
-     * @param array $json Data to be sent as JSON
-     * @return array|null
-     */
     public function post(string $uri, array $json = []): ?array
     {
         $options = [];
@@ -62,13 +51,6 @@ class ApiClient
         return $this->request('POST', $uri, $options);
     }
 
-    /**
-     * Performs a PUT request
-     *
-     * @param string $uri
-     * @param array $json
-     * @return array|null
-     */
     public function put(string $uri, array $json = []): ?array
     {
         $options = [];
@@ -79,22 +61,15 @@ class ApiClient
         return $this->request('PUT', $uri, $options);
     }
 
-    /**
-     * Performs a DELETE request
-     *
-     * @param string $uri
-     * @return array|null
-     */
     public function delete(string $uri): ?array
     {
         return $this->request('DELETE', $uri);
     }
 
-    /**
-     * Core request method (Interceptor)
-     */
     protected function request(string $method, string $uri, array $options = []): ?array
     {
+        log_message('warning', '[ApiClient] Deprecated loopback call to ' . $uri);
+
         try {
             $this->attachAuthorization($uri);
             $response = $this->client->request($method, $uri, $options);
@@ -105,15 +80,21 @@ class ApiClient
             }
 
             $body = $response->getBody();
-            log_message('error', 'API Response for ' . $uri . ': ' . $body);
+<<<<<<< HEAD
+
+=======
             
+>>>>>>> a08a4bcda4f048d683fa9b341e24c30a9ddf6ec6
             if (empty($body)) {
                 return null;
             }
-            
+
             return json_decode($body, true);
+<<<<<<< HEAD
         } catch (\Exception $e) {
-            // Log the error
+=======
+        } catch (\Throwable $e) {
+>>>>>>> a08a4bcda4f048d683fa9b341e24c30a9ddf6ec6
             log_message('error', '[ApiClient] Request failed: ' . $e->getMessage());
             return null;
         }
@@ -168,7 +149,7 @@ class ApiClient
             }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             log_message('error', '[ApiClient] Refresh failed: ' . $e->getMessage());
 
             return false;

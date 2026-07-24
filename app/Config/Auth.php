@@ -8,8 +8,8 @@ class Auth extends BaseConfig
 {
     public string $jwtSecret = '';
     public string $jwtAlgorithm = 'HS256';
-    public string $jwtIssuer = 'kashala-trans-api';
-    public string $jwtAudience = 'kashala-trans-client';
+    public string $jwtIssuer = 'kishalatrans-api';
+    public string $jwtAudience = 'kishalatrans-client';
     public int $accessTokenTtl = 900;
     public int $refreshTokenTtl = 604800;
     public string $permissionsFile = APPPATH . 'Config/permissions.json';

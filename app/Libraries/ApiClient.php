@@ -80,13 +80,21 @@ class ApiClient
             }
 
             $body = $response->getBody();
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> a08a4bcda4f048d683fa9b341e24c30a9ddf6ec6
             if (empty($body)) {
                 return null;
             }
 
             return json_decode($body, true);
+<<<<<<< HEAD
         } catch (\Exception $e) {
+=======
+        } catch (\Throwable $e) {
+>>>>>>> a08a4bcda4f048d683fa9b341e24c30a9ddf6ec6
             log_message('error', '[ApiClient] Request failed: ' . $e->getMessage());
             return null;
         }
@@ -141,7 +149,7 @@ class ApiClient
             }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             log_message('error', '[ApiClient] Refresh failed: ' . $e->getMessage());
 
             return false;

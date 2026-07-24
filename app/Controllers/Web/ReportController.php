@@ -62,39 +62,21 @@ class ReportController extends BaseWebController
     {
         $user = $this->requireAuthApi();
 
-        if ($user instanceof \CodeIgniter\HTTP\ResponseInterface) {
-            return $user;
+        $user = $this->currentWebUser();
+
+        if ($user === null) {
+            session()->destroy();
+
+            return redirect()->to('/')->with('error', 'Session expirée, veuillez vous reconnecter.');
         }
 
         $permissions = $user['permissions'] ?? [];
+
         if (! in_array('*', $permissions, true) && ! in_array('reports.read', $permissions, true)) {
             return redirect()->to($this->roleHomePath())->with('error', 'Accès aux analyses non autorisé.');
         }
 
-        $userRole = $this->userRole();
-        $layout = match($userRole) {
-            'super_admin' => 'web/layouts/super_admin',
-            'admin'       => 'web/layouts/admin',
-            default       => 'web/layouts/super_admin',
-        };
-
-        $filters = $this->filters();
-        $analyseActionUrl = base_url($userRole === 'super_admin' ? 'super-admin/analyse' : 'admin/analyse');
-
-        return view('web/super_admin/analyse', [
-            'layout'           => $layout,
-            'title'            => 'Analyse',
-            'pageTitle'        => 'Analyse',
-            'user'             => $user,
-            'filters'          => $filters,
-            'options'          => $this->filterOptions(),
-            'analyseActionUrl' => $analyseActionUrl,
-            'summary'          => $this->summary($filters),
-            'routesReport'     => $this->routesReport($filters),
-            'driversReport'    => $this->driversReport($filters),
-            'busesReport'      => $this->busesReport($filters),
-            'demandByWeekday'  => $this->demandByWeekday($filters),
-        ]);
+        return ['data' => $user];
     }
 
     /**

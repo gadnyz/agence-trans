@@ -85,7 +85,8 @@ $routes->group('', ['namespace' => 'App\Controllers\Web', 'filter' => 'auth'], s
 });
 
 // =============================================================================
-// 3. ROUTES API (Backend JSON — Protégées par JWT et Permissions)
+// 3. ROUTES JSON INTERNES (UI monolithique — session PHP OU JWT Bearer)
+//     Pas une API publique externe : endpoints JSON consommés par les vues CI.
 // =============================================================================
 $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($routes) {
 
@@ -115,8 +116,12 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
         $routes->put('reservations/(:num)', 'ReservationController::update/$1', ['filter' => 'permission:reservations.manage']);
         $routes->delete('reservations/(:num)', 'ReservationController::delete/$1', ['filter' => 'permission:reservations.manage']);
         $routes->post('reservations/(:num)/cancel', 'ReservationController::cancel/$1', ['filter' => 'permission:reservations.manage']);
+        $routes->post('reservations/(:num)/annuler', 'ReservationController::cancel/$1', ['filter' => 'permission:reservations.manage']);
         $routes->post('reservations/(:num)/payment', 'ReservationController::addPayment/$1', ['filter' => 'permission:reservations.manage,payments.manage']);
         $routes->get('reservations/statuts', 'ReservationController::statutsList', ['filter' => 'permission:reservations.manage']);
+
+        // --- Paiements (guichet) ---
+        $routes->get('paiements', 'PaymentController::list', ['filter' => 'permission:payments.manage,reservations.manage']);
 
         // --- NOUVEAU : Clients (Guichetier) ---
         $routes->get('clients',  'ClientController::index',  ['filter' => 'permission:clients.manage,reservations.manage']);

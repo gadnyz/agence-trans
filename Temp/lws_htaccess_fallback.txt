@@ -1,0 +1,23 @@
+# LWS — document root (kishala-trans.cadriciel.com)
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+	Options +FollowSymlinks
+	RewriteEngine On
+
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteCond %{REQUEST_URI} (.+)/$
+	RewriteRule ^ %1 [L,R=301]
+
+	RewriteCond %{HTTP:Authorization} .
+	RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+
+# Evite index.php/$1 (HTTP 500 sur LWS) tout en gardant REQUEST_URI pour CI4
+FallbackResource /index.php
+
+<IfModule !mod_rewrite.c>
+	ErrorDocument 404 /index.php
+</IfModule>
+
+ServerSignature Off

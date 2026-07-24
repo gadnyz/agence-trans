@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= esc($title ?? 'Kashala Trans Management') ?></title>
+    <title><?= esc($title ?? 'KishalaTrans') ?></title>
     <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('img/favicon-32x32.png') ?>">
     <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('img/favicon-16x16.png') ?>">
     <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('img/apple-icon-180x180.png') ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preload" href="<?= base_url('fonts/material-symbols-outlined.ttf') ?>" as="font" type="font/ttf" crossorigin>
+    <link rel="stylesheet" href="<?= base_url('css/material-symbols.css') ?>">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script id="tailwind-config">
         tailwind.config = {
@@ -109,7 +111,6 @@
             }
         };
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= base_url('css/design-system.css') ?>">
     <?= $this->renderSection('styles') ?>
 </head>
@@ -137,11 +138,11 @@
                     <span class="material-symbols-outlined text-[22px]">menu</span>
                 </button>
 
-                <a class="flex items-center gap-sm min-w-0" href="<?= base_url('reservations') ?>" aria-label="Accueil Kashala Trans">
+                <a class="flex items-center gap-sm min-w-0" href="<?= base_url('reservations') ?>" aria-label="Accueil KishalaTrans">
                     <span class="hidden lg:grid h-8 w-8 place-items-center rounded-lg bg-primary-container text-primary">
                         <span class="material-symbols-outlined text-[20px]" aria-hidden="true">directions_bus</span>
                     </span>
-                    <span class="font-h2 text-h2 font-bold text-on-surface truncate">KASHALA Trans</span>
+                    <span class="font-h2 text-h2 font-bold text-on-surface truncate">KishalaTrans</span>
                 </a>
 
                 <nav class="hidden md:flex items-center ml-lg gap-xs h-[48px]" aria-label="Navigation principale">
@@ -198,7 +199,7 @@
                     <span class="material-symbols-outlined text-[22px]" aria-hidden="true">directions_bus</span>
                 </span>
                 <div class="min-w-0">
-                    <h3 class="font-h2 text-h2 font-black text-on-surface truncate">KASHALA Trans</h3>
+                    <h3 class="font-h2 text-h2 font-black text-on-surface truncate">KishalaTrans</h3>
                     <p class="text-body-sm text-on-surface-variant">Agence de transport</p>
                 </div>
             </div>

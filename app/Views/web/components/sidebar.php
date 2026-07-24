@@ -71,7 +71,7 @@ $links    = $roleMenu['links'];
             <span class="material-symbols-outlined text-on-primary text-[22px]">directions_bus</span>
         </div>
         <div class="[.collapsed_&]:opacity-0 [.collapsed_&]:w-0 transition-all duration-200 ease-in-out whitespace-nowrap overflow-hidden">
-            <h1 class="font-bold text-title-md text-on-surface leading-tight">Kashala Trans</h1>
+            <h1 class="font-bold text-title-md text-on-surface leading-tight">KishalaTrans</h1>
             <?php if (!empty($roleMenu['label'])): ?>
                 <p class="text-xs text-outline font-medium"><?= esc($roleMenu['label']) ?></p>
             <?php endif; ?>

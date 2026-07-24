@@ -1,0 +1,14 @@
+HTTP/1.1 406 Not Acceptable
+Date: Mon, 20 Jul 2026 09:05:00 GMT
+Content-Type: text/html
+Content-Length: 1523
+Connection: keep-alive
+Accept-Ranges: bytes
+X-Orig-Rid: 087a32f76e2fb5890ebd831d7f1aa57f
+X-Anubis-Action: 
+X-Anubis-Rule: 
+X-Anubis-Status: 
+Edge-Cache-Engine-Mode: ACTIVE
+X-Cache-Status: MISS
+Alt-Svc: h3=":443"
+

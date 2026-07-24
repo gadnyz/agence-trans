@@ -1,4 +1,4 @@
-name: Deploy Kashala Trans to LWS subdomain
+name: Deploy KishalaTrans to LWS subdomain
 
 on:
   push:
@@ -36,26 +36,19 @@ jobs:
           rm -rf .deploy
           mkdir -p .deploy/public .deploy/home
 
-          # Document root du sous-domaine = contenu de public/
+          # Assets statiques (css, img, robots.txt, …)
           rsync -a public/ .deploy/public/
 
-          # Sur LWS, le code applicatif est hors document root (dossier home/)
-          sed -i "s#require FCPATH . '../app/Config/Paths.php';#require FCPATH . 'home/app/Config/Paths.php';#" .deploy/public/index.php
+          # Front controller et réécritures LWS (index.php uniquement, jamais app.php)
+          cp deploy/lws/public/index.php .deploy/public/index.php
+          cp deploy/lws/public/.htaccess .deploy/public/.htaccess
 
           rsync -a app/ .deploy/home/app/
           rsync -a vendor/ .deploy/home/vendor/
           rsync -a writable/ .deploy/home/writable/
 
           cp composer.json composer.lock spark preload.php .deploy/home/
-
-          # Interdit l'accès HTTP direct au dossier home/ (si exposé)
-          printf '%s\n' \
-            '<IfModule mod_authz_core.c>' \
-            '  Require all denied' \
-            '</IfModule>' \
-            '<IfModule !mod_authz_core.c>' \
-            '  Deny from all' \
-            '</IfModule>' > .deploy/home/.htaccess
+          cp deploy/lws/home/.htaccess .deploy/home/.htaccess
 
           mkdir -p .deploy/home/writable/cache \
             .deploy/home/writable/debugbar \
@@ -69,6 +62,9 @@ jobs:
           find .deploy/home/writable/logs -type f ! -name index.html -delete
           find .deploy/home/writable/session -type f ! -name index.html -delete
           find .deploy/home/writable/uploads -type f ! -name index.html -delete
+
+          # Sécurité : ne jamais déployer un front controller alternatif
+          rm -f .deploy/public/app.php
 
       - name: Deploy subdomain web root
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5

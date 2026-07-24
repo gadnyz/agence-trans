@@ -189,7 +189,7 @@ $programmes  = $programmes ?? [];
                         <?= esc($initials) ?>
                     </div>
                     <h4 class="text-title-md font-bold text-on-surface"><?= esc($conducteur['prenom'] . ' ' . $conducteur['nom'] . ' ' . ($conducteur['postnom'] ?? '')) ?></h4>
-                    <p class="text-body-sm text-outline font-medium mt-0.5">Chauffeur Kashala Trans</p>
+                    <p class="text-body-sm text-outline font-medium mt-0.5">Chauffeur KishalaTrans</p>
                 </div>
                 
                 <div class="space-y-sm text-body-sm pt-2">
@@ -244,8 +244,9 @@ const TODAY     = '<?= $todayIso ?>';
 const ID_CONDUCTEUR = <?= json_encode($conducteur ? (int)$conducteur['id_conducteur'] : null) ?>;
 
 async function apiFetch(url, options = {}) {
-    const headers = { Accept: 'application/json', Authorization: `Bearer ${API_TOKEN}`, ...(options.headers || {}) };
-    return fetch(url, { ...options, headers });
+    const headers = { Accept: 'application/json', ...(options.headers || {}) };
+    if (API_TOKEN) headers.Authorization = `Bearer ${API_TOKEN}`;
+    return fetch(url, { ...options, credentials: 'same-origin', headers });
 }
 
 function esc(str) {

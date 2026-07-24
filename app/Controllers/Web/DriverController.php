@@ -100,7 +100,7 @@ class DriverController extends BaseWebController
 
         $data = [
             'layout'       => $layout,
-            'title'        => 'Kashala Trans — Mon Planning',
+            'title'        => 'KishalaTrans — Mon Planning',
             'pageTitle'    => 'Mon Planning',
             'user'         => $user,
             'conducteur'   => $conducteur,

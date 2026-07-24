@@ -9,13 +9,13 @@
                 <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white mx-auto *mb-3 shadow-sm">
                     <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">directions_bus</span>
                 </div>
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Kashala Trans</h1>
+                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">KishalaTrans</h1>
             </div>
             <p class="text-sm font-medium text-gray-500 mt-1">Connexion</p>
         </div>
 
         <div class="bg-white border border-gray-200 rounded-2xl p-8 w-full shadow-sm transition-all">
-            <?= form_open('login', ['class' => 'space-y-5']) ?>
+            <form action="/login" method="post" class="space-y-5">
                 
                 <div class="space-y-1.5">
                     <label class="block text-sm font-medium text-gray-700" for="username">
@@ -60,7 +60,7 @@
                     <span class="material-symbols-outlined text-[18px]">login</span>
                 </button>
 
-            <?= form_close() ?>
+            </form>
         </div>
     </div>
 </div>

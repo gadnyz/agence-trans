@@ -320,7 +320,7 @@
                         <input
                             id="email"
                             type="email"
-                            placeholder="ex: agent@kashala.cd"
+                            placeholder="ex: agent@kishalatrans.cd"
                             class="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm shadow-sm focus:border-blue-500 outline-none"
                         >
                     </div>
@@ -410,8 +410,9 @@ const BASE_URL  = '<?= base_url() ?>';
 
 // ── Helpers fetch ──────────────────────────────────────────────────────────
 async function apiFetch(url, options = {}) {
-    const headers = { Accept: 'application/json', Authorization: `Bearer ${API_TOKEN}`, ...(options.headers || {}) };
-    const response = await fetch(url, { ...options, headers });
+    const headers = { Accept: 'application/json', ...(options.headers || {}) };
+    if (API_TOKEN) headers.Authorization = `Bearer ${API_TOKEN}`;
+    const response = await fetch(url, { ...options, credentials: 'same-origin', headers });
     return response;
 }
 

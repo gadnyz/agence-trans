@@ -45,9 +45,61 @@ class PlanningController extends BaseWebController
      */
     private function items(string $resource, array $query = []): array
     {
-        $response = $this->api->get($resource, $query);
+        $resources = [
+            'bus' => [
+                'table' => 'bus',
+                'orderBy' => 'numero_plaque',
+            ],
+            'conducteurs' => [
+                'table' => 'conducteur',
+                'orderBy' => 'nom',
+            ],
+            'trajets' => [
+                'table' => 'trajet',
+                'orderBy' => 'id_trajet',
+            ],
+            'lieux' => [
+                'table' => 'lieu',
+                'orderBy' => 'nom_lieu',
+            ],
+            'horaires' => [
+                'table' => 'horaire',
+                'orderBy' => 'heure_depart',
+            ],
+        ];
 
-        return $response['data']['items'] ?? [];
+        $config = $resources[$resource] ?? null;
+
+        if ($config === null) {
+            return [];
+        }
+
+        $perPage = max(1, min(200, (int) ($query['per_page'] ?? 100)));
+        $sort = (string) ($query['sort'] ?? $config['orderBy']);
+        $allowedSorts = array_merge([$config['orderBy']], $this->listColumns($config['table']));
+
+        if (! in_array($sort, $allowedSorts, true)) {
+            $sort = $config['orderBy'];
+        }
+
+        return \Config\Database::connect()
+            ->table($config['table'])
+            ->where('deleted_at', null)
+            ->orderBy($sort, 'asc')
+            ->limit($perPage)
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function listColumns(string $table): array
+    {
+        return array_map(
+            static fn (object $field): string => (string) $field->name,
+            \Config\Database::connect()->getFieldData($table)
+        );
     }
 
     /**

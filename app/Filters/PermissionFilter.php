@@ -23,7 +23,7 @@ class PermissionFilter implements FilterInterface
                 ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED)
                 ->setJSON([
                     'success' => false,
-                    'message' => 'Token JWT requis.',
+                    'message' => 'Authentification requise.',
                     'data' => null,
                     'errors' => null,
                 ]);

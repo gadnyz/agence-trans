@@ -164,7 +164,7 @@ class DashboardController extends BaseWebController
 
         $data = [
             'layout'     => 'web/layouts/super_admin',
-            'title'      => 'Kashala Trans — Tableau de bord Super Admin',
+            'title'      => 'KishalaTrans — Tableau de bord Super Admin',
             'pageTitle'  => 'Tableau de bord',
             'user'       => $user,
             'filters'    => $filters,
@@ -238,7 +238,7 @@ class DashboardController extends BaseWebController
 
         $data = [
             'layout'     => 'web/layouts/admin',
-            'title'      => 'Kashala Trans — Tableau de bord Admin',
+            'title'      => 'KishalaTrans — Tableau de bord Admin',
             'pageTitle'  => 'Tableau de bord',
             'user'       => $user,
             'filters'    => $filters,

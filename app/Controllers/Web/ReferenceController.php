@@ -26,7 +26,7 @@ class ReferenceController extends BaseWebController
 
         return [
             'layout'    => $layout,
-            'title'     => 'Kashala Trans — ' . $pageTitle,
+            'title'     => 'KishalaTrans — ' . $pageTitle,
             'pageTitle' => $pageTitle,
             'user'      => $user,
             'api_token' => session()->get('access_token'),

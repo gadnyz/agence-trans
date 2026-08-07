@@ -62,12 +62,8 @@ class ReportController extends BaseWebController
     {
         $user = $this->requireAuthApi();
 
-        $user = $this->currentWebUser();
-
-        if ($user === null) {
-            session()->destroy();
-
-            return redirect()->to('/')->with('error', 'Session expirée, veuillez vous reconnecter.');
+        if ($user instanceof \CodeIgniter\HTTP\ResponseInterface) {
+            return $user;
         }
 
         $permissions = $user['permissions'] ?? [];
@@ -76,7 +72,41 @@ class ReportController extends BaseWebController
             return redirect()->to($this->roleHomePath())->with('error', 'Accès aux analyses non autorisé.');
         }
 
-        return ['data' => $user];
+        $filters = $this->filters();
+
+        $userRole = $this->userRole();
+        $layout = match($userRole) {
+            'super_admin' => 'web/layouts/super_admin',
+            'admin'       => 'web/layouts/admin',
+            default       => 'web/layouts/super_admin',
+        };
+
+        $viewName = $userRole === 'admin' ? 'web/admin/analyse' : 'web/super_admin/analyse';
+
+        return view($viewName, [
+            'layout' => $layout,
+            'title' => 'Analyse & Statistiques',
+            'pageTitle' => 'Analyse',
+            'reportActionUrl' => base_url($userRole === 'super_admin' ? 'super-admin/analyse' : 'admin/analyse'),
+            'user' => $user,
+            'filters' => $filters,
+            'options' => $this->filterOptions(),
+            'summary' => $this->summary($filters),
+            'dailyRevenue' => $this->dailyRevenue($filters),
+            'paymentModes' => $this->paymentModes($filters),
+            'topClients' => $this->topClients($filters),
+            'routesReport' => $this->routesReport($filters),
+            'programmesReport' => $this->programmesReport($filters),
+            'driversReport' => $this->driversReport($filters),
+            'busesReport' => $this->busesReport($filters),
+            'paymentPivotByDay' => $this->paymentPivotByDay($filters),
+            'paymentPivotByRoute' => $this->paymentPivotByRoute($filters),
+            'reservationPivotByDriverRoute' => $this->reservationPivotByDriverRoute($filters),
+            'reservationPivotByBusRoute' => $this->reservationPivotByBusRoute($filters),
+            'incompletePayments' => $this->incompletePayments($filters),
+            'fleetUtilization' => $this->fleetUtilization($filters),
+            'demandByWeekday' => $this->demandByWeekday($filters),
+        ]);
     }
 
     /**

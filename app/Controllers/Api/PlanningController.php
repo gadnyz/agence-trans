@@ -153,8 +153,6 @@ class PlanningController extends BaseApiController
             return $this->failure('Aucune date selectionnee dans la plage.', ResponseInterface::HTTP_BAD_REQUEST);
         }
 
-        // V1 : les doubles affectations bus/conducteur sont autorisées (pas de contrôle de conflit).
-
         $placesDisponibles = (int) ($payload['places_disponibles'] ?? $bus['nombre_places'] ?? 0);
         $statut = trim((string) ($payload['statut'] ?? 'Planifie'));
         $statut = $statut !== '' ? $statut : 'Planifie';
@@ -247,8 +245,6 @@ class PlanningController extends BaseApiController
             return $this->failure('Reference introuvable.', ResponseInterface::HTTP_BAD_REQUEST, $missing);
         }
 
-        // V1 : les doubles affectations bus/conducteur sont autorisées (pas de contrôle de conflit).
-
         $placesDisponibles = (int) ($payload['places_disponibles'] ?? $bus['nombre_places'] ?? 0);
         $statut = trim((string) ($payload['statut'] ?? 'Planifie'));
 
@@ -324,11 +320,6 @@ class PlanningController extends BaseApiController
             ->where('t.deleted_at', null);
     }
 
-    /**
-     * @param array<string, mixed> $row
-     *
-     * @return array<string, mixed>
-     */
     private function calendarEvent(array $row): array
     {
         $date = (string) $row['date_programme'];
@@ -379,11 +370,6 @@ class PlanningController extends BaseApiController
         };
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     *
-     * @return array<string, string>
-     */
     private function validatePlanningPayload(array $payload): array
     {
         $validation = service('validation');
@@ -405,11 +391,6 @@ class PlanningController extends BaseApiController
         return $validation->getErrors();
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     *
-     * @return array<string, string>
-     */
     private function validateProgrammePayload(array $payload): array
     {
         $validation = service('validation');
@@ -430,9 +411,6 @@ class PlanningController extends BaseApiController
         return $validation->getErrors();
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function payload(): array
     {
         try {
@@ -448,9 +426,6 @@ class PlanningController extends BaseApiController
         return $this->request->getPost();
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
     private function findActiveRow(string $table, string $primaryKey, int $id): ?array
     {
         $row = db_connect()
@@ -463,11 +438,6 @@ class PlanningController extends BaseApiController
         return is_array($row) ? $row : null;
     }
 
-    /**
-     * @param array<int|string, mixed> $joursSemaine
-     *
-     * @return list<string>
-     */
     private function selectedDates(DateTimeImmutable $dateDebut, DateTimeImmutable $dateFin, array $joursSemaine): array
     {
         $selectedDays = array_values(array_filter(
@@ -495,36 +465,34 @@ class PlanningController extends BaseApiController
         return new DateTimeImmutable(date('Y-m-d'));
     }
 
-    public function getAvailableTrips()
+    public function getAvailableTrips(): ResponseInterface
     {
         $id_trajet = $this->request->getGet('id_trajet');
-        $date = $this->request->getGet('date'); // Format Y-m-d
+        $date = $this->request->getGet('date');
 
         $programmeModel = new \App\Models\ProgrammeModel();
 
-        // On cherche les programmes pour ce trajet, cette date, actifs et avec des places
         $trips = $programmeModel->select('programme.*, bus.numero_plaque, bus.nombre_places')
             ->join('bus', 'bus.id_bus = programme.id_bus')
             ->where('programme.id_trajet', $id_trajet)
-            ->like('programme.date_programme', $date, 'after') // Filtre sur le jour même
+            ->where('programme.deleted_at', null)
+            ->where('bus.deleted_at', null)
+            ->like('programme.date_programme', $date, 'after')
             ->where('programme.places_disponibles >', 0)
-            ->where('programme.statut', 'planifie')
+            ->where('LOWER(programme.statut)', 'planifie')
             ->findAll();
 
-        return $this->respond($trips);
+        return $this->success($trips);
     }
 
-    // Liste les programmes de voyage pour le modal du Réceptionniste
     public function search(): ResponseInterface
     {
         $dateDebut = trim((string) $this->request->getGet('date_debut'));
         $search    = trim((string) $this->request->getGet('search'));
 
-        // On utilise ton programmeBuilder() existant qui est parfait !
         $builder = $this->programmeBuilder()
             ->orderBy('h.heure_depart', 'ASC');
 
-        // Filtrer par date (supporte plage avec date_fin)
         $dateFin = trim((string) $this->request->getGet('date_fin'));
         if ($dateDebut !== '' && $dateFin !== '') {
             $builder->where('p.date_programme >=', $dateDebut);
@@ -533,17 +501,15 @@ class PlanningController extends BaseApiController
             $builder->where('p.date_programme', $dateDebut);
         }
 
-        // Filtrer par la barre de recherche (ex: taper le nom d'une ville)
         if ($search !== '') {
             $builder->groupStart()
-                ->like('td.nom_lieu', $search) // td est l'alias de lieu_depart dans ton builder
-                ->orLike('ta.nom_lieu', $search) // ta est l'alias de lieu_arrivee dans ton builder
+                ->like('td.nom_lieu', $search)
+                ->orLike('ta.nom_lieu', $search)
                 ->groupEnd();
         }
 
         $items = $builder->get()->getResultArray();
 
-        // On ajoute la gestion des arrêts pour chaque programme
         foreach ($items as &$item) {
             $arrets = db_connect()->table('arret a')
                 ->select('a.id_lieu, l.nom_lieu')

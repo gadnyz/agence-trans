@@ -73,7 +73,8 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: ${{ secrets.FTP_PORT }}
-          protocol: ftp
+          protocol: ftps
+          security: loose
           local-dir: ./.deploy/public/
           server-dir: ${{ env.REMOTE_SUBDOMAIN_DIR }}
           state-name: .ftp-deploy-sync-state-public.json
@@ -90,7 +91,8 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: ${{ secrets.FTP_PORT }}
-          protocol: ftp
+          protocol: ftps
+          security: loose
           local-dir: ./.deploy/home/
           server-dir: ${{ env.REMOTE_SUBDOMAIN_DIR }}home/
           state-name: .ftp-deploy-sync-state-home.json

@@ -10,24 +10,10 @@ class AuthController extends BaseWebController
     public function index()
     {
         if (session()->get('access_token')) {
-            return redirect()->to('/reservations');
+            return redirect()->to($this->roleHomePath());
         }
 
-        // 2. Rediriger selon le rôle (Si déjà connecté, on l'envoie sur sa page d'accueil)
-        $role = $user['role']['code'] ?? ''; // Accès au code selon la structure JWT
-
-        switch ($role) {
-            case 'super_admin':
-                return redirect()->to('/super-admin/dashboard');
-            case 'admin':
-                return redirect()->to('/admin/rapports');
-            case 'recept':
-                return redirect()->to('/recept/reservations');
-            case 'driver':
-                return redirect()->to('/driver/planning');
-            default:
-                return redirect()->to('/logout')->with('error', 'Rôle inconnu.');
-        }
+        return view('web/auth/connexion');
     }
 
     public function login()

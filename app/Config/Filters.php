@@ -57,7 +57,7 @@ class Filters extends BaseFilters
      */
     public array $required = [
         'before' => [
-            'forcehttps',
+            // 'forcehttps',
         ],
         'after' => [
             'performance',

@@ -19,18 +19,13 @@ abstract class BaseWebController extends Controller
 
     protected $helpers = ['url', 'form'];
 
-<<<<<<< HEAD
-=======
     /**
      * Constructor.
      */
->>>>>>> a08a4bcda4f048d683fa9b341e24c30a9ddf6ec6
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
         parent::initController($request, $response, $logger);
         \Config\Services::session();
-<<<<<<< HEAD
-=======
     }
 
     /**
@@ -41,7 +36,6 @@ abstract class BaseWebController extends Controller
         $user = session()->get('user');
 
         return is_array($user) ? $user : null;
->>>>>>> a08a4bcda4f048d683fa9b341e24c30a9ddf6ec6
     }
 
     // -------------------------------------------------------------------------
